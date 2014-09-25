@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/1788/robotino-ros-pkg/trunk/robotino/robotino_local_move/src
+END
+RobotinoLocalMoveClient.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/!svn/ver/1293/robotino-ros-pkg/trunk/robotino/robotino_local_move/src/RobotinoLocalMoveClient.cpp
+END
+robotino_local_move_client_node.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/!svn/ver/1266/robotino-ros-pkg/trunk/robotino/robotino_local_move/src/robotino_local_move_client_node.cpp
+END
+RobotinoLocalMoveServer.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/!svn/ver/1293/robotino-ros-pkg/trunk/robotino/robotino_local_move/src/RobotinoLocalMoveServer.cpp
+END
+robotino_local_move_server_node.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/!svn/ver/1257/robotino-ros-pkg/trunk/robotino/robotino_local_move/src/robotino_local_move_server_node.cpp
+END

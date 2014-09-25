@@ -1,0 +1,65 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(robotino_motion)
+
+find_package(catkin REQUIRED COMPONENTS
+	actionlib
+	actionlib_msgs
+	geometry_msgs
+	message_generation
+	nav_msgs
+	robotino_node
+	std_msgs
+	tf
+	)
+find_package(Boost REQUIRED COMPONENTS system)
+
+add_message_files(
+	FILES RobotState.msg
+	)
+
+add_action_files(
+	DIRECTORY action
+	FILES Motion.action
+	)
+
+generate_messages(
+	DEPENDENCIES
+	actionlib_msgs
+	std_msgs
+	)
+
+catkin_package(
+	CATKIN_DEPENDS 
+	message_runtime 
+	actionlib_msgs
+	)
+
+include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+
+add_executable(robotino_motion_server_node 
+	src/robotino_motion_server_node.cpp
+	src/RobotinoMotionServer.cpp
+	)
+
+target_link_libraries(robotino_motion_server_node
+	${catkin_LIBRARIES}
+	)
+
+#add_dependencies(
+#	robotino_motion_server_node
+#	${learning_actionlib_EXPORTED_TARGETS}
+#	)
+
+add_executable(robotino_motion_client_node 
+	src/robotino_motion_client_node.cpp
+	src/RobotinoMotionClient.cpp
+	)
+
+target_link_libraries(robotino_motion_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(
+	robotino_motion_client_node
+	${learning_actionlib_EXPORTED_TARGETS}
+	)

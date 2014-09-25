@@ -1,0 +1,6 @@
+<launch>
+	<arg name="hostname" default="192.168.0.121:12080"/>
+	<node name="robotino_vision_node" pkg="robotino_vision" type="robotino_vision_node" output="screen">
+	 	<param name="hostname" value="$(arg hostname)" />
+	</node>  
+</launch>
