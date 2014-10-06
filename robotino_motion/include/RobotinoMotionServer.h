@@ -1,8 +1,8 @@
 /*
  * RobotinoMotionServer.h
  *
- *  Created on: 13.12.2011
- *      Author: indorewala@servicerobotics.eu
+ *  Created on: 2014
+ *      Author: expertinos.unifei@gmail.com
  */
 
 #ifndef ROBOTINOMOTIONSERVER_H_
@@ -14,14 +14,12 @@
 #include <std_msgs/Bool.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point32.h>
+#include <sensor_msgs/LaserScan.h>
 
 #include "robotino_motion/MotionAction.h"
 #include "robotino_motion/MotionActionGoal.h"
 
 #define PI 3.14159
-#define VEL 0
-#define VEL_LIN 0.2 
-#define VEL_ANG 0.5
 #define sign(a) (((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
 
 typedef actionlib::SimpleActionServer<robotino_motion::MotionAction> Server;
@@ -65,6 +63,10 @@ private:
 
 	ros::Subscriber odometry_sub_;
 
+	ros::Subscriber scan_sub_;
+
+	ros::Subscriber bumper_sub_;
+
 	ros::Publisher cmd_vel_pub_;
 
 	Server server_;
@@ -81,6 +83,8 @@ private:
 	geometry_msgs::Twist cmd_vel_msg_;
 	nav_msgs::Odometry current_odom_msg_;
 	nav_msgs::Odometry start_odom_msgs_;
+	//sensor_msgs::LaserScan laser_scan_msg_;
+	std_msgs::Bool bumper_msg_;
 
 	double curr_x_, curr_y_, curr_phi_, prev_phi_;
 	double dist_moved_x_, dist_moved_y_, dist_rotated_;
@@ -100,7 +104,17 @@ private:
 
 	bool odom_set_;
 
+	bool ident_obstacle_;
+	bool obstacle_;
+	int numLaserScan_;
+	int IR_[9];
+
+	bool ident_contact_;
+	bool contact_;
+
 	void odomCallback( const nav_msgs::OdometryConstPtr& msg );
+	void scanCallback( const sensor_msgs::LaserScan& msg );
+	void bumperCallback( const std_msgs::Bool& msg );
 	void teleopActivatedCallback( const std_msgs::BoolConstPtr& msg );
 	void execute( const robotino_motion::MotionGoalConstPtr& goal );
 	void setCmdVel( double vx, double vy, double omega );

@@ -1,8 +1,8 @@
 /*
  * RobotinoMotionServer.cpp
  *
- *  Created on: 14.12.2011
- *      Author: indorewala@servicerobotics.eu
+ *  Created on: 2014
+ *      Author: expertinos.unifei@gmail.com
  */
 
 #include "RobotinoMotionServer.h"
@@ -30,6 +30,10 @@ RobotinoMotionServer::RobotinoMotionServer():
 {
 	odometry_sub_ = nh_.subscribe( "odom", 1,
 			&RobotinoMotionServer::odomCallback, this );
+	scan_sub_ = nh_.subscribe( "scan", 10,
+			&RobotinoMotionServer::scanCallback, this);
+	bumper_sub_ = nh_.subscribe( "bumper", 1,
+				&RobotinoMotionServer::bumperCallback, this);
 
 	cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1 );
 
@@ -40,6 +44,13 @@ RobotinoMotionServer::RobotinoMotionServer():
 	alignment_device_ = NONE;
 
 	readParameters( nh_ );
+
+	ident_obstacle_ = true;
+	obstacle_ = false;
+	numLaserScan_ = 0;
+
+	ident_contact_ = true;
+	contact_ = false;
 }
 
 RobotinoMotionServer::~RobotinoMotionServer()
@@ -85,6 +96,37 @@ void RobotinoMotionServer::odomCallback( const nav_msgs::OdometryConstPtr& msg )
 	dist_moved_y_ = dist_moved_y_ * cos( -start_phi_ ) + distance_moved_x_temp * sin( -start_phi_ );
 }
 
+void RobotinoMotionServer::scanCallback(const sensor_msgs::LaserScan& msg )
+{
+	obstacle_ = false;
+	if(ident_obstacle_ == true)
+		{
+			for(int j=0;j<9;j++)
+			{
+				IR_[j] = 0;
+			}
+			for(numLaserScan_ = 0; numLaserScan_ < 9; numLaserScan_++)
+			{
+				if(msg.ranges[numLaserScan_] < 0.59)
+				{
+					obstacle_ = true;
+					IR_[numLaserScan_] = 1;
+				}
+			}
+		}
+
+}
+
+void RobotinoMotionServer::bumperCallback(const std_msgs::Bool& msg )
+{
+	contact_ = false;
+	if(msg.data == true)
+	{
+		contact_ = true;
+	}
+
+}
+
 void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& goal )
 {
 	ros::Rate loop_rate( 10 );
@@ -117,7 +159,29 @@ void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& g
 			}
 		}
 
-		controlLoop();
+		if ((obstacle_ == true)||(contact_ == true))
+		{
+			if (obstacle_ == true)
+			{
+				for(int j=0;j<9;j++)
+				{
+					ROS_INFO("obstacle = true -- Sensor IR = %d, ", IR_[j]);
+				}
+				ROS_INFO("\n");
+			}
+			if (contact_ == true)
+			{
+				ROS_INFO("contact = true \n");
+			}
+
+			setCmdVel(0, 0, 0);
+			cmd_vel_pub_.publish(cmd_vel_msg_);
+		}
+
+		else
+		{
+			controlLoop();
+		}
 
 		if( state_ == FINISHED )
 		{
@@ -197,30 +261,49 @@ void RobotinoMotionServer::controlLoop()
 	double vel_x = 0; // linear velocity in x axis
 	double vel_y = 0; // linear velocity in y axis
 	double vel_phi = 0; // angular velocity in phi axis
-	double vel = 0;
+
+/*	double min_linear_vel;//=0.2;
+	double percentage;//=0.4;
+	double VEL;	
+	double VEL_TANG;//=0.3;
+	double linear_acc;//=0.1;
+	double max_linear_vel;//=0.8;
+
+	double angular_acc;//=0.1;
+	double min_angular_vel;//=0.5;	
+	double max_angular_vel;//=0.8;
+	double VEL_ANG;
+*/
+	double VEL;
+	double VEL_TANG = 0.3;
+	double VEL_ANG;
 	
 	switch (movement_type_)
 	{
 		case TRANSLATIONAL:
 			if (dist_driven_x < forward_goal_x_abs || dist_driven_y < forward_goal_y_abs)
-			{				
-				ROS_DEBUG("Moved (x, y) = (%f, %f)", dist_driven_x, dist_driven_y);
-
-				if (dist_driven >= 0 && dist_driven <= percentage_ * dist_res)
+			{	
+				
+				if((dist_driven >= 0) && (dist_driven <= percentage_ * dist_res))
 				{
-					vel = sqrt(pow(min_linear_vel_, 2) + 2 * linear_acc_ * dist_driven);
-				}				
-				else if (dist_driven > percentage_ * dist_res && dist_driven <= (1 - percentage_) * dist_res)
+					VEL = sqrt(pow(min_linear_vel_, 2) + 2 * linear_acc_ * dist_driven);
+				
+				}
+				else if((dist_driven > percentage_ * dist_res) && (dist_driven <= (1 - percentage_)*dist_res))
 				{
-					vel = max_linear_vel_;
+					VEL = sqrt(pow(min_linear_vel_, 2) + 2 * linear_acc_ * percentage_ * dist_res);
 				}
 				else
 				{
-					vel = sqrt(pow(min_linear_vel_, 2) - 2 * linear_acc_ * (dist_driven - (1 - percentage_) * dist_res));
+					VEL = sqrt(pow(sqrt(pow(min_linear_vel_, 2) + 2 * linear_acc_ * percentage_ * dist_res), 2) - 2 * linear_acc_ * (dist_driven - ((1 - percentage_) * dist_res)));
 				}
 
-				vel_x = vel * cos(ang_res);	
-				vel_y = vel * sin(ang_res);
+				vel_x = VEL * cos(ang_res);	
+				vel_y = VEL * sin(ang_res);
+
+				ROS_INFO("Moved (x, y) , VEL(x, y) =%f (%f, %f), (%f, %f), ang_res = %f", dist_driven, dist_driven_x, dist_driven_y, vel_x, vel_y, ang_res);
+				//ROS_INFO("\nLaser_Range = %f \n", laser_[0]);
+				//ROS_INFO("\nLaser_Inten = %f \n", laser_[1]);
 			}
 		break;
 		case ROTATIONAL:
@@ -228,10 +311,28 @@ void RobotinoMotionServer::controlLoop()
 			{
 				ROS_DEBUG("Rotated %f degrees", (dist_rotated_ * 180) / PI);
 
+				if((dist_rotated_abs >= 0) && (dist_rotated_abs <= percentage_ * rotation_goal_abs))
+				{
+					VEL_ANG = sqrt(pow(min_angular_vel_, 2) + 2 * angular_acc_ * dist_rotated_abs);
+				}
+				else if((dist_rotated_abs > percentage_ * rotation_goal_abs) && (dist_rotated_abs <= (1 - percentage_)*rotation_goal_abs))
+				{
+					VEL_ANG = sqrt(pow(min_angular_vel_, 2) + 2 * angular_acc_ * percentage_ * rotation_goal_abs);
+				}
+				else
+				{
+					VEL_ANG = sqrt(pow(sqrt(pow(min_angular_vel_, 2) + 2 * angular_acc_ * percentage_ * rotation_goal_abs), 2) - 2 * angular_acc_ * (dist_rotated_abs - ((1 - percentage_) * rotation_goal_abs)));
+				}
+
+
 				vel_phi = VEL_ANG;
+
+				ROS_INFO("RotGOAL = %f, Moved(phi) = %f, VEL_ANG = %f)", rotation_goal_abs, dist_rotated_abs, VEL_ANG);
+				//ROS_INFO("\nLaser_Range = %f \n", laser_numRanges_);
+				//ROS_INFO("\nLaser_Inten = %f \n", laser_numIntensities_);
 			}
 		break;
-		case TRANSLATIONAL_ROTATIONAL:	
+/*		case TRANSLATIONAL_ROTATIONAL:	
 			if (dist_driven_x < forward_goal_x_abs || dist_driven_y < forward_goal_y_abs || dist_rotated_abs < rotation_goal_abs)
 			{
 				ROS_DEBUG("Moved (x, y) = (%f, %f) and rotated %f degrees", dist_driven_x, dist_driven_y, (dist_rotated_ * 180) / PI);
@@ -315,7 +416,7 @@ void RobotinoMotionServer::controlLoop()
 				vel_y = vel * sin(alpha - theta);
 				vel_phi = omega;
 				ROS_INFO("vel_x = %f, vel_y = %f, vel_phi = %f)", vel_y, vel_x, (vel_phi * 180) / PI);
-
+*/
 				/*if (rotation_goal_ >=0)
 				{
 					if (forward_goal_x_ > 0)
@@ -357,18 +458,43 @@ void RobotinoMotionServer::controlLoop()
 					vel_phi = rotation_goal_abs * VEL / dist_res;
 				}
 				*/
-			}	
-		break;
+//			}	
+//		break;
 		case TANGENT:
+			/*ROS_INFO("dist_driven_x = %f , forward_goal_x_abs = %f, dist_driven_y = %f, forward_goal_y_abs = %f, dist_rotated_abs = %f, rotation_goal_abs = %f", dist_driven_x, forward_goal_x_abs, dist_driven_y, forward_goal_y_abs, dist_rotated_abs, rotation_goal_abs);*/
 			if (dist_driven_x < forward_goal_x_abs || dist_driven_y < forward_goal_y_abs || dist_rotated_abs < rotation_goal_abs)
 			{
-				ROS_DEBUG("Moved (x, y) = (%f, %f) and rotated %f degrees", dist_driven_x, dist_driven_y, (dist_rotated_ * 180) / PI);
+				double radius = .5 * sqrt(pow(forward_goal_x_abs, 2) + pow(forward_goal_y_abs, 2)) / sin(rotation_goal_abs / 2);				
 	
-				double radius = .5 * sqrt(pow(forward_goal_x_abs, 2) + pow(forward_goal_y_abs, 2)) / sin(rotation_goal_abs / 2);
+				dist_res = rotation_goal_abs * 	radius;	
+				dist_driven = dist_rotated_abs * radius;		
 
-				vel_x = VEL;
+/*				if((dist_driven >= 0) && (dist_driven <= percentage * dist_res))
+				{
+					VEL = sqrt(pow(min_linear_vel, 2) + 2 * linear_acc * dist_driven);
+				
+				}
+				else if((dist_driven > percentage * dist_res) && (dist_driven <= (1 - percentage)*dist_res))
+				{
+					VEL = sqrt(pow(min_linear_vel, 2) + 2 * linear_acc * percentage * dist_res);
+				}
+				else
+				{
+					VEL = sqrt(pow(sqrt(pow(min_linear_vel, 2) + 2 * linear_acc * percentage * dist_res), 2) - 2 * linear_acc * (dist_driven - ((1 - percentage) * dist_res)));
+				}
+*/
+
+				vel_x = VEL_TANG * cos(ang_res);
+				
+				ROS_INFO("Moved (x, y) = (%f, %f) and roteated %f degrees , vel_x = %f", dist_driven_x, dist_driven_y, (dist_rotated_ * 180) / PI, vel_x);
+				//ROS_INFO("\nLaser_Range = %f \n", laser_numRanges_);
+				//ROS_INFO("\nLaser_Inten = %f \n", laser_numIntensities_);
+
+/*				double radius = .5 * sqrt(pow(forward_goal_x_abs, 2) + pow(forward_goal_y_abs, 2)) / sin(rotation_goal_abs / 2);*/
+
+				//vel_x = min_linear_vel;
 				vel_y = 0;
-				vel_phi = VEL / radius;
+				vel_phi = vel_x / radius;
 			}	
 		break;
 		default:
@@ -395,7 +521,7 @@ bool RobotinoMotionServer::acceptNewGoal( const robotino_motion::MotionGoalConst
 	{
 		forward_goal_x_ = goal->move_x;
 		forward_goal_y_ = goal->move_y;
-		rotation_goal_ = goal->move_phi;
+		rotation_goal_ = goal->move_phi * PI / 180;
 		
 		switch(goal->movement_type)
 		{
@@ -531,19 +657,22 @@ bool RobotinoMotionServer::acceptNewGoal( const robotino_motion::MotionGoalConst
 
 void RobotinoMotionServer::readParameters( ros::NodeHandle& n)
 {
-	n.param( "min_linear_vel", min_linear_vel_, 0.05 );
+	n.param( "min_linear_vel", min_linear_vel_, 0.2 );
 
-	n.param( "max_linear_vel", max_linear_vel_, 0.1 );
+	n.param( "max_linear_vel", max_linear_vel_, 0.8 );
 
-	n.param( "linear_acc", linear_acc_, 0.2 );
+	n.param( "linear_acc", linear_acc_, 0.1 );
 	
-	n.param( "min_angular_vel", min_angular_vel_, 0.04 );
+	n.param( "min_angular_vel", min_angular_vel_, 0.5 );
 
-	n.param( "max_angular_vel", max_angular_vel_, 0.2 );
+	n.param( "max_angular_vel", max_angular_vel_, 0.8 );
 
-	n.param( "angular_acc", angular_acc_, 0.2 );
+	n.param( "angular_acc", angular_acc_, 0.1 );
 
-	n.param( "percentage", percentage_, 0.1);
+	n.param( "percentage", percentage_, 0.4);
 
 }
+
+
+
 
