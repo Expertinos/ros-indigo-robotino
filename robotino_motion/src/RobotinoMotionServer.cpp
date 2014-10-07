@@ -34,6 +34,10 @@ RobotinoMotionServer::RobotinoMotionServer():
 			&RobotinoMotionServer::scanCallback, this);
 	bumper_sub_ = nh_.subscribe( "bumper", 1,
 				&RobotinoMotionServer::bumperCallback, this);
+	analog_sub_ = nh_.subscribe( "analog_readings", 1,
+					&RobotinoMotionServer::analogCallback, this);
+	digital_sub_ = nh_.subscribe( "digital_readings", 1,
+						&RobotinoMotionServer::digitalCallback, this);
 
 	cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1 );
 
@@ -51,6 +55,13 @@ RobotinoMotionServer::RobotinoMotionServer():
 
 	ident_contact_ = true;
 	contact_ = false;
+	contact_flag_ = false;
+
+	inductive_ = false;
+	inductive_vector_.push_back(0.0);
+
+	optical_ = false;
+
 }
 
 RobotinoMotionServer::~RobotinoMotionServer()
@@ -100,30 +111,60 @@ void RobotinoMotionServer::scanCallback(const sensor_msgs::LaserScan& msg )
 {
 	obstacle_ = false;
 	if(ident_obstacle_ == true)
+	{
+		for(int j=0;j<9;j++)
 		{
-			for(int j=0;j<9;j++)
+			IR_[j] = 0;
+		}
+		if(msg.ranges[0] < 0.25)
+		{
+			obstacle_ = true;
+			IR_[0] = 1;
+		}
+		for(numLaserScan_ = 1; numLaserScan_ < 9; numLaserScan_++)
+		{
+			if(msg.ranges[numLaserScan_] < 0.59)
 			{
-				IR_[j] = 0;
-			}
-			for(numLaserScan_ = 0; numLaserScan_ < 9; numLaserScan_++)
-			{
-				if(msg.ranges[numLaserScan_] < 0.59)
-				{
-					obstacle_ = true;
-					IR_[numLaserScan_] = 1;
-				}
+				obstacle_ = true;
+				IR_[numLaserScan_] = 1;
 			}
 		}
-
+	}
 }
 
 void RobotinoMotionServer::bumperCallback(const std_msgs::Bool& msg )
 {
 	contact_ = false;
-	if(msg.data == true)
+	if(msg.data == true || contact_flag_ == true)
 	{
 		contact_ = true;
+		ROS_INFO("Contact = true \n");
+		//contact_flag_ = true;
 	}
+
+}
+
+void RobotinoMotionServer::analogCallback(const robotino_msgs::AnalogReadings& msg )
+{
+	inductive_ = false;
+	inductive_value_ = msg.values.at(0);
+
+	if(inductive_value_ < 5)
+	{
+		inductive_ = true;
+		ROS_INFO("Inductive = true \n");
+	}
+}
+
+void RobotinoMotionServer::digitalCallback(const robotino_msgs::DigitalReadings& msg )
+{
+	optical_ = false;
+	ROS_INFO("Optical = false \n");
+	optical_value_right_ = msg.values.at(4);
+	//optical_value_left_ = msg.values.at(2);
+	optical_value_left_ = msg.values.at(0);
+
+	//ROS_INFO("Optical Right: %i || Optical Left: %i", msg.values.at(4),msg.values.at(2));
 
 }
 
@@ -159,28 +200,25 @@ void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& g
 			}
 		}
 
-		if ((obstacle_ == true)||(contact_ == true))
+		if ((obstacle_ == true)||(contact_ == true)||(inductive_ == true))
 		{
-			if (obstacle_ == true)
+			setCmdVel(0, 0, 0);
+			cmd_vel_pub_.publish(cmd_vel_msg_);
+
+			if(obstacle_ == true)
 			{
 				for(int j=0;j<9;j++)
 				{
-					ROS_INFO("obstacle = true -- Sensor IR = %d, ", IR_[j]);
+					ROS_INFO("Obstacle = true -- Sensor IR = %d, ", IR_[j]);
 				}
 				ROS_INFO("\n");
 			}
-			if (contact_ == true)
-			{
-				ROS_INFO("contact = true \n");
-			}
-
-			setCmdVel(0, 0, 0);
-			cmd_vel_pub_.publish(cmd_vel_msg_);
 		}
 
 		else
 		{
 			controlLoop();
+			ROS_INFO("Optical Teste: %i",optical_value_left_);
 		}
 
 		if( state_ == FINISHED )
@@ -226,6 +264,7 @@ void RobotinoMotionServer::spin()
 	ros::Rate loop_rate ( 5 );
 
 	ROS_INFO( "Robotino Motion Server up and running" );
+
 	while( nh_.ok() )
 	{
 		ros::spinOnce();

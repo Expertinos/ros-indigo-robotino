@@ -15,6 +15,10 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point32.h>
 #include <sensor_msgs/LaserScan.h>
+#include <vector>
+
+#include "robotino_msgs/AnalogReadings.h"
+#include "robotino_msgs/DigitalReadings.h"
 
 #include "robotino_motion/MotionAction.h"
 #include "robotino_motion/MotionActionGoal.h"
@@ -67,6 +71,10 @@ private:
 
 	ros::Subscriber bumper_sub_;
 
+	ros::Subscriber analog_sub_;
+
+	ros::Subscriber digital_sub_;
+
 	ros::Publisher cmd_vel_pub_;
 
 	Server server_;
@@ -85,6 +93,8 @@ private:
 	nav_msgs::Odometry start_odom_msgs_;
 	//sensor_msgs::LaserScan laser_scan_msg_;
 	std_msgs::Bool bumper_msg_;
+	robotino_msgs::AnalogReadings analog_msg_;
+	robotino_msgs::DigitalReadings digital_msg_;
 
 	double curr_x_, curr_y_, curr_phi_, prev_phi_;
 	double dist_moved_x_, dist_moved_y_, dist_rotated_;
@@ -111,10 +121,21 @@ private:
 
 	bool ident_contact_;
 	bool contact_;
+	bool contact_flag_;
+
+	bool inductive_;
+	float inductive_value_;
+	std::vector<float> inductive_vector_;
+
+	bool optical_;
+	uint8_t optical_value_right_;
+	uint8_t optical_value_left_;
 
 	void odomCallback( const nav_msgs::OdometryConstPtr& msg );
 	void scanCallback( const sensor_msgs::LaserScan& msg );
 	void bumperCallback( const std_msgs::Bool& msg );
+	void analogCallback( const robotino_msgs::AnalogReadings& msg );
+	void digitalCallback( const robotino_msgs::DigitalReadings& msg );
 	void teleopActivatedCallback( const std_msgs::BoolConstPtr& msg );
 	void execute( const robotino_motion::MotionGoalConstPtr& goal );
 	void setCmdVel( double vx, double vy, double omega );
