@@ -1,8 +1,8 @@
 /*
  * robotino_motion_client_node.cpp
  *
- *  Created on: 14.12.2011
- *      Author: indorewala@servicerobotics.eu
+ *  Created on: 2014
+ *      Author: expertinos.unifei@gmail.com
  */
 
 #include "RobotinoMotionClient.h"

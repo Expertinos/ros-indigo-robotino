@@ -3,7 +3,7 @@
  * RobotinoMotionClient.cpp
  *
  *  Created on: 14.12.2011
- *      Author: indorewala@servicerobotics.eu
+ *      Author: expertinos.unifei@gmail.com
  */
 
 #include "RobotinoMotionClient.h"
