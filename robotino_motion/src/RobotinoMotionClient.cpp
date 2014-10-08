@@ -32,7 +32,11 @@ void RobotinoMotionClient::goalCallback( const robotino_motion::MotionGoalConstP
 	goal.interruption_condition = msg->interruption_condition;
 	goal.alignment_device = msg->alignment_device;
 
-	ROS_INFO( "Sending goal (move_x[m], move_y[m], move_phi[rad], movement_type, task_type, interruption_condition, alignment_device) = (%f, %f, %f, %d, %d, %d, %d)",  goal.move_x, goal.move_y, goal.move_phi, goal.movement_type, goal.task_type, goal.interruption_condition, goal.alignment_device);
+	ROS_INFO( "Sending goal (move_x[m], move_y[m], move_phi[rad], "
+			"movement_type, task_type, interruption_condition, alignment_device) = "
+			"(%f, %f, %f, %d, %d, %d, %d)",
+			goal.move_x, goal.move_y, goal.move_phi, goal.movement_type, goal.task_type,
+			goal.interruption_condition, goal.alignment_device);
 
 	if(checkServer())
 	{

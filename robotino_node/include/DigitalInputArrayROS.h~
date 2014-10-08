@@ -30,7 +30,7 @@ private:
 
 	ros::Time stamp_;
 
-	void valuesChangedEvent( const int* values, unsigned int size );
+	void valuesChangedEvent( const bool* values, unsigned int size );
 
 };
 

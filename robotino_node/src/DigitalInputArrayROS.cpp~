@@ -30,7 +30,7 @@ void DigitalInputArrayROS::valuesChangedEvent( const int* values, unsigned int s
 
 	if( size > 0 )
 	{
-		memcpy( digital_msg_.values.data(), values, size * sizeof( int ) );
+		memcpy( digital_msg_.values.data(), values, size * sizeof( bool ) );
 
 		// Publish the msg
 		digital_pub_.publish( digital_msg_ );
