@@ -159,12 +159,12 @@ void RobotinoMotionServer::analogCallback(const robotino_msgs::AnalogReadings& m
 void RobotinoMotionServer::digitalCallback(const robotino_msgs::DigitalReadings& msg )
 {
 	optical_ = false;
-	ROS_INFO("Optical = false \n");
+	//ROS_INFO("Optical = false \n");
 	optical_value_right_ = msg.values.at(4);
 	optical_value_left_ = msg.values.at(2);
 	optical_value_test_ = msg.values.at(0);
 
-	ROS_INFO("Optical Right: %i || Optical Left: %i", msg.values.at(4),msg.values.at(2));
+	//ROS_INFO("Optical Right: %i || Optical Left: %i", msg.values.at(4),msg.values.at(2));
 
 }
 
