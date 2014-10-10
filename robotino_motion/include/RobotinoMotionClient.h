@@ -14,7 +14,7 @@
 #include "robotino_motion/MotionAction.h"
 #include "robotino_motion/MotionResult.h"
 #include <queue>
-#include <actionlib/client/simple_action_client.h>
+
 
 typedef actionlib::SimpleActionClient<robotino_motion::MotionAction> Client;
 
@@ -25,6 +25,7 @@ public:
 	~RobotinoMotionClient();
 
 private:
+
 	ros::NodeHandle nh_;
 
 	ros::Subscriber goal_sub_;
@@ -44,18 +45,12 @@ private:
 	void doneCallBack ( const actionlib::SimpleClientGoalState& state,
 			const robotino_motion::MotionResultConstPtr& result);
 
-	void activeCb();
-
-	void feedbackCallBack( const robotino_motion::MotionActionFeedbackConstPtr& feedback);
-
-
 
 public:
 	bool checkServer();
 	void spin();
 	void setMaxTime( const float& time );
 	void sendGoal( const robotino_motion::MotionGoal& goal );
-
 
 };
 

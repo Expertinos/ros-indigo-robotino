@@ -75,20 +75,8 @@ void RobotinoMotionClient::doneCallBack( const actionlib::SimpleClientGoalState&
 {
 	ROS_INFO("Finished in state [%s]", state.toString().c_str());
 	ROS_INFO("Answer: %i", result->achieved_goal);
-	ros::shutdown();
+	popGoalCallback(queue_);
 }
-
-void RobotinoMotionClient::activeCb()
-{
-	ROS_INFO("Goal just went active");
-}
-
-void RobotinoMotionClient::feedbackCallBack( const robotino_motion::MotionActionFeedbackConstPtr& feedback)
-{
-	//ROS_INFO("Got Feedback of length %d", feedback->??);
-}
-
-
 
 bool RobotinoMotionClient::checkServer()
 {
@@ -146,6 +134,8 @@ void RobotinoMotionClient::setMaxTime( const float& time )
 
 void RobotinoMotionClient::sendGoal( const robotino_motion::MotionGoal& goal )
 {
-	client_.sendGoal( goal, &RobotinoMotionClient::doneCallBack, &RobotinoMotionClient::activeCb, &RobotinoMotionClient::feedbackCallBack);
+	client_.sendGoal( goal , boost::bind(&RobotinoMotionClient::doneCallBack, this, _1, _2), Client::SimpleActiveCallback(), Client::SimpleFeedbackCallback());
+
 	ROS_INFO("Goal sent");
+
 }

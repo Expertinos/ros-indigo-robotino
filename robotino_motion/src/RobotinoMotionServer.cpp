@@ -242,6 +242,7 @@ void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& g
 
 		ros::spinOnce();
 		loop_rate.sleep();
+
 	}
 
 	setCmdVel( 0, 0, 0 );
