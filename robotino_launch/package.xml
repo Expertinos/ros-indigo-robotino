@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package>
+	<name>robotino_launch</name>
+	<version>0.0.0</version>
+	<description>The robotino_launch package</description>
+	<maintainer email="adriano@todo.todo">Adriano Henrique Rossette Leite</maintainer>
+	<license>BSD</license>
+	<buildtool_depend>catkin</buildtool_depend>
+	
+	<export>
+	</export>
+</package>

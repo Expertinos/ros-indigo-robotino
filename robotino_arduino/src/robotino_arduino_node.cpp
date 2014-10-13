@@ -88,11 +88,9 @@ void ultrasoundCallback(const robotino_arduino::UltrasoundConstPtr& msg)
 }
 
 int main(int argc, char **argv)
-{
-  
+{  
   	ros::init(argc, argv, "robotino_arduino_node");
 
-  
   	ros::NodeHandle n;
 
   	ros::Subscriber mag_sub = n.subscribe("mag", 1, magCallback);

@@ -1,6 +1,6 @@
 <launch>
-	<arg name = "hostname" default = "192.168.0.121:12080"/>
-	<node name = "robotino_node" pkg = "robotino_node" type = "robotino_node" output = "screen">
+	<arg name="hostname" default="192.168.0.107:12080"/>
+	<node name="robotino_node" pkg="robotino_node" type="robotino_node" output="screen">
 		<param name="hostname" value="$(arg hostname)" />
 		<param name="max_linear_vel" value="0.5" />
 		<param name="min_linear_vel" value="0.05" />
@@ -17,5 +17,9 @@
  	<node name="robotino_mapping_node" pkg="robotino_node" type="robotino_mapping_node" output="screen">
     		<param name="hostname" value="$(arg hostname)" />
   	</node>  	
+	<node name="robotino_camera_node" pkg="robotino_node" type="robotino_camera_node" output="screen">
+    		<param name="hostname" value="$(arg hostname)" />
+    		<param name="cameraNumber" value="0" />
+	</node>
 	<param name="robot_description" textfile="$(find robotino_description)/urdf/robotino.urdf" />
 </launch>

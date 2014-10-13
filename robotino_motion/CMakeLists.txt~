@@ -4,6 +4,7 @@ project(robotino_motion)
 find_package(catkin REQUIRED COMPONENTS
 	actionlib
 	actionlib_msgs
+	genmsg
 	geometry_msgs
 	message_generation
 	nav_msgs

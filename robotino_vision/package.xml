@@ -12,6 +12,7 @@
 	<build_depend>roscpp</build_depend>
 	<build_depend>robotino_msgs</build_depend>
 	<build_depend>robotino_node</build_depend>
+	<build_depend>message_generation</build_depend>
 	<build_depend>opencv2</build_depend>
 	<build_depend>image_transport</build_depend>
 	<build_depend>cv_bridge</build_depend>
@@ -23,4 +24,7 @@
 	<run_depend>vision_opencv</run_depend>
 	<run_depend>image_transport</run_depend>
 	<run_depend>cv_bridge</run_depend>
+	<run_depend>message_runtime</run_depend>
+	<run_depend>openni_launch</run_depend>
+	<run_depend>kinect_aux</run_depend>
 </package>

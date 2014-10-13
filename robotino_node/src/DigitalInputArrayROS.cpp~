@@ -1,8 +1,8 @@
 /*
  * DigitalInputArrayROS.cpp
  *
- *  Created on: 08.12.2011
- *      Author: indorewala@servicerobotics.eu
+ *  Created on: 07.10.2014
+ *      Author: adrianohrl@unifei.edu.br
  */
 
 #include "DigitalInputArrayROS.h"
@@ -22,18 +22,15 @@ void DigitalInputArrayROS::setTimeStamp(ros::Time stamp)
 	stamp_ = stamp;
 }
 
-void DigitalInputArrayROS::valuesChangedEvent( const int* values, unsigned int size )
+void DigitalInputArrayROS::valuesChangedEvent(const int* values, unsigned int size)
 {
-	// Build the DigitalReadings msg
 	digital_msg_.stamp = stamp_;
-	digital_msg_.values.resize( size );
-
-	if( size > 0 )
+	digital_msg_.values.resize(size);
+	if(size > 0)
 	{
-		memcpy( digital_msg_.values.data(), values, size * sizeof( bool ) );
-
-		// Publish the msg
-		digital_pub_.publish( digital_msg_ );
+		for (int i = 0; i < size; i++)
+			digital_msg_.values[i] = true ? values[i] == 1 : false;
+		digital_pub_.publish(digital_msg_);
 	}
 
 }

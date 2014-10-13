@@ -35,8 +35,6 @@ catkin_package(
 	actionlib_msgs
 	)
 
-
-
 include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
 add_executable(robotino_motion_server_node 
@@ -48,8 +46,7 @@ target_link_libraries(robotino_motion_server_node
 	${catkin_LIBRARIES}
 	)
 
-add_dependencies(
-	robotino_motion_server_node
+add_dependencies(robotino_motion_server_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
@@ -62,7 +59,6 @@ target_link_libraries(robotino_motion_client_node
 	${catkin_LIBRARIES}
 	)
 
-add_dependencies(
-	robotino_motion_client_node
+add_dependencies(robotino_motion_client_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)

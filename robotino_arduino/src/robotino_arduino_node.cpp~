@@ -4,28 +4,20 @@
 #include "robotino_arduino/Calibrate.h"
 #include "robotino_arduino/GetMagDirection.h"
 
-int val_x;
-int val_y;
-int val_z;
+int val_x = 0;
+int val_y = 0;
+int val_z = 0;
 
-double a_x = 0;
-double b_x = 0;
-double a_y = 0;
-double b_y = 0;
-double a_z = 0;
-double b_z = 0;
+double a_x = 0, b_x = 0;
+double a_y = 0, b_y = 0;
+double a_z = 0, b_z = 0;
 
-int max_x = 0;
-int min_x = 50;
-int max_y = 0;
-int min_y = 50;
-int max_z = 0;
-int min_z = 50;
-
+int min_x = 50, max_x = 0;
+int min_y = 50, max_y = 0;
+int min_z = 50, max_z = 0;
 
 ros::Time start_time;
 float calib_duration;
-
 
 bool calibrate(robotino_arduino::Calibrate::Request  &req,
          robotino_arduino::Calibrate::Response &res)
@@ -38,8 +30,6 @@ bool calibrate(robotino_arduino::Calibrate::Request  &req,
 	ROS_INFO("Starting to Process calibration!!!");
   	return true;
 }
-
-
 
 bool mag_direction(robotino_arduino::GetMagDirection::Request  &req,
          robotino_arduino::GetMagDirection::Response &res)
@@ -54,7 +44,7 @@ bool mag_direction(robotino_arduino::GetMagDirection::Request  &req,
 	
 
 	direction = atan2 (y,x);
-ROS_INFO("[%lf]",direction * 180 / 3.14);
+	//ROS_INFO("[%lf]",direction * 180 / 3.14);
 	res.mag_angle = (float)direction;
 	return true;
 	
@@ -64,13 +54,11 @@ ROS_INFO("[%lf]",direction * 180 / 3.14);
 
 void magCallback(const robotino_arduino::MagConstPtr& msg)
 {
-  	//ROS_INFO("I heard: [%d, %d, %d]", msg->x, msg->y, msg->z);
-
 	val_x = msg->x;
 	val_y = msg->y;
 	val_z = msg->z;
 
-	if ( (ros::Time::now() - start_time).toSec() < calib_duration)
+	if ((ros::Time::now() - start_time).toSec() < calib_duration)
 	{
 
 		if ( val_x > max_x) max_x = val_x;
@@ -82,21 +70,16 @@ void magCallback(const robotino_arduino::MagConstPtr& msg)
 		if ( val_z > max_z) max_z = val_z;
 		if ( val_z < min_z) min_z = val_z;	
 
-
-ROS_INFO("[%d, %d, %d,%d, %d, %d]", max_x, min_x, max_y, min_y, max_z, min_z);
-
-		b_x = - (max_x + min_x) / 2;
-		a_x =   (max_x - min_x) / 2;
+		b_x = -(max_x + min_x) / 2;
+		a_x = (max_x - min_x) / 2;
 	
-		b_y = - (max_y + min_y) / 2;
-		a_y =   (max_y - min_y) / 2;
+		b_y = -(max_y + min_y) / 2;
+		a_y = (max_y - min_y) / 2;
 	
-		b_z = - (max_z + min_z) / 2;
-		a_z =   (max_z - min_z) / 2;
-ROS_INFO("[%f, %f, %f, %f, %f, %f, %f]", a_x, b_x, a_y, b_y, a_z, b_z);
+		b_z = -(max_z + min_z) / 2;
+		a_z = (max_z - min_z) / 2;
 
 	}
-
 }
 
 void ultrasoundCallback(const robotino_arduino::UltrasoundConstPtr& msg)

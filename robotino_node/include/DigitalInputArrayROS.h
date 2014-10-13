@@ -1,7 +1,7 @@
 /*
  * DigitalInputArrayROS.h
  *
- *  Created on:
+ *  Created on: 08.12.2011
  *      Author: indorewala@servicerobotics.eu
  */
 
@@ -30,7 +30,7 @@ private:
 
 	ros::Time stamp_;
 
-	void valuesChangedEvent( const int* values, unsigned int size );
+	void valuesChangedEvent(const int* values, unsigned int size);
 
 };
 

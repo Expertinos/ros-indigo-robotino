@@ -23,4 +23,7 @@
 	<run_depend>vision_opencv</run_depend>
 	<run_depend>image_transport</run_depend>
 	<run_depend>cv_bridge</run_depend>
+	<run_depend>message_runtime</run_depend>
+	<run_depend>openni_launch</run_depend>
+	<run_depend>kinect_aux</run_depend>
 </package>

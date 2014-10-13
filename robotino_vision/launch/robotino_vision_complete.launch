@@ -1,0 +1,11 @@
+<launch>
+  	<arg name="hostname" default="192.168.0.112:12080"/>
+	<arg name="robot" default="robotino"/>
+  	<group ns="$(arg robot)">
+    		<include file="$(find robotino_node)/launch/robotino_node.launch">
+			<arg name="hostname" value="$(arg hostname)"/>
+		</include>
+		<node name="robotino_vision_node" pkg="robotino_vision" type="robotino_vision_node" output="screen">
+		</node> 
+	</group>
+</launch>
