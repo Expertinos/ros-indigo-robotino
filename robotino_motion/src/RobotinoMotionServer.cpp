@@ -159,10 +159,10 @@ void RobotinoMotionServer::analogCallback(const robotino_msgs::AnalogReadings& m
 void RobotinoMotionServer::digitalCallback(const robotino_msgs::DigitalReadings& msg )
 {
 	optical_ = false;
-	ROS_INFO("Optical = false \n");
+	//ROS_INFO("Optical = false \n");
 	optical_value_right_ = msg.values.at(4);
-	//optical_value_left_ = msg.values.at(2);
-	optical_value_left_ = msg.values.at(0);
+	optical_value_left_ = msg.values.at(2);
+	optical_value_test_ = msg.values.at(0);
 
 	//ROS_INFO("Optical Right: %i || Optical Left: %i", msg.values.at(4),msg.values.at(2));
 
@@ -218,7 +218,6 @@ void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& g
 		else
 		{
 			controlLoop();
-			ROS_INFO("Optical Teste: %i",optical_value_left_);
 		}
 
 		if( state_ == FINISHED )
@@ -243,6 +242,7 @@ void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& g
 
 		ros::spinOnce();
 		loop_rate.sleep();
+
 	}
 
 	setCmdVel( 0, 0, 0 );
@@ -301,18 +301,6 @@ void RobotinoMotionServer::controlLoop()
 	double vel_y = 0; // linear velocity in y axis
 	double vel_phi = 0; // angular velocity in phi axis
 
-/*	double min_linear_vel;//=0.2;
-	double percentage;//=0.4;
-	double VEL;	
-	double VEL_TANG;//=0.3;
-	double linear_acc;//=0.1;
-	double max_linear_vel;//=0.8;
-
-	double angular_acc;//=0.1;
-	double min_angular_vel;//=0.5;	
-	double max_angular_vel;//=0.8;
-	double VEL_ANG;
-*/
 	double VEL;
 	double VEL_TANG = 0.3;
 	double VEL_ANG;
@@ -341,8 +329,7 @@ void RobotinoMotionServer::controlLoop()
 				vel_y = VEL * sin(ang_res);
 
 				ROS_INFO("Moved (x, y) , VEL(x, y) =%f (%f, %f), (%f, %f), ang_res = %f", dist_driven, dist_driven_x, dist_driven_y, vel_x, vel_y, ang_res);
-				//ROS_INFO("\nLaser_Range = %f \n", laser_[0]);
-				//ROS_INFO("\nLaser_Inten = %f \n", laser_[1]);
+
 			}
 		break;
 		case ROTATIONAL:
@@ -367,8 +354,7 @@ void RobotinoMotionServer::controlLoop()
 				vel_phi = VEL_ANG;
 
 				ROS_INFO("RotGOAL = %f, Moved(phi) = %f, VEL_ANG = %f)", rotation_goal_abs, dist_rotated_abs, VEL_ANG);
-				//ROS_INFO("\nLaser_Range = %f \n", laser_numRanges_);
-				//ROS_INFO("\nLaser_Inten = %f \n", laser_numIntensities_);
+
 			}
 		break;
 /*		case TRANSLATIONAL_ROTATIONAL:	
@@ -526,8 +512,6 @@ void RobotinoMotionServer::controlLoop()
 				vel_x = VEL_TANG * cos(ang_res);
 				
 				ROS_INFO("Moved (x, y) = (%f, %f) and roteated %f degrees , vel_x = %f", dist_driven_x, dist_driven_y, (dist_rotated_ * 180) / PI, vel_x);
-				//ROS_INFO("\nLaser_Range = %f \n", laser_numRanges_);
-				//ROS_INFO("\nLaser_Inten = %f \n", laser_numIntensities_);
 
 /*				double radius = .5 * sqrt(pow(forward_goal_x_abs, 2) + pow(forward_goal_y_abs, 2)) / sin(rotation_goal_abs / 2);*/
 
@@ -561,7 +545,7 @@ bool RobotinoMotionServer::acceptNewGoal( const robotino_motion::MotionGoalConst
 		forward_goal_x_ = goal->move_x;
 		forward_goal_y_ = goal->move_y;
 		rotation_goal_ = goal->move_phi * PI / 180;
-		
+
 		switch(goal->movement_type)
 		{
 			case 0: 
@@ -666,8 +650,8 @@ bool RobotinoMotionServer::acceptNewGoal( const robotino_motion::MotionGoalConst
 		}
 
 
-		ROS_INFO( "Motion execution start: (x[m], y[m], phi[deg]): (%f, %f, %f)",
-				forward_goal_x_, forward_goal_y_, (rotation_goal_ * 180) / PI );
+		ROS_INFO( "Motion execution start: (x[m], y[m], phi[deg] ): (%f, %f, %f)",
+				forward_goal_x_, forward_goal_y_, ((rotation_goal_ * 180) / PI ));
 
 		start_x_ = curr_x_;
 		start_y_ = curr_y_;

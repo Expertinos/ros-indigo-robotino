@@ -4,6 +4,7 @@ project(robotino_motion)
 find_package(catkin REQUIRED COMPONENTS
 	actionlib
 	actionlib_msgs
+	genmsg
 	geometry_msgs
 	message_generation
 	nav_msgs
@@ -33,6 +34,8 @@ catkin_package(
 	message_runtime 
 	actionlib_msgs
 	)
+
+
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 

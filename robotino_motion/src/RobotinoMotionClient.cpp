@@ -2,11 +2,13 @@
 /*
  * RobotinoMotionClient.cpp
  *
- *  Created on: 14.12.2011
+ *  Created on: 2014
  *      Author: expertinos.unifei@gmail.com
  */
 
 #include "RobotinoMotionClient.h"
+#include <queue>
+#include <iostream>
 
 RobotinoMotionClient::RobotinoMotionClient():
 	client_( "motion", false),
@@ -32,12 +34,48 @@ void RobotinoMotionClient::goalCallback( const robotino_motion::MotionGoalConstP
 	goal.interruption_condition = msg->interruption_condition;
 	goal.alignment_device = msg->alignment_device;
 
-	ROS_INFO( "Sending goal (move_x[m], move_y[m], move_phi[rad], movement_type, task_type, interruption_condition, alignment_device) = (%f, %f, %f, %d, %d, %d, %d)",  goal.move_x, goal.move_y, goal.move_phi, goal.movement_type, goal.task_type, goal.interruption_condition, goal.alignment_device);
+	ROS_INFO( "Pushing goal (move_x[m], move_y[m], move_phi[rad], "
+			"movement_type, task_type, interruption_condition, alignment_device) = "
+			"(%f, %f, %f, %d, %d, %d, %d)",
+			goal.move_x, goal.move_y, goal.move_phi, goal.movement_type, goal.task_type,
+			goal.interruption_condition, goal.alignment_device);
 
-	if(checkServer())
+	if(goal.alignment_device == 0)
 	{
-		sendGoal(goal);
+		queue_.push(goal);
+		ROS_INFO("%d", queue_.size());
+	}else
+	{
+		if(checkServer())
+		{
+			popGoalCallback(queue_);
+		}
 	}
+
+}
+
+void RobotinoMotionClient::popGoalCallback( const std::queue<robotino_motion::MotionGoal> )
+{
+	robotino_motion::MotionGoal goal;
+
+		if(!queue_.empty())
+		{
+			goal = queue_.front();
+			queue_.pop();
+			std::cout << goal;
+			ROS_INFO("%d", queue_.size());
+			sendGoal(goal);
+
+		}
+
+}
+
+void RobotinoMotionClient::doneCallBack( const actionlib::SimpleClientGoalState& state,
+			const robotino_motion::MotionResultConstPtr& result)
+{
+	ROS_INFO("Finished in state [%s]", state.toString().c_str());
+	ROS_INFO("Answer: %i", result->achieved_goal);
+	popGoalCallback(queue_);
 }
 
 bool RobotinoMotionClient::checkServer()
@@ -96,6 +134,8 @@ void RobotinoMotionClient::setMaxTime( const float& time )
 
 void RobotinoMotionClient::sendGoal( const robotino_motion::MotionGoal& goal )
 {
-	client_.sendGoal( goal );
+	client_.sendGoal( goal , boost::bind(&RobotinoMotionClient::doneCallBack, this, _1, _2), Client::SimpleActiveCallback(), Client::SimpleFeedbackCallback());
+
 	ROS_INFO("Goal sent");
+
 }

@@ -1,8 +1,8 @@
 /*
  * RobotinoMotionClient.h
  *
- *  Created on: 13.12.2011
- *      Author: indorewala@servicerobotics.eu
+ *  Created on: 2014
+ *      Author: expertinos.unifei@gmail.com
  */
 
 #ifndef ROBOTINOMOTIONCLIENT_H_
@@ -12,6 +12,9 @@
 #include <actionlib/client/simple_action_client.h>
 #include "robotino_motion/MotionGoal.h"
 #include "robotino_motion/MotionAction.h"
+#include "robotino_motion/MotionResult.h"
+#include <queue>
+
 
 typedef actionlib::SimpleActionClient<robotino_motion::MotionAction> Client;
 
@@ -22,6 +25,7 @@ public:
 	~RobotinoMotionClient();
 
 private:
+
 	ros::NodeHandle nh_;
 
 	ros::Subscriber goal_sub_;
@@ -30,9 +34,17 @@ private:
 
 	robotino_motion::MotionGoal goal_;
 
+	std::queue<robotino_motion::MotionGoal> queue_;
+
 	float max_time_;
 
 	void goalCallback( const robotino_motion::MotionGoalConstPtr& msg );
+
+	void popGoalCallback( const std::queue<robotino_motion::MotionGoal> );
+
+	void doneCallBack ( const actionlib::SimpleClientGoalState& state,
+			const robotino_motion::MotionResultConstPtr& result);
+
 
 public:
 	bool checkServer();

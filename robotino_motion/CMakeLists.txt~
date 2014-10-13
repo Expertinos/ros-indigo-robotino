@@ -45,10 +45,10 @@ target_link_libraries(robotino_motion_server_node
 	${catkin_LIBRARIES}
 	)
 
-#add_dependencies(
-#	robotino_motion_server_node
-#	${learning_actionlib_EXPORTED_TARGETS}
-#	)
+add_dependencies(
+	robotino_motion_server_node
+	${robotino_motion_EXPORTED_TARGETS}
+	)
 
 add_executable(robotino_motion_client_node 
 	src/robotino_motion_client_node.cpp
@@ -61,5 +61,5 @@ target_link_libraries(robotino_motion_client_node
 
 add_dependencies(
 	robotino_motion_client_node
-	${learning_actionlib_EXPORTED_TARGETS}
+	${robotino_motion_EXPORTED_TARGETS}
 	)

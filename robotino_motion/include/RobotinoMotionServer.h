@@ -128,8 +128,9 @@ private:
 	std::vector<float> inductive_vector_;
 
 	bool optical_;
-	uint8_t optical_value_right_;
-	uint8_t optical_value_left_;
+	int optical_value_right_;
+	int optical_value_left_;
+	int optical_value_test_;
 
 	void odomCallback( const nav_msgs::OdometryConstPtr& msg );
 	void scanCallback( const sensor_msgs::LaserScan& msg );
