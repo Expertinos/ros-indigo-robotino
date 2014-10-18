@@ -1,0 +1,23 @@
+uint8 module			#######################################
+				# 0 for Module A
+				# 1 for Module B
+uint8 area			#######################################
+				# 0 for ORIGIN, if Module A
+				# 1 for TV, if Module A
+				# 2 for DVD, if Module A
+				# 3 for CELULAR, if Module A
+				# 4 for TABLET, if Module A
+				# 5 for NOTEBOOK, if Module A
+				# 6 for ORDER_1, if Module A
+				# 7 for ORDER_2, if Module A
+				#######################################
+				# 0 for HOME, if Module B
+				# 1 for ELEVATOR, if Module B
+				# 2 for SETOR_DE_CONTROLE, if Module B
+				# 3 for EXAMES, if Module B
+				# 4 for CENTRO_CIRURGICO, if Module B
+				# 5 for SETOR_DE_RECUPERACAO, if Module B
+				# 6 for SETOR_DE_SAIDA, if Module B
+---
+float32 x			# x axis coordinate of the center of area
+float32 y			# y axis coordinate of the center of area

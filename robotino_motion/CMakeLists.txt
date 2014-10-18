@@ -12,10 +12,12 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	tf
 	)
+
 find_package(Boost REQUIRED COMPONENTS system)
 
 add_message_files(
-	FILES RobotState.msg
+	FILES
+	RobotState.msg
 	)
 
 add_action_files(

@@ -19,7 +19,7 @@ add_service_files(
   FILES
   TransportProduct.srv
   StopTransportation.srv
-  GoToPlace.srv
+  GoFromTo.srv
 )
 
 ## Generate actions in the 'action' folder

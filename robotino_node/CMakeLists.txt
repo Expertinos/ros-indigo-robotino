@@ -85,16 +85,16 @@ target_link_libraries(robotino_camera_node
 	${REC_ROBOTINO_API2_LIBRARY}
 	)
 
-add_executable(robotino_mapping_node
-	src/robotino_mapping_node.cpp
-	src/MappingROS.cpp
-	src/RobotinoMappingNode.cpp
-	src/InitialPoseROS.cpp
-	src/NavGoalROS.cpp
-	src/ComROS.cpp
-	)
+#add_executable(robotino_mapping_node
+#	src/robotino_mapping_node.cpp
+#	src/MappingROS.cpp
+#	src/RobotinoMappingNode.cpp
+#	src/InitialPoseROS.cpp
+#	src/NavGoalROS.cpp
+#	src/ComROS.cpp
+#	)
 
-target_link_libraries(robotino_mapping_node
-	${catkin_LIBRARIES}
-	${REC_ROBOTINO_API2_LIBRARY}
-	)
+#target_link_libraries(robotino_mapping_node
+#	${catkin_LIBRARIES}
+#	${REC_ROBOTINO_API2_LIBRARY}
+#	)

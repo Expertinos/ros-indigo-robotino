@@ -1,0 +1,9 @@
+uint8 area		# This value represents the product in which robotino are trying to find. 
+			# 0: all products area are obstacle areas;
+			# 1: TV area is not a obstacle area, but other products areas are;
+			# 2: DVD area is not a obstacle area, but other products areas are;
+			# 3: CELULAR area is not a obstacle area, but other products areas are;
+			# 4: TABLET area is not a obstacle area, but other products areas are;
+			# 5: NOTEBOOK is not a obstacle area, but other products areas are.
+---
+uint8[] map		# map

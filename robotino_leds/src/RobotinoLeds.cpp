@@ -1,7 +1,7 @@
 /*
  * RobotinoLeds.cpp
  *
- *  Created on: 15/07/2014
+ *  Created on: 07/10/2014
  *      Author: adrianohrl@unifei.edu.br
  */
 
@@ -12,6 +12,7 @@ RobotinoLeds::RobotinoLeds()
 	nh_.param<double>("frequency", frequency_, 1.0);
 	digital_pub_ = nh_.advertise<robotino_msgs::DigitalReadings>("set_digital_values", 1, true);
 	go_srv_ = nh_.advertiseService("go_from_to", &RobotinoLeds::goFromTo, this);
+	sinalize_srv_ = nh_.advertiseService("sinalize_end", &RobotinoLeds::sinalizeEnd, this);
 	stop_srv_ = nh_.advertiseService("stop_transportation", &RobotinoLeds::stopTransportation, this);
 	transport_srv_ = nh_.advertiseService("transport_product", &RobotinoLeds::transportProduct, this);
 	product_ = NONE;
@@ -110,14 +111,25 @@ bool RobotinoLeds::goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds
 	return succeed;
 }
 
-bool RobotinoLeds::stopTransportation(robotino_leds::StopTransportation::Request &req, robotino_leds::StopTransportation::Response &res)
+bool RobotinoLeds::sinalizeEnd(robotino_leds::SinalizeEnd::Request &req, robotino_leds::SinalizeEnd::Response &res)
 {
-	ROS_INFO("Stopping Transportation!!!");
+	ROS_INFO("Sinalizing End!!!");
 	bool succeed = false;
 	product_ = NONE;
 	departure_place_ = ORIGIN;
 	arrival_place_ = SETOR_DE_CONTROLE;
-	succeed = sinalizeEnd();
+	succeed = sinalizeEndOfTask();
+	res.succeed = succeed;
+	return succeed;
+}
+
+bool RobotinoLeds::stopTransportation(robotino_leds::StopTransportation::Request &req, robotino_leds::StopTransportation::Response &res)
+{
+	ROS_INFO("Stopping Transportation!!!");
+	bool succeed = true;
+	product_ = NONE;
+	departure_place_ = ORIGIN;
+	arrival_place_ = SETOR_DE_CONTROLE;
 	res.succeed = succeed;
 	return succeed;
 }
@@ -195,7 +207,7 @@ bool RobotinoLeds::sinalizeTransportation()
 	return succeed;
 }
 
-bool RobotinoLeds::sinalizeEnd()
+bool RobotinoLeds::sinalizeEndOfTask()
 {
 	ROS_INFO("Sinalizing The End!!!");
 	ros::Duration d(.5 / frequency_);

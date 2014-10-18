@@ -8,4 +8,5 @@
 		<node name="robotino_motion_leds_node" pkg="robotino_leds" type="robotino_leds_node"  output="screen">
 			<param name="frequency" value="1.0"/>
 		</node>
+	</group>
 </launch>
