@@ -19,6 +19,7 @@ add_service_files(
 	FILES
 	Abort.srv
 	MoveTo.srv
+	StartModule.srv
 	)
 
 add_action_files(

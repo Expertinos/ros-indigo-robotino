@@ -21,6 +21,11 @@ add_message_files(
 	HasArrived.msg
 	)
 
+add_service_files(
+	FILES
+	MoveTo.srv
+	)
+
 add_action_files(
 	DIRECTORY action
 	FILES Motion.action

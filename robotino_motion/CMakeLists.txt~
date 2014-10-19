@@ -21,6 +21,11 @@ add_message_files(
 	HasArrived.msg
 	)
 
+add_service_files(
+	FILES
+	MoveTo.srv
+	)
+
 add_action_files(
 	DIRECTORY action
 	FILES Motion.action
@@ -55,6 +60,7 @@ add_dependencies(robotino_motion_server_node
 
 add_executable(robotino_motion_client_node 
 	src/robotino_motion_client_node.cpp
+	src/astar.cpp 
 	src/RobotinoMotionClient.cpp
 	)
 

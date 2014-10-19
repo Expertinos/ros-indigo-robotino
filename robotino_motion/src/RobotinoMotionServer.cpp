@@ -138,10 +138,9 @@ void RobotinoMotionServer::bumperCallback(const std_msgs::Bool& msg )
 	if(msg.data == true || contact_flag_ == true)
 	{
 		contact_ = true;
-		ROS_INFO("Contact = true \n");
+		//ROS_INFO("Contact = true \n");
 		//contact_flag_ = true;
 	}
-
 }
 
 void RobotinoMotionServer::analogCallback(const robotino_msgs::AnalogReadings& msg )
@@ -152,7 +151,7 @@ void RobotinoMotionServer::analogCallback(const robotino_msgs::AnalogReadings& m
 	if(inductive_value_ < 5)
 	{
 		inductive_ = true;
-		ROS_INFO("Inductive = true \n");
+		//ROS_INFO("Inductive = true \n");
 	}
 }
 
@@ -200,7 +199,7 @@ void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& g
 			}
 		}
 
-		if ((obstacle_ == true)||(contact_ == true)||(inductive_ == true))
+/*		if ((obstacle_ == true)||(contact_ == true)||(inductive_ == true))
 		{
 			setCmdVel(0, 0, 0);
 			cmd_vel_pub_.publish(cmd_vel_msg_);
@@ -214,6 +213,7 @@ void RobotinoMotionServer::execute( const robotino_motion::MotionGoalConstPtr& g
 				ROS_INFO("\n");
 			}
 		}
+		*/
 
 		else
 		{
@@ -296,6 +296,8 @@ void RobotinoMotionServer::controlLoop()
 
 	double dist_res = sqrt(pow(forward_goal_x_abs, 2) + pow(forward_goal_y_abs, 2)); // resultant linear displacement
 	double ang_res = atan(forward_goal_y_abs / forward_goal_x_abs); // resultant direction
+	double ang_res_real = atan(forward_goal_y_/forward_goal_x_);
+
 
 	double vel_x = 0; // linear velocity in x axis
 	double vel_y = 0; // linear velocity in y axis
@@ -308,6 +310,14 @@ void RobotinoMotionServer::controlLoop()
 	switch (movement_type_)
 	{
 		case TRANSLATIONAL:
+			if((forward_goal_x_ < 0) && (forward_goal_y_ < 0))
+			{
+				ang_res_real -= 180;
+			}
+			else if((forward_goal_x_ < 0) && (forward_goal_y_ > 0))
+			{
+				ang_res_real += 180;
+			}
 			if (dist_driven_x < forward_goal_x_abs || dist_driven_y < forward_goal_y_abs)
 			{	
 				
@@ -325,11 +335,25 @@ void RobotinoMotionServer::controlLoop()
 					VEL = sqrt(pow(sqrt(pow(min_linear_vel_, 2) + 2 * linear_acc_ * percentage_ * dist_res), 2) - 2 * linear_acc_ * (dist_driven - ((1 - percentage_) * dist_res)));
 				}
 
-				vel_x = VEL * cos(ang_res);	
-				vel_y = VEL * sin(ang_res);
+				if(dist_rotated_ < -5*PI/180)
+				{
+					vel_x = (VEL * cos(ang_res_real - dist_rotated_));
+					vel_y = VEL * sin(ang_res_real - dist_rotated_);
+				}
+				else if(dist_rotated_ > 5*PI/180)
+				{
+					vel_x = (VEL * cos(ang_res_real - dist_rotated_));
+					vel_y = VEL * sin(ang_res_real - dist_rotated_);
+				}
+				else
+				{
+					vel_x = (VEL * cos(ang_res_real));
+					vel_y = VEL * sin(ang_res_real);
+				}
 
-				ROS_INFO("Moved (x, y) , VEL(x, y) =%f (%f, %f), (%f, %f), ang_res = %f", dist_driven, dist_driven_x, dist_driven_y, vel_x, vel_y, ang_res);
-
+				ROS_INFO("Moved (x, y) , VEL(x, y) =%f (%f, %f), (%f, %f), ang_res_real = %f, dist_rotated_ = %f ",
+						dist_driven, dist_driven_x, dist_driven_y, vel_x, vel_y,
+						(float)((ang_res_real * 180) / PI), (float)((dist_rotated_ * 180) / PI));
 			}
 		break;
 		case ROTATIONAL:
@@ -357,178 +381,17 @@ void RobotinoMotionServer::controlLoop()
 
 			}
 		break;
-/*		case TRANSLATIONAL_ROTATIONAL:	
-			if (dist_driven_x < forward_goal_x_abs || dist_driven_y < forward_goal_y_abs || dist_rotated_abs < rotation_goal_abs)
-			{
-				ROS_DEBUG("Moved (x, y) = (%f, %f) and rotated %f degrees", dist_driven_x, dist_driven_y, (dist_rotated_ * 180) / PI);
-				
-				double d, alpha, phi;
-				d = sqrt(pow(forward_goal_x_, 2) + pow(forward_goal_y_, 2));
-				if (forward_goal_x_ != 0)
-					alpha = atan(forward_goal_y_ / forward_goal_x_);
-				else 
-					alpha = sign(forward_goal_y_) * PI / 2;
-				phi = rotation_goal_;
-				ROS_INFO("d = %f, alpha = %f and phi = %f", d, (alpha * 180) / PI, (phi * 180) / PI);
-				
-				double V_min_temp, omega_min_temp, V_min, omega_min;				
-				V_min_temp = .05 * VEL;
-				omega_min_temp = .05 * VEL_ANG;
-				if (phi != 0)
-					V_min = omega_min_temp * d / phi;
-				else
-					V_min = V_min_temp;
-				if (d != 0)
-					omega_min = V_min_temp * phi / d;
-				else 
-					omega_min = omega_min_temp;
-				if (V_min < V_min_temp)
-					V_min = V_min_temp;
-				else 
-					omega_min = omega_min_temp;
-				ROS_INFO("V_min = %f and omega_min = %f", V_min, (omega_min * 180) / PI);
 
-				double V_max_temp, omega_max_temp, V_max, omega_max;
-				V_max_temp = VEL;
-				omega_max_temp = VEL_ANG;
-				if (phi != 0)
-					V_max = omega_max_temp * d / phi;	
-				else
-					V_max = V_max_temp;
-				if (d != 0)
-					omega_max = V_max_temp * phi / d;
-				else
-					omega_max = omega_max_temp;
-				if (V_max > V_max_temp)
-					V_max = V_max_temp;
-				else 
-					omega_max = omega_max_temp;
-				ROS_INFO("V_max = %f and omega_max = %f", V_max, (omega_max * 180) / PI);
-
-				double percentage, K, kapa;
-				percentage = 20;
-				if (d != 0)
-					K = (V_min - V_max) / ((percentage / 100) * (1 - percentage / 100) * pow(d, 2));
-				else 
-					K = 0;
-				if (phi != 0)				
-					kapa = (omega_min - omega_max) / ((percentage / 100) * (1 - percentage / 100) * pow(phi, 2));
-				else 
-					kapa = 0;
-				ROS_INFO("p% = %f%, K = %f and kapa = %f", percentage, K, kapa);
- 
-				double s, theta;
-				s = sqrt(pow(dist_moved_x_, 2) + pow(dist_moved_y_, 2));
-				theta = dist_rotated_;
-				ROS_INFO("s = %f and theta = %f", s, (theta * 180) / PI);
-				
-				double vel, omega;
-				if (d == 0)
-					vel = 0;				
-				else if (s <= d * percentage / 100 || s >= d * (1 - percentage / 100))
-					vel = K * s * (s - d) + V_min;
-				else 
-					vel = V_max;
-				if (phi == 0)
-					omega = 0;
-				else if (theta <= phi * percentage / 100 || theta >= phi * (1 - percentage / 100))
-					omega = kapa * theta * (theta - phi) + omega_min;
-				else 
-					omega = omega_max;
-				ROS_INFO("vel = %f and omega = %f", vel, (omega * 180) / PI);				
-
-				vel_x = vel * cos(alpha - theta);
-				vel_y = vel * sin(alpha - theta);
-				vel_phi = omega;
-				ROS_INFO("vel_x = %f, vel_y = %f, vel_phi = %f)", vel_y, vel_x, (vel_phi * 180) / PI);
-*/
-				/*if (rotation_goal_ >=0)
-				{
-					if (forward_goal_x_ > 0)
-					{
-						vel_y = -VEL * sin(dist_rotated_abs + ang_res);
-					}
-					else
-					{
-						vel_y = VEL * sin(dist_rotated_abs + ang_res);
-					}
-					if (forward_goal_y_ > 0)
-					{
-						vel_x = -VEL * cos(dist_rotated_abs + ang_res);
-					}
-					else
-					{
-						vel_x = VEL * cos(dist_rotated_abs + ang_res);
-					}
-					vel_phi = rotation_goal_abs * VEL / dist_res;
-				}
-				else
-				{
-					if (forward_goal_x_ >= 0)
-					{
-						vel_y = VEL * sin(dist_rotated_abs + ang_res);
-					}
-					else
-					{
-						vel_y = -VEL * sin(dist_rotated_abs + ang_res);
-					}
-					if (forward_goal_y_ >= 0)
-					{
-						vel_x = VEL * cos(dist_rotated_abs + ang_res);
-					}
-					else
-					{
-						vel_x = -VEL * cos(dist_rotated_abs + ang_res);
-					}
-					vel_phi = rotation_goal_abs * VEL / dist_res;
-				}
-				*/
-//			}	
-//		break;
-		case TANGENT:
-			/*ROS_INFO("dist_driven_x = %f , forward_goal_x_abs = %f, dist_driven_y = %f, forward_goal_y_abs = %f, dist_rotated_abs = %f, rotation_goal_abs = %f", dist_driven_x, forward_goal_x_abs, dist_driven_y, forward_goal_y_abs, dist_rotated_abs, rotation_goal_abs);*/
-			if (dist_driven_x < forward_goal_x_abs || dist_driven_y < forward_goal_y_abs || dist_rotated_abs < rotation_goal_abs)
-			{
-				double radius = .5 * sqrt(pow(forward_goal_x_abs, 2) + pow(forward_goal_y_abs, 2)) / sin(rotation_goal_abs / 2);				
-	
-				dist_res = rotation_goal_abs * 	radius;	
-				dist_driven = dist_rotated_abs * radius;		
-
-/*				if((dist_driven >= 0) && (dist_driven <= percentage * dist_res))
-				{
-					VEL = sqrt(pow(min_linear_vel, 2) + 2 * linear_acc * dist_driven);
-				
-				}
-				else if((dist_driven > percentage * dist_res) && (dist_driven <= (1 - percentage)*dist_res))
-				{
-					VEL = sqrt(pow(min_linear_vel, 2) + 2 * linear_acc * percentage * dist_res);
-				}
-				else
-				{
-					VEL = sqrt(pow(sqrt(pow(min_linear_vel, 2) + 2 * linear_acc * percentage * dist_res), 2) - 2 * linear_acc * (dist_driven - ((1 - percentage) * dist_res)));
-				}
-*/
-
-				vel_x = VEL_TANG * cos(ang_res);
-				
-				ROS_INFO("Moved (x, y) = (%f, %f) and roteated %f degrees , vel_x = %f", dist_driven_x, dist_driven_y, (dist_rotated_ * 180) / PI, vel_x);
-
-/*				double radius = .5 * sqrt(pow(forward_goal_x_abs, 2) + pow(forward_goal_y_abs, 2)) / sin(rotation_goal_abs / 2);*/
-
-				//vel_x = min_linear_vel;
-				vel_y = 0;
-				vel_phi = vel_x / radius;
-			}	
-		break;
 		default:
 			setCmdVel(0, 0, 0);
 			return;
 	}
-
+/*
 	if (forward_goal_x_ < 0)
 		vel_x = -vel_x;
 	if (forward_goal_y_ < 0)
 		vel_y = -vel_y;
+*/
 	if(rotation_goal_ < 0)
 		vel_phi = -vel_phi;
 

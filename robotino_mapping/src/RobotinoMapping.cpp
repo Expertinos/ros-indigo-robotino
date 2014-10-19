@@ -15,7 +15,7 @@ RobotinoMapping::RobotinoMapping()
 	get_area_coordinates_srv_ = nh_.advertiseService("get_product_coordinates", &RobotinoMapping::getAreaCoordinates, this);
 	set_map_srv_ = nh_.advertiseService("set_map", &RobotinoMapping::setMap, this);
 
-	nh_.param<string>("user_name", user_name_, "adriano");
+	nh_.param<string>("user_name", user_name_, "au");
 	maps_path_ = "/home/" + user_name_ + "/catkin_ws/src/robotino/robotino_mapping/maps/";
 	tv_map_ = readMap("red1.bmp");
 	dvd_map_ = readMap("blue1.bmp");

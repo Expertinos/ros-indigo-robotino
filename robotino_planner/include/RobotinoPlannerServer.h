@@ -36,7 +36,7 @@ public:
 private:
 	ros::NodeHandle nh_;
 	ros::ServiceClient go_srv_;
-	ros::ServiceServer move_srv_;
+	ros::ServiceClient move_cli_;
 	ros::ServiceClient stop_srv_;
 	ros::ServiceClient transport_srv_;
 	ros::Subscriber has_arrived_sub_;
@@ -64,7 +64,6 @@ private:
 	void execute(const robotino_planner::PlannerGoalConstPtr& goal);
 	int getProductCode(Product product);
 	int getPlaceCode(Place place);
-	bool moveTo(robotino_planner::MoveTo::Request &req, robotino_planner::MoveTo::Response &res);
 	void hasArrived(const std_msgs::BoolConstPtr& msg);
 
 };
