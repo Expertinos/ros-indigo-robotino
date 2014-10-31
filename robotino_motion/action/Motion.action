@@ -1,0 +1,44 @@
+#goal definition
+float32 move_x			# in meters
+float32 move_y			# in meters
+float32 move_phi		# in rad
+
+uint8 movement_type		# 0 - translational ; 
+				# 1 - rotational; 
+				# 2 - translational e rotational;
+				# 3 - tangent
+
+uint8 task_type			# 0 - align
+				# 1 - move
+				# 2 - count
+				# 3 - follow
+
+uint8 interruption_condition	# 0 - moved distance
+				# 1 - high optical sensor signal
+				# 2 - low optical sensor signal
+				# 3 - high inductive sensor signal
+				# 4 - low inductive sensor signal
+				# 5 - camera (achieved object)
+				# 6 - obstacle
+				# 7 - bumper
+				# 8 - time
+				# 9 - secured distance sensor signal
+
+uint8 alignment_device		# 0 - none
+				# 1 - infrared sensor
+				# 2 - optical sensor
+				# 3 - inductive sensor
+				# 4 - camera
+				# 5 - ultrassonic
+				# 6 - compass
+
+---
+#result definition
+uint8 extra_info
+bool achieved_goal 		#if true, the goal has been achieved
+---
+#feedback
+float32 percentage			# in range of 0% to 100%
+robotino_motion/RobotState state	# d_x, d_y, d_phi, loaded
+float32 elapsed_time			# in seconds
+float32 expected_time			# in seconds

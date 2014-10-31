@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+	<node name="robotino_mapping_node" pkg="robotino_mapping" type="robotino_mapping_node"  output="screen">
+		<param name="user_name" type="string" value="adriano"/>
+	</node>
+</launch>

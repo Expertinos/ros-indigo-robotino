@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+	<node name="robotino_vision_node" pkg="robotino_vision" type="robotino_vision_node" output="screen">
+		<param name="camera_height" type="double" value="28.0"/>
+		<param name="camera_close_distance" type="double" value="20.0"/>
+		<param name="camera_far_distance" type="double" value="62.0"/>
+		<param name="camera_depth_width" type="double" value="50.0"/>
+		<param name="height" type="int" value="240"/>
+		<param name="width" type="int" value="320"/>
+	</node> 
+</launch>

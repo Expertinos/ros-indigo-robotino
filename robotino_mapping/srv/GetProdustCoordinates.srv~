@@ -1,0 +1,10 @@
+uint8 product			# represents the product code for Module 0
+				# 0 for NONE
+				# 1 for TV
+				# 2 for DVD
+				# 3 for CELULAR
+				# 4 for TABLET
+				# 5 for NOTEBOOK
+---
+float32 x			# x axis coordinate of product area
+float32 y			# y axis coordinate of product area

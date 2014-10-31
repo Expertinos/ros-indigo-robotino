@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package>
+	<name>robotino</name>
+	<version>0.0.0</version>
+	<description>The robotino metapackage</description>
+	<maintainer email="adrianohrl@gmail.com">Adriano Henrique Rossette Leite</maintainer>
+	<license>BSD</license>
+	<url type="website">http://ros.org/wiki/robotino</url>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<run_depend>robotino_arduino</run_depend>
+	<run_depend>robotino_description</run_depend>
+	<run_depend>robotino_launch</run_depend>
+	<run_depend>robotino_leds</run_depend>
+	<run_depend>robotino_mapping</run_depend>
+	<run_depend>robotino_motion</run_depend>
+	<run_depend>robotino_msgs</run_depend>
+	<run_depend>robotino_node</run_depend>
+	<run_depend>robotino_planner</run_depend>
+	<run_depend>robotino_vision</run_depend>
+
+	<export>
+		<metapackage/>
+	</export>
+</package>

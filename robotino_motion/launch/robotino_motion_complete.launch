@@ -1,0 +1,10 @@
+<launch>
+  	<arg name="hostname" default="192.168.0.107:12080"/>
+	<arg name="robot" default="robotino"/>
+	<group ns="$(arg robot)">
+    		<include file="$(find robotino_node)/launch/robotino_node.launch">
+			<arg name="hostname" value="$(arg hostname)"/>
+		</include>
+		<include file="$(find robotino_motion)/launch/robotino_motion.launch"/>
+	</group>
+</launch>

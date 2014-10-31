@@ -1,0 +1,9 @@
+<launch>
+	<arg name="arduino" default="/dev/ttyACM0"/>
+	<arg name="baud" default="15200"/>
+	<node name="robotino_arduino" pkg="robotino_arduino" type="robotino_arduino_node" output="screen">
+	</node>
+	<node name="rosserial_python" pkg="rosserial_python" type="serial_node.py" output="screen" args="$(arg arduino) $(arg baud)">
+	</node>
+</launch>
+

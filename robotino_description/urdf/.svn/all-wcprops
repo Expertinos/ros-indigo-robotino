@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/1399/robotino-ros-pkg/trunk/robotino/robotino_description/urdf
+END
+robotino.urdf
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/!svn/ver/1399/robotino-ros-pkg/trunk/robotino/robotino_description/urdf/robotino.urdf
+END
+robotino_body.xacro
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/!svn/ver/1399/robotino-ros-pkg/trunk/robotino/robotino_description/urdf/robotino_body.xacro
+END
+robotino_hardware.xacro
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/!svn/ver/1377/robotino-ros-pkg/trunk/robotino/robotino_description/urdf/robotino_hardware.xacro
+END
+robotino.urdf.xacro
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/!svn/ver/1359/robotino-ros-pkg/trunk/robotino/robotino_description/urdf/robotino.urdf.xacro
+END

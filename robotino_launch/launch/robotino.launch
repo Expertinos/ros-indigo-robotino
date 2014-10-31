@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+  	<arg name="hostname" default="192.168.0.107:12080"/>
+	<arg name="robot" default="robotino"/>
+	<arg name="robotino" default="false"/>
+	<arg name="arduino" default="/dev/ttyACM0"/>
+  	<group ns="$(arg robot)" unless="$(arg robotino)">
+    		<include file="$(find robotino_node)/launch/robotino_node.launch">
+			<arg name="hostname" value="$(arg hostname)"/>
+		</include>
+		<include file="$(find robotino_arduino)/launch/robotino_arduino.launch">
+			<arg name="arduino" value="$(arg arduino)"/>
+		</include>
+		<include file="$(find robotino_motion)/launch/robotino_motion.launch"/>
+		<include file="$(find robotino_vision)/launch/robotino_vision.launch"/>		
+		<include file="$(find robotino_leds)/launch/robotino_leds.launch"/>
+		<include file="$(find robotino_mapping)/launch/robotino_mapping.launch"/>
+		<include file="$(find robotino_planner)/launch/robotino_planner.launch"/>
+	</group>
+</launch>

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package>
+  <name>robotino_description</name>
+  <version>0.0.0</version>
+  <description>This package includes the xacro files and meshes for Robotino.</description>
+  <maintainer email="adrianohrl@gmail.com">Adriano Henrique Rossette Leite</maintainer>
+  <license>BSD</license>
+  <url type="website">http://ros.org/wiki/robotino_description</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>

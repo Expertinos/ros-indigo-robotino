@@ -1,0 +1,6 @@
+uint8 i			# map pixel row index
+uint8 j			# map pixel column index
+---
+float32 x		# x axis coordinate
+float32 y		# y axis coordinate
+
