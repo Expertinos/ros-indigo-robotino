@@ -11,7 +11,7 @@ RobotinoPlannerServer::RobotinoPlannerServer():
 	server_(nh_, "planner", boost::bind(&RobotinoPlannerServer::execute, this, _1), false)
 {
 	go_srv_ = nh_.serviceClient<robotino_leds::GoFromTo>("go_from_to");
-	move_srv_ = nh_.advertiseService("move_to", &RobotinoPlannerServer::moveTo, this);
+	move_cli_ = nh_.serviceClient<robotino_planner::MoveTo>("move_to");
 	stop_srv_ = nh_.serviceClient<robotino_leds::StopTransportation>("stop_transportation");
 	transport_srv_ = nh_.serviceClient<robotino_leds::TransportProduct>("transport_product");
 	has_arrived_sub_ = nh_.subscribe("has_arrived", 1, &RobotinoPlannerServer::hasArrived, this);
@@ -30,9 +30,10 @@ RobotinoPlannerServer::RobotinoPlannerServer():
 RobotinoPlannerServer::~RobotinoPlannerServer()
 {
 	go_srv_.shutdown();
-	move_srv_.shutdown();
+	move_cli_.shutdown();
 	stop_srv_.shutdown();
 	transport_srv_.shutdown();
+	has_arrived_sub_.shutdown();
 }
 
 void RobotinoPlannerServer::spin()
@@ -128,12 +129,6 @@ void RobotinoPlannerServer::hasArrived(const std_msgs::BoolConstPtr& msg)
 	has_arrived_ = msg->data;
 }
 
-bool RobotinoPlannerServer::moveTo(robotino_planner::MoveTo::Request &req, robotino_planner::MoveTo::Response &res)
-{
-	has_arrived_ = false;
-	//////
-	return true;
-}
 
 int RobotinoPlannerServer::getProductCode(Product product)
 {

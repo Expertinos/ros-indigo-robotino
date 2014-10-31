@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <vector>
 
 #define dir 8
 
@@ -83,7 +84,7 @@ public:
             return(d);
         }     
         
-        void findpath();
+        void findpath(std::vector<int> vet, int xA, int yA, int xB, int yB);
         
 };
 

@@ -22,7 +22,6 @@ node::node()
 	//map88[n8][m8] = 0;
 }
 
-int vet[289];
 
 const int n=17; // horizontal size of the map
 const int m=17; // vertical size size of the map
@@ -173,8 +172,24 @@ string pathFind( const int & xStart, const int & yStart,
     return ""; // no route found
 }
 
-void node::findpath()
+void node::findpath(std::vector<int> vet, int xA, int yA, int xB, int yB)
 {
+	for (int i = 0; i < 17; i++)
+	{
+		for (int j = 0; j < 17; j++)
+		{
+			if (vet[i * 17 + j] == 0)
+			{
+				cout << "   ";
+			}
+			else
+			{
+				cout << " * ";
+			}
+		}
+		cout << endl;
+	}
+
 	int movimentox = 0;
 	int movimentoy = 0;	
 	int movimentoxy1 = 0;
@@ -215,6 +230,7 @@ void node::findpath()
 
     	//Lendo um vetor de 17x17. Sendo o vet[i*dim + j] o vetor dado pelo mapping
 
+	cout << " criando matrix";
     	for(int i=0;i<17;i++)
     	{
     		for(int j=0;j<17;j++)
@@ -226,7 +242,7 @@ void node::findpath()
 
 //----------------------------------------------------------------------------------------//    
 //Aqui os obst�culos s�o setados em '1'
-    for(int x=n/8;x<n*7/8;x++)
+/*    for(int x=n/8;x<n*7/8;x++)
     {
         map[x][m/2]=1;
     }
@@ -234,15 +250,16 @@ void node::findpath()
     {
         map[n/2][y]=1;
     }
-
+*/
 
     //Aqui setamos a coordenada INICIAL e FINAL
     // randomly select start and finish locations
-    int xA, yA, xB, yB;
+ /*   int xA, yA, xB, yB;
     xA = 7;
 	yA = 7;
 	xB = 10;
 	yB = 10;
+*/
 //----------------------------------------------------------------------------------------//      
 
 /*	switch(rand()%8)
@@ -258,18 +275,19 @@ void node::findpath()
     }
 */
 
-    cout<<"Map Size (X,Y): "<<n<<","<<m<<endl;
-    cout<<"Start: "<<xA<<","<<yA<<endl;
-    cout<<"Finish: "<<xB<<","<<yB<<endl;
+//    cout<<"Map Size (X,Y): "<<n<<","<<m<<endl;
+//    cout<<"Start: "<<xA<<","<<yA<<endl;
+//    cout<<"Finish: "<<xB<<","<<yB<<endl;
     // get the route
     clock_t start = clock();
+	cout << "calculando uma trajetoria";
     string route=pathFind(xA, yA, xB, yB);
     if(route=="") cout<<"An empty route generated!"<<endl;
     clock_t end = clock();
     double time_elapsed = double(end - start);
-    cout<<"Time to calculate the route (ms): "<<time_elapsed<<endl;
-    cout<<"Route:"<<endl;
-    cout<<route<<endl<<endl;
+//    cout<<"Time to calculate the route (ms): "<<time_elapsed<<endl;
+//    cout<<"Route:"<<endl;
+//    cout<<route<<endl<<endl;
 
     // follow the route on the map and display it 
     if(route.length()>0)
@@ -289,16 +307,18 @@ void node::findpath()
             y=y+dy[j];
             map[x][y]=3;
             
-            //insere x e y na fila temp
-            queue_temp.push(dx[j]);
-            queue_temp.push(dy[j]);
-
+		if(j % 2 != 0)
+		{
+            		//insere x e y impares na fila temp
+            		queue_temp.push(dx[j]);
+            		queue_temp.push(dy[j]);
+		}
         }
         //no fim da trajet�ria insere '10' � fila
         queue_temp.push(10);
         queue_temp.push(10);
 
-        printf("\nSize do queue_temp: %d\n", queue_temp.size());
+//        printf("\nSize do queue_temp: %d\n", queue_temp.size());
         
 		//a ultima c�lula da trajet�ria recebe '4' = F
 		map[x][y]=4;
@@ -365,7 +385,7 @@ void node::findpath()
 	}
         //Unindo movimentos na mesma coordenada
 
-			v_base[0] = queue_temp.front(); //x
+		v_base[0] = queue_temp.front(); //x
 	    	queue_temp.pop();
 	    	v_base[1] = queue_temp.front(); //y
 	    	queue_temp.pop();
@@ -375,19 +395,19 @@ void node::findpath()
         	v_aux[1] = queue_temp.front();
         	queue_temp.pop();
 		*/	
-			printf("\nAntes do while");
+//			printf("\nAntes do while");
         	while(!queue_temp.empty())
         	{
         		if(v_base[0] != 10)
         		{
-	        		printf("\nentrou no while geral");
-	        		printf("\nSize do queue_temp: %d", queue_temp.size());
+//	        		printf("\nentrou no while geral");
+//	        		printf("\nSize do queue_temp: %d", queue_temp.size());
 	        	
-	        		printf("\nSize do queue_temp: %d", queue_temp.size());
+//	        		printf("\nSize do queue_temp: %d", queue_temp.size());
 					//while((v_base[0] - v_aux[0]) != 0 && (v_base[1] - v_aux[1]) == 0) 
 	        		while((v_base[1] == 0 && v_base[0] != 10)) //movimento x
 	        		{
-	        			printf("\nentrou no while do movimento x");
+//	        			printf("\nentrou no while do movimento x");
 	        			movimentox = movimentox + v_base[0];
 	        			comando[0] = movimentox;
 	        			comando[1] = 0; 
@@ -399,23 +419,23 @@ void node::findpath()
 			        	queue_temp.pop();
 			    		}
 						t1 = 1;
-			        	printf("\nSize do queue_temp: %d", queue_temp.size());
+//			        	printf("\nSize do queue_temp: %d", queue_temp.size());
 			     }
 			    	if(t1 == 1)
 			    	{
-			    		printf("\nfundiu 7 movimentos");
+//			    		printf("\nfundiu 7 movimentos");
 						queue_astar.push(comando[0]);
 	        			queue_astar.push(comando[1]);
 	        			movimentox = 0;
 	        			t1 = 0;
-	        			printf("\ncolocou (7,0) na fila astar ");
+//	        			printf("\ncolocou (7,0) na fila astar ");
 				 }
 	        		
 	        		//while((v_base[1] - v_aux[1]) != 0 && (v_base[0] - v_aux[0]) == 0) //movimento y
 	        		
 	        		while((v_base[0] == 0 && v_base[0] != 10)) //movimento y
 					{
-						printf("\nentrou no while do movimento y");
+//						printf("\nentrou no while do movimento y");
 						
 	        			movimentoy = movimentoy + v_base[1];
 	        			comando[0] = 0;
@@ -428,16 +448,16 @@ void node::findpath()
 			        	queue_temp.pop();
 			    	}
 						t2 = 1;
-			        	printf("\nSize do queue_temp: %d", queue_temp.size());
+//			        	printf("\nSize do queue_temp: %d", queue_temp.size());
 			    	}
 			    	if(t2 == 1)
-			    	{	printf("\nfundiu movimento y");
+			    	{	//printf("\nfundiu movimento y");
 			    		queue_astar.push(comando[0]);
 	        			queue_astar.push(comando[1]);
 	        			movimentoy = 0;
 	        			t2 = 0;
 			    	}
-			    	printf("\njogou mov y na fila");        		
+//			    	printf("\njogou mov y na fila");
 					
 	        		//while((v_base[0] - v_aux[0]) != 0 && (v_base[1] - v_aux[1]) != 0) //movimento diagonal
 	        		while((v_base[0] < 0) && (v_base[1] < 0) && (v_base[0] > -100) && v_base[0] != 10) //movimento diagonal
@@ -445,7 +465,7 @@ void node::findpath()
 						//if(v_base[0] != 10)
 						//{
 						
-						printf("\nentrou no while do movimento xy");
+//						printf("\nentrou no while do movimento xy");
 						movimentoxy1 = movimentoxy1 + v_base[0];
 						movimentoxy2 = movimentoxy2 + v_base[1];
 	        			comando[0] = movimentoxy1;
@@ -458,18 +478,18 @@ void node::findpath()
 			        	queue_temp.pop();
 			    	}
 						t3 = 1;
-			        	printf("\nSize do queue_temp: %d", queue_temp.size());
+//			        	printf("\nSize do queue_temp: %d", queue_temp.size());
 			    	}
 			    	if(t3 == 1)
 			    	{
-			    		printf("\nfundiu movimento xy");
+//			    		printf("\nfundiu movimento xy");
 			    		queue_astar.push(comando[0]);
 	        			queue_astar.push(comando[1]);
 	        			movimentoxy1 = 0;
 	        			movimentoxy2 = 0;
 	        			t3 = 0;
 	        			
-	        			printf("\njogou mov xy");
+//	        			printf("\njogou mov xy");
 			    	}
 			    	
 			    	while((v_base[0] < 0) && (v_base[1] > 0) && (v_base[0] > -100) && v_base[0] != 10) //movimento diagonal
@@ -477,7 +497,7 @@ void node::findpath()
 						//if(v_base[0] != 10)
 						//{
 						
-						printf("\nentrou no while do movimento xy");
+//						printf("\nentrou no while do movimento xy");
 						movimentoxy1 = movimentoxy1 + v_base[0];
 						movimentoxy2 = movimentoxy2 + v_base[1];
 	        			comando[0] = movimentoxy1;
@@ -490,18 +510,18 @@ void node::findpath()
 			        	queue_temp.pop();
 			    	}
 						t3 = 1;
-			        	printf("\nSize do queue_temp: %d", queue_temp.size());
+//			        	printf("\nSize do queue_temp: %d", queue_temp.size());
 			    	}
 			    	if(t3 == 1)
 			    	{
-			    		printf("\nfundiu movimento xy");
+//			    		printf("\nfundiu movimento xy");
 			    		queue_astar.push(comando[0]);
 	        			queue_astar.push(comando[1]);
 	        			movimentoxy1 = 0;
 						movimentoxy2 = 0;
 	        			t3 = 0;
 	        			
-	        			printf("\njogou mov xy");
+//	        			printf("\njogou mov xy");
 			    	}
 			    	
 			    	while((v_base[0] > 0) && (v_base[1] > 0) && (v_base[0] > -100) && v_base[0] != 10) //movimento diagonal
@@ -509,7 +529,7 @@ void node::findpath()
 						//if(v_base[0] != 10)
 						//{
 						
-						printf("\nentrou no while do movimento xy");
+//						printf("\nentrou no while do movimento xy");
 						movimentoxy1 = movimentoxy1 + v_base[0];
 						movimentoxy2 = movimentoxy2 + v_base[1];
 	        			comando[0] = movimentoxy1;
@@ -522,18 +542,18 @@ void node::findpath()
 			        	queue_temp.pop();
 			    	}
 						t3 = 1;
-			        	printf("\nSize do queue_temp: %d", queue_temp.size());
+//			        	printf("\nSize do queue_temp: %d", queue_temp.size());
 			    	}
 			    	if(t3 == 1)
 			    	{
-			    		printf("\nfundiu movimento xy");
+//			    		printf("\nfundiu movimento xy");
 			    		queue_astar.push(comando[0]);
 	        			queue_astar.push(comando[1]);
 	        			movimentoxy1 = 0;
 	        			movimentoxy2 = 0;
 	        			t3 = 0;
 	        			
-	        			printf("\njogou mov xy");
+//	        			printf("\njogou mov xy");
 			    	}
 			    	
 			    	while((v_base[0] > 0) && (v_base[1] < 0) && (v_base[0] > -100) && v_base[0] != 10) //movimento diagonal
@@ -541,7 +561,7 @@ void node::findpath()
 						//if(v_base[0] != 10)
 						//{
 						
-						printf("\nentrou no while do movimento xy");
+//						printf("\nentrou no while do movimento xy");
 						movimentoxy1 = movimentoxy1 + v_base[0];
 						movimentoxy2 = movimentoxy2 + v_base[1];
 	        			comando[0] = movimentoxy1;
@@ -554,34 +574,34 @@ void node::findpath()
 			        	queue_temp.pop();
 			    	}
 						t3 = 1;
-			        	printf("\nSize do queue_temp: %d", queue_temp.size());
+//			        	printf("\nSize do queue_temp: %d", queue_temp.size());
 			    	}
 			    	if(t3 == 1)
 			    	{
-			    		printf("\nfundiu movimento xy");
+//			    		printf("\nfundiu movimento xy");
 			    		queue_astar.push(comando[0]);
 	        			queue_astar.push(comando[1]);
 	        			movimentoxy1 = 0;
 	        			movimentoxy2 = 0;
 	        			t3 = 0;
 	        			
-	        			printf("\njogou mov xy");
+//	        			printf("\njogou mov xy");
 			    	}
 			    
-	        	printf("\nSize do queue_temp: %d", queue_temp.size());
+//	        	printf("\nSize do queue_temp: %d", queue_temp.size());
 	        	}//else{break;}
 	        	
 			}
 	        
         	
-			printf("\nSAIU do while");
-			printf("\nSize do queue_temp: %d", queue_temp.size());
+//			printf("\nSAIU do while");
+//			printf("\nSize do queue_temp: %d", queue_temp.size());
         	res = 0;
 			resx = 0;
         	resy = 0;
         	
 			//printf("(%d,%d)", queue_astar.front(),queue_temp.front());
-        	printf("\n Size: %d",queue_astar.size());
+ //       	printf("\n Size: %d",queue_astar.size());
  /*       	while(!queue_astar.empty())
         	{
         		printf("\n(%d,",queue_astar.front());
@@ -589,7 +609,7 @@ void node::findpath()
         		printf("%d)",queue_astar.front());
 				queue_astar.pop();        		
         	}*/
- 			printf("\nSize do queue_astar: %d", queue_astar.size());
+ //			printf("\nSize do queue_astar: %d", queue_astar.size());
     
     //getchar(); // wait for a (Enter) keypress  
     //return(0);
