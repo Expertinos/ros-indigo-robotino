@@ -12,6 +12,7 @@
 #include <vector>
 #include "robotino_msgs/DigitalReadings.h"
 #include "robotino_leds/GoFromTo.h"
+#include "robotino_leds/SinalizeEnd.h"
 #include "robotino_leds/StopTransportation.h"
 #include "robotino_leds/TransportProduct.h"
 
@@ -27,7 +28,6 @@
 #define GREEN 3
 
 typedef enum {NONE, TV, DVD, CELULAR, TABLET, NOTEBOOK} Product;
-
 typedef enum {ORIGIN, SETOR_DE_CONTROLE, EXAMES, CENTRO_CIRURGICO, SETOR_DE_RECUPERACAO, SETOR_DE_SAIDA} Place;
 
 class RobotinoLeds
@@ -41,9 +41,10 @@ public:
 private:
 	ros::NodeHandle nh_;
 	ros::Publisher digital_pub_;
+	ros::ServiceServer go_srv_;
+	ros::ServiceServer sinalize_srv_;
 	ros::ServiceServer stop_srv_;
 	ros::ServiceServer transport_srv_;
-	ros::ServiceServer go_srv_;
 
 	robotino_msgs::DigitalReadings digital_msg_;
 
@@ -56,10 +57,11 @@ private:
 
 	void publish();	
 	bool goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds::GoFromTo::Response &res);
+	bool sinalizeEnd(robotino_leds::SinalizeEnd::Request &req, robotino_leds::SinalizeEnd::Response &res);
 	bool stopTransportation(robotino_leds::StopTransportation::Request &req, robotino_leds::StopTransportation::Response &res);
 	bool transportProduct(robotino_leds::TransportProduct::Request &req, robotino_leds::TransportProduct::Response &res);
 	bool sinalizeTransportation();
-	bool sinalizeEnd();
+	bool sinalizeEndOfTask();
 	bool toggleLed(int led);
 	bool toggleLed(int led1, int led2);
 	bool setLeds();

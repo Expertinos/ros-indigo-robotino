@@ -8,7 +8,10 @@ find_package(RobotinoAPI2 REQUIRED)
 
 add_service_files(
   	FILES
+	FindObjects.srv
+	GetProductsList.srv
   	SaveImage.srv
+	SetCalibration.srv
 	)
 
 generate_messages(

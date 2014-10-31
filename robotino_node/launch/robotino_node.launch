@@ -13,10 +13,7 @@
 	</node>  	
 	<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen">
 		<param name="publish_frequency" type="double" value="20.0" />
-	</node>
- 	<node name="robotino_mapping_node" pkg="robotino_node" type="robotino_mapping_node" output="screen">
-    		<param name="hostname" value="$(arg hostname)" />
-  	</node>  	
+	</node>	
 	<node name="robotino_camera_node" pkg="robotino_node" type="robotino_camera_node">
     		<param name="hostname" value="$(arg hostname)" />
     		<param name="cameraNumber" value="0" />

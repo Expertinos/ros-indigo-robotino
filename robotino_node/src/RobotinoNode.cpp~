@@ -10,7 +10,7 @@
 RobotinoNode::RobotinoNode()
 	: nh_("~")
 {
-	nh_.param<std::string>("hostname", hostname_, "192.168.0.121" );
+	nh_.param<std::string>("hostname", hostname_, "192.168.0.121:12080" );
 	nh_.param<double>("max_linear_vel", max_linear_vel_, 0.2 );
 	nh_.param<double>("min_linear_vel", min_linear_vel_, 0.05 );
 	nh_.param<double>("max_angular_vel", max_angular_vel_, 1.0 );

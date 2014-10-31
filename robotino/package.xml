@@ -13,6 +13,7 @@
 	<run_depend>robotino_description</run_depend>
 	<run_depend>robotino_launch</run_depend>
 	<run_depend>robotino_leds</run_depend>
+	<run_depend>robotino_mapping</run_depend>
 	<run_depend>robotino_motion</run_depend>
 	<run_depend>robotino_msgs</run_depend>
 	<run_depend>robotino_node</run_depend>

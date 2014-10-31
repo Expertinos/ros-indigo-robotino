@@ -4,9 +4,7 @@
   	<group ns="$(arg robot)">
     		<include file="$(find robotino_node)/launch/robotino_node.launch">
 			<arg name="hostname" value="$(arg hostname)"/>
-		</include>
-		<node name="robotino_motion_leds_node" pkg="robotino_leds" type="robotino_leds_node"  output="screen">
-			<param name="frequency" value="1.0"/>
-		</node>
+		</include>			
+		<include file="$(find robotino_leds)/launch/robotino_leds.launch"/>
 	</group>
 </launch>
