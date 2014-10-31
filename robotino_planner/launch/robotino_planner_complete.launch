@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-	<arg name="robot" default="robotino"/>
-  	<group ns="$(arg robot)">
-		<include file="$(find robotino_planner)/launch/robotino_planner.launch"/>
-		<include file="$(find robotino_mapping)/launch/robotino_mapping.launch"/>
-	</group>
-</launch>

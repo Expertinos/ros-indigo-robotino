@@ -1,8 +1,0 @@
-uint8 product		# asks to blink leds acording to product
-			# 1 to alternate between yellow and blue LEDs 		(TV)
-			# 2 to alternate between blue and green LEDs 		(DVD)
-			# 3 to alternate between green and yellow LEDs 		(Celular)
-			# 4 to alternate between red and blue LEDs 		(Tablet)
-			# 5 to alternate between green and red LEDs		(Notebook)
----
-bool succeed		# It is true if the parameter has been correctly passed. Otherwise, it is false.

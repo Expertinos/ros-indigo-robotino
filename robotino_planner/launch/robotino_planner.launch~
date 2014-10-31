@@ -1,6 +1,0 @@
-<launch>
-	<node name="robotino_planner_client_node" pkg="robotino_planner" type="robotino_planner_client_node"  output="screen">
-	</node>
-	<node name="robotino_planner_server_node" pkg="robotino_planner" type="robotino_planner_server_node" output="screen">
-	</node>
-</launch>
