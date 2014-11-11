@@ -30,6 +30,18 @@ typedef enum {HOME, TV, DVD, CELULAR, TABLET, NOTEBOOK, ORDER_1, ORDER_2} AreaA;
 typedef enum {ORIGIN, ELEVATOR, SETOR_DE_CONTROLE, EXAMES, CENTRO_CIRURGICO, SETOR_DE_RECUPERACAO, SETOR_DE_SAIDA} AreaB;
 typedef enum {MODULE_A, MODULE_B} Module;
 
+struct Coordinates
+{
+	double x;
+	double y;
+};
+
+struct Indexes
+{
+	double i;
+	double j;
+};
+
 static const string MAP_WINDOW = "Map";
 
 class RobotinoMapping
@@ -69,8 +81,10 @@ private:
 	bool setMap(robotino_mapping::SetMap::Request &req, robotino_mapping::SetMap::Response &res);
 	cv::Point2f getArea(AreaA area);
 	cv::Point2f getArea(AreaB area);
-	cv::Point2f convertIndexesToCoordinates(int i, int j);
-	cv::Point2f convertCoordinatesToIndexes(float x, float y);
+	Coordinates convertIndexesToCoordinates(Indexes indexes);
+	Coordinates convertIndexesToCoordinates(int i, int j);
+	Indexes convertCoordinatesToIndexes(Coordinates coordinates);
+	Indexes convertCoordinatesToIndexes(float x, float y);
 
 };
 

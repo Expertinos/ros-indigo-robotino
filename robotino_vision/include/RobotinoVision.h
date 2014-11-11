@@ -22,11 +22,12 @@
 #include "robotino_vision/FindObjects.h"
 #include "robotino_vision/SaveImage.h"
 #include "robotino_vision/SetCalibration.h"
+#include "robotino_vision/GetProductsList.h"
 
 using namespace cv;
 using namespace std;
 
-typedef enum {RED, GREEN, BLUE, YELLOW} Color;
+typedef enum {ORANGE, YELLOW, BLUE, GREEN, RED, BLACK} Color;
 
 static const std::string BLACK_MASK_WINDOW = "Black Mask Window";
 static const std::string PUCKS_MASK_WINDOW = "Pucks Mask Window";
@@ -50,6 +51,7 @@ private:
 	ros::ServiceServer save_srv_;
 	ros::ServiceServer set_calibration_srv_;
 	ros::ServiceServer find_objects_srv_; 
+	ros::ServiceServer get_list_srv_;
 
 	Mat imgRGB_;
 
@@ -77,11 +79,13 @@ private:
 	// variáveis usadas para o processamento de Final Mask
 	int open2_;
 	int close2_;
+	int open3_;
 
 	void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 	bool saveImage(robotino_vision::SaveImage::Request &req, robotino_vision::SaveImage::Response &res);
 	bool setCalibration(robotino_vision::SetCalibration::Request &req, robotino_vision::SetCalibration::Response &res);
 	bool findObjects(robotino_vision::FindObjects::Request &req, robotino_vision::FindObjects::Response &res);
+	bool getList(robotino_vision::GetProductsList::Request &req, robotino_vision::GetProductsList::Response &res);
 
 	cv::Mat readImage(const char* imageName);
 	std::vector<cv::Point2f> processColor();
@@ -93,6 +97,7 @@ private:
 	void showImageBGRwithMask(cv::Mat mask);
 	void setColor(Color color);
 	std::vector<cv::Point2f> getPositions(std::vector<cv::Point2f> mass_center);
+	int getNumberOfObjects(Color color);
 
 	/*// variaveis usadas para o processamento de LampPost
 	void processImageLampPost();

@@ -17,7 +17,7 @@
  	<node name="robotino_mapping_node" pkg="robotino_node" type="robotino_mapping_node" output="screen">
     		<param name="hostname" value="$(arg hostname)" />
   	</node>  	
-	<node name="robotino_camera_node" pkg="robotino_node" type="robotino_camera_node" output="screen">
+	<node name="robotino_camera_node" pkg="robotino_node" type="robotino_camera_node">
     		<param name="hostname" value="$(arg hostname)" />
     		<param name="cameraNumber" value="0" />
 	</node>

@@ -15,6 +15,8 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point32.h>
 #include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/PointCloud.h>
+#include <tf/transform_datatypes.h>
 #include <vector>
 
 #include "robotino_msgs/AnalogReadings.h"
@@ -22,14 +24,23 @@
 
 #include "robotino_motion/MotionAction.h"
 #include "robotino_motion/MotionActionGoal.h"
+#include "robotino_motion/GetProduct.h"
+#include "robotino_motion/Align.h"
+#include "robotino_motion/SetAchievedGoal.h"
+
+#include "robotino_vision/FindObjects.h"
 
 #define PI 3.14159
 #define sign(a) (((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
 
+using namespace std;
+
 typedef actionlib::SimpleActionServer<robotino_motion::MotionAction> Server;
 typedef enum { IDLE,
 		MOVING,
-		FINISHED } State;
+		FINISHED,
+		PROCESSING,
+		ALIGNING} State;
 typedef enum { TRANSLATIONAL,
 		ROTATIONAL,
 		TRANSLATIONAL_ROTATIONAL,
@@ -55,6 +66,13 @@ typedef enum { NONE,
 		CAMERAAL, 
 		ULTRASONIC,
 		COMPASS } AlignmentDevice;
+typedef enum { TV, 
+		DVD, 
+		CELULAR, 
+		TABLET, 
+		NOTEBOOK } Product;
+
+typedef enum {FRONT, RIGHT, LEFT, BACK} AlignmentMode;
 
 class RobotinoMotionServer
 {
@@ -64,18 +82,17 @@ public:
 
 private:
 	ros::NodeHandle nh_;
-
 	ros::Subscriber odometry_sub_;
-
 	ros::Subscriber scan_sub_;
-
 	ros::Subscriber bumper_sub_;
-
 	ros::Subscriber analog_sub_;
-
 	ros::Subscriber digital_sub_;
-
+	ros::Subscriber distance_sub_;
 	ros::Publisher cmd_vel_pub_;
+	ros::ServiceServer get_product_srv_;
+	ros::ServiceServer align_srv_;
+	ros::ServiceClient find_objects_cli_;
+	ros::ServiceClient set_achieved_goal_cli_;
 
 	Server server_;
 
@@ -91,18 +108,16 @@ private:
 	geometry_msgs::Twist cmd_vel_msg_;
 	nav_msgs::Odometry current_odom_msg_;
 	nav_msgs::Odometry start_odom_msgs_;
-	//sensor_msgs::LaserScan laser_scan_msg_;
+	sensor_msgs::LaserScan laser_scan_msg_;
 	std_msgs::Bool bumper_msg_;
 	robotino_msgs::AnalogReadings analog_msg_;
+	sensor_msgs::PointCloud distance_msg_;
 	robotino_msgs::DigitalReadings digital_msg_;
 
 	double curr_x_, curr_y_, curr_phi_, prev_phi_;
 	double dist_moved_x_, dist_moved_y_, dist_rotated_;
 	double forward_goal_x_, forward_goal_y_, rotation_goal_;
 	double start_x_, start_y_, start_phi_;
-
-//	std::vector<geometry_msgs::Point32> forward_vel_vector_;
-//	std::vector<geometry_msgs::Point32> rotation_vel_vector_;
 
 	double min_linear_vel_;
 	double max_linear_vel_;
@@ -113,6 +128,7 @@ private:
 	double percentage_;
 
 	bool odom_set_;
+	bool is_loaded_;
 
 	bool ident_obstacle_;
 	bool obstacle_;
@@ -132,19 +148,36 @@ private:
 	int optical_value_left_;
 	int optical_value_test_;
 
+	// Image Processing Variable
+	int nframes_no_puck_;
+
+	// Back Alignment Variables
+	int alignment_mode_;
+	int left_index_;
+	int right_index_;
+	float left_ir_;
+	float right_ir_;
+	bool lateral_;
+
 	void odomCallback( const nav_msgs::OdometryConstPtr& msg );
 	void scanCallback( const sensor_msgs::LaserScan& msg );
 	void bumperCallback( const std_msgs::Bool& msg );
 	void analogCallback( const robotino_msgs::AnalogReadings& msg );
+	void distanceSensorsCallback( const sensor_msgs::PointCloud& msg );
 	void digitalCallback( const robotino_msgs::DigitalReadings& msg );
+	
 	void teleopActivatedCallback( const std_msgs::BoolConstPtr& msg );
 	void execute( const robotino_motion::MotionGoalConstPtr& goal );
 	void setCmdVel( double vx, double vy, double omega );
 	void controlLoop();
 	bool acceptNewGoal( const robotino_motion::MotionGoalConstPtr& goal );
 	void readParameters( ros::NodeHandle& n);
-	template< typename InputIterator > double linearApproximator(
-			InputIterator iter, InputIterator end, const double x );
+	void distanceCallback(sensor_msgs::PointCloud& msg);
+	bool getProduct(robotino_motion::GetProduct::Request &req, robotino_motion::GetProduct::Response &res);
+	void controlImageProcessing();
+	bool align(robotino_motion::Align::Request &req, robotino_motion::Align::Response &res);
+	void controlAlignment();
+	bool setAchievedGoal(bool achieved_goal);
 
 public:
 	void spin();

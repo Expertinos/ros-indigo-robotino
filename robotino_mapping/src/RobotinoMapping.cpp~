@@ -9,7 +9,7 @@
 
 RobotinoMapping::RobotinoMapping()
 {
-	get_coordinates_srv_ = nh_.advertiseService("get_icoordinates", &RobotinoMapping::getCoordinates, this);
+	get_coordinates_srv_ = nh_.advertiseService("get_coordinates", &RobotinoMapping::getCoordinates, this);
 	get_indexes_srv_ = nh_.advertiseService("get_indexes", &RobotinoMapping::getIndexes, this);
 	get_map_srv_ = nh_.advertiseService("get_map", &RobotinoMapping::getMap, this);
 	get_area_coordinates_srv_ = nh_.advertiseService("get_product_coordinates", &RobotinoMapping::getAreaCoordinates, this);
@@ -17,11 +17,11 @@ RobotinoMapping::RobotinoMapping()
 
 	nh_.param<string>("user_name", user_name_, "adriano");
 	maps_path_ = "/home/" + user_name_ + "/catkin_ws/src/robotino/robotino_mapping/maps/";
-	tv_map_ = readMap("red1.bmp");
-	dvd_map_ = readMap("blue1.bmp");
-	celular_map_ = readMap("green1.bmp");
-	tablet_map_ = readMap("yellow1.bmp");
-	notebook_map_ = readMap("pink1.bmp");
+	tv_map_ = readMap("tv_yellow.bmp");
+	dvd_map_ = readMap("dvd_blue.bmp");
+	celular_map_ = readMap("celular_green.bmp");
+	tablet_map_ = readMap("tablet_red.bmp");
+	notebook_map_ = readMap("notebook_black.bmp");
 	namedWindow(MAP_WINDOW);
 }
 
@@ -48,27 +48,24 @@ bool RobotinoMapping::spin()
 
 std::vector<int> RobotinoMapping::readMap(const char* file_name)
 {
+	vector<int> map;
 	Mat map_image = imread(maps_path_ + file_name, 1);
 	if (!map_image.data)
 	{
 		ROS_ERROR("No image data!!!");
-	}//else
+		return map;
+	}
 	maps_height_ = map_image.rows;
 	maps_width_ = map_image.cols;
-	vector<int> map;
 	ROS_INFO("tamanhos: (%d, %d)", maps_height_, maps_width_);
-	for (int i = 0; i < maps_height_ ; i++)//- 1; i++)
+	for (int i = 0; i < maps_height_ ; i++)
 	{
-		for (int j = 0; j < maps_width_; j++)// - 1; j++)
+		for (int j = 0; j < maps_width_; j++)
 		{				
 			Vec3b pixel = map_image.at<Vec3b>(i, j);
-			//ROS_INFO("passeei aki"); 
 			map.push_back(1 - pixel.val[0] / 255);
-			//ROS_INFO("(%d,%d) = %d ", i, j, map[i * maps_height_ + j]);
 		}
-	/*	ROS_INFO("(%d): %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", i, map.at(i + maps_height_ + 0), map.at(i + maps_height_ + 1), map.at(i + maps_height_ + 2), map.at(i + maps_height_ + 3), map.at(i + maps_height_ + 4), map.at(i + maps_height_ + 5), map.at(i + maps_height_ + 6), map.at(i + maps_height_ + 7), map.at(i + maps_height_ + 8), map.at(i + maps_height_ + 9), map.at(i + maps_height_ + 10), map.at(i + maps_height_ + 11), map.at(i + maps_height_ + 12), map.at(i + maps_height_ + 13), map.at(i + maps_height_ + 14), map.at(i + maps_height_ + 15), map.at(i + maps_height_ + 16));
-*/
-ROS_INFO("(%d): %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", i, map.at(i * maps_height_ + 0), map.at(i * maps_height_ + 1), map.at(i * maps_height_ + 2), map.at(i * maps_height_ + 3), map.at(i * maps_height_ + 4), map.at(i * maps_height_ + 5), map.at(i * maps_height_ + 6), map.at(i * maps_height_ + 7), map.at(i * maps_height_ + 8), map.at(i * maps_height_ + 9), map.at(i * maps_height_ + 10), map.at(i * maps_height_ + 11), map.at(i * maps_height_ +12), map.at(i * maps_height_ + 13), map.at(i * maps_height_ + 14), map.at(i * maps_height_ + 15), map.at(i * maps_height_ + 16));
+ROS_INFO(" %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", map.at(i * maps_height_ + 0), map.at(i * maps_height_ + 1), map.at(i * maps_height_ + 2), map.at(i * maps_height_ + 3), map.at(i * maps_height_ + 4), map.at(i * maps_height_ + 5), map.at(i * maps_height_ + 6), map.at(i * maps_height_ + 7), map.at(i * maps_height_ + 8), map.at(i * maps_height_ + 9), map.at(i * maps_height_ + 10), map.at(i * maps_height_ + 11), map.at(i * maps_height_ +12), map.at(i * maps_height_ + 13), map.at(i * maps_height_ + 14), map.at(i * maps_height_ + 15), map.at(i * maps_height_ + 16));
 	}
 	return map;
 }
@@ -76,17 +73,17 @@ ROS_INFO("(%d): %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", i, map.at(i
 
 bool RobotinoMapping::getCoordinates(robotino_mapping::GetCoordinates::Request &req, robotino_mapping::GetCoordinates::Response &res)
 {
-	Point2f point = convertIndexesToCoordinates(req.i, req.i);
-	res.x = point.x;
-	res.y = point.y;
+	Coordinates coordinates = convertIndexesToCoordinates(req.i, req.i);
+	res.x = coordinates.x;
+	res.y = coordinates.y;
 	return true;
 }
 
 bool RobotinoMapping::getIndexes(robotino_mapping::GetIndexes::Request &req, robotino_mapping::GetIndexes::Response &res)
 {
-	Point2f point = convertCoordinatesToIndexes(req.x, req.y);
-	res.i = point.x;
-	res.j = point.y;
+	Indexes indexes = convertCoordinatesToIndexes(req.x, req.y);
+	res.i = indexes.i;
+	res.j = indexes.j;
 	return true;
 }
 
@@ -118,7 +115,8 @@ bool RobotinoMapping::getMap(robotino_mapping::GetMap::Request &req, robotino_ma
 	{
 		for (int j = 0; j < maps_width_; j++)
 		{
-			res.map[i] = chosen_map.at(i * maps_height_ + j);
+			res.map.push_back(chosen_map.at(i * maps_height_ + j));
+			ROS_INFO("(%d,%d)=%d",i,j,res.map[i * height_ + j]);
 		}
 	}
 	return true;
@@ -246,36 +244,36 @@ cv::Point2f RobotinoMapping::getArea(AreaA area)
 	switch (area)
 	{
 		case HOME:
-			point.x = 1;
-			point.y = 1;
-			break;
-		case TV:
-			point.x = 2;
-			point.y = 2;
-			break;
-		case DVD:
-			point.x = 3;
-			point.y = 3;
-			break;
-		case CELULAR:
-			point.x = 4;
-			point.y = 4;
-			break;
-		case TABLET:
-			point.x = 5;
-			point.y = 5;
-			break;
-		case NOTEBOOK:
-			point.x = 6;
-			point.y = 6;
-			break;
-		case ORDER_1:
-			point.x = 7;
+			point.x = 15;
 			point.y = 7;
 			break;
+		case TV:
+			point.x = 11;
+			point.y = 7;
+			break;
+		case DVD:
+			point.x = 9;
+			point.y = 1;
+			break;
+		case CELULAR:
+			point.x = 3;
+			point.y = 5;
+			break;
+		case TABLET:
+			point.x = 3;
+			point.y = 9;
+			break;
+		case NOTEBOOK:
+			point.x = 9;
+			point.y = 15;
+			break;
+		case ORDER_1:
+			point.x = 13;
+			point.y = 1;
+			break;
 		case ORDER_2:
-			point.x = 8;
-			point.y = 8;
+			point.x = 13;
+			point.y = 15;
 	}
 	return point;
 }
@@ -316,18 +314,28 @@ cv::Point2f RobotinoMapping::getArea(AreaB area)
 	return point;
 }
 
-cv::Point2f RobotinoMapping::convertIndexesToCoordinates(int i, int j)
+Coordinates RobotinoMapping::convertIndexesToCoordinates(Indexes indexes)
 {
-	Point2f point;
-	point.x = .5 * delta_x_ * i; // in centimeters
-	point.y = .5 * delta_y_ * j; // in centimeters
-	return point;
+	return convertIndexesToCoordinates(indexes.i, indexes.j);
 }
 
-cv::Point2f RobotinoMapping::convertCoordinatesToIndexes(float x, float y)
+Coordinates RobotinoMapping::convertIndexesToCoordinates(int i, int j)
 {
-	Point2f point;
-	point.x = ceil(2 * x / delta_x_); 
-	point.y = ceil(2 * y / delta_y_); 
-	return point;	
+	Coordinates coordinates;
+	coordinates.x = .5 * delta_x_ * i; // in centimeters
+	coordinates.y = .5 * delta_y_ * j; // in centimeters
+	return coordinates;
+}
+
+Indexes RobotinoMapping::convertCoordinatesToIndexes(Coordinates coordinates)
+{
+	return convertCoordinatesToIndexes(coordinates.x, coordinates.y);
+}
+
+Indexes RobotinoMapping::convertCoordinatesToIndexes(float x, float y)
+{
+	Indexes indexes;
+	indexes.i = ceil(2 * x / delta_x_); 
+	indexes.j = ceil(2 * y / delta_y_); 
+	return indexes;	
 }
