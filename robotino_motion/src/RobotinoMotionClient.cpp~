@@ -9,7 +9,11 @@
 #include "RobotinoMotionClient.h"
 
 RobotinoMotionClient::RobotinoMotionClient():
+<<<<<<< HEAD
 	client_("motion", false),
+=======
+	client_( "motion", false),
+>>>>>>> 29d8ca550428bdda7f13c968d2147274b79f19f9
 	max_time_( 1.0 )
 {
 	goal_sub_ = nh_.subscribe( "goal", 1,
