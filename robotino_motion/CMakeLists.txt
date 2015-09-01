@@ -60,6 +60,7 @@ target_link_libraries(robotino_motion_server_node
 
 add_dependencies(robotino_motion_server_node
 	robotino_vision_gen_cpp
+	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
@@ -74,5 +75,6 @@ target_link_libraries(robotino_motion_client_node
 	)
 
 add_dependencies(robotino_motion_client_node
+	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)
