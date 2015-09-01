@@ -9,15 +9,19 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<run_depend>robotino_arduino</run_depend>
 	<run_depend>robotino_description</run_depend>
 	<run_depend>robotino_launch</run_depend>
 	<run_depend>robotino_leds</run_depend>
+	<run_depend>robotino_local_move</run_depend>
+	<run_depend>robotino_local_planner</run_depend>
 	<run_depend>robotino_mapping</run_depend>
 	<run_depend>robotino_motion</run_depend>
 	<run_depend>robotino_msgs</run_depend>
+	<run_depend>robotino_navigation</run_depend>
 	<run_depend>robotino_node</run_depend>
 	<run_depend>robotino_planner</run_depend>
+	<run_depend>robotino_safety</run_depend>
+	<run_depend>robotino_teleop</run_depend>
 	<run_depend>robotino_vision</run_depend>
 
 	<export>

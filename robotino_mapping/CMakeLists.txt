@@ -10,13 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
 	)
 find_package(OpenCV REQUIRED)
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
-
 add_service_files(
 	FILES
 	GetCoordinates.srv
@@ -25,13 +18,6 @@ add_service_files(
 	GetAreaCoordinates.srv
 	SetMap.srv
 	)
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
 
 generate_messages(
 	DEPENDENCIES
@@ -45,6 +31,11 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 add_executable(robotino_mapping_node 
 	src/robotino_mapping_node.cpp
 	src/RobotinoMapping.cpp
+	)
+
+add_dependencies(robotino_mapping_node
+	robotino_mapping_gen_cpp
+	${robotino_mapping_EXPORTED_TARGETS}
 	)
 
 target_link_libraries(robotino_mapping_node
