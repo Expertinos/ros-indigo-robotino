@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/src
+END
+JoystickTeleop.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/src/JoystickTeleop.cpp
+END
+KeyboardTeleop.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/src/KeyboardTeleop.cpp
+END
+joystick_teleop_node.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/src/joystick_teleop_node.cpp
+END
+keyboard_teleop_node.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/src/keyboard_teleop_node.cpp
+END

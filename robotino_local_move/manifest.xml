@@ -1,0 +1,18 @@
+<package>
+  <description brief="robotino_local_move">
+Implements an actionlib client and server node to move Robotino with pre-defined goals.
+  </description>
+  <author>indorewala@servicerobotics.eu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robotino_local_move</url>
+  <depend package="robotino_node" />
+  <depend package="actionlib" />
+  <depend package="actionlib_msgs" />
+  <depend package="tf" />
+  <depend package="geometry_msgs" />
+  <depend package="std_msgs" />
+  <depend package="nav_msgs" />
+</package>
+
+

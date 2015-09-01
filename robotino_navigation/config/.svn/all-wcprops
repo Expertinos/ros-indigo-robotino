@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/2110/robotino-ros-pkg/trunk/robotino/robotino_navigation/config
+END
+costmap_common_params.yaml
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/!svn/ver/1399/robotino-ros-pkg/trunk/robotino/robotino_navigation/config/costmap_common_params.yaml
+END
+local_costmap_params.yaml
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/!svn/ver/1260/robotino-ros-pkg/trunk/robotino/robotino_navigation/config/local_costmap_params.yaml
+END
+robotino.rviz
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/!svn/ver/2110/robotino-ros-pkg/trunk/robotino/robotino_navigation/config/robotino.rviz
+END
+robotin.rviz
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/!svn/ver/2109/robotino-ros-pkg/trunk/robotino/robotino_navigation/config/robotin.rviz
+END
+base_local_planner_params.yaml
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/!svn/ver/1399/robotino-ros-pkg/trunk/robotino/robotino_navigation/config/base_local_planner_params.yaml
+END
+rviz.vcg
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/!svn/ver/2109/robotino-ros-pkg/trunk/robotino/robotino_navigation/config/rviz.vcg
+END
+global_costmap_params.yaml
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/!svn/ver/1260/robotino-ros-pkg/trunk/robotino/robotino_navigation/config/global_costmap_params.yaml
+END
