@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/!svn/ver/1788/robotino-ros-pkg/trunk/robotino/robotino_teleop
+END
+CMakeLists.txt
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/CMakeLists.txt
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/1261/robotino-ros-pkg/trunk/robotino/robotino_teleop/Makefile
+END
+manifest.xml
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/1521/robotino-ros-pkg/trunk/robotino/robotino_teleop/manifest.xml
+END
+mainpage.dox
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/1261/robotino-ros-pkg/trunk/robotino/robotino_teleop/mainpage.dox
+END

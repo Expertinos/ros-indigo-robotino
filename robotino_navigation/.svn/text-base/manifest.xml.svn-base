@@ -1,0 +1,14 @@
+<package>
+  <description brief="robotino_navigation">
+This package contains launch and config files to launch Robotino with 
+certain configurations for tasks such as mapping and navigation.
+  </description>
+  <author>indorewala@servicerobotics.eu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robotino_navigation</url>
+  <depend package="robotino_node"/>
+
+</package>
+
+

@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "robotino_navigation")
+set(robotino_navigation_MAINTAINER "Audeliano Wolian Li <audeliano@gmail.com>")
+set(robotino_navigation_DEPRECATED "")
+set(robotino_navigation_VERSION "0.0.0")
+set(robotino_navigation_BUILD_DEPENDS "robotino_node" "roscpp")
+set(robotino_navigation_RUN_DEPENDS "robotino_node" "roscpp")
+set(robotino_navigation_BUILDTOOL_DEPENDS "catkin")
