@@ -19,12 +19,12 @@
 #include "robotino_leds/GoFromTo.h"
 #include "robotino_leds/StopTransportation.h"
 #include "robotino_leds/TransportProduct.h"
+#include "robotino_leds/TransportProduct.h"
 #include "robotino_mapping/GetAreaCoordinates.h"
 #include "robotino_mapping/GetIndexes.h"
 #include "robotino_motion/MoveTo.h"
-#include "robotino_vision/GetProductsList.h"
 #include "robotino_motion/GetProduct.h"
-#include "robotino_leds/TransportProduct.h"
+#include "robotino_vision/GetProductsList.h"
 
 using namespace std;
 

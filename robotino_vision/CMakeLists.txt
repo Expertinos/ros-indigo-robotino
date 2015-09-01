@@ -28,6 +28,11 @@ add_executable(robotino_vision_node
 	src/RobotinoVision.cpp 
 	)
 
+add_dependencies(robotino_vision_node
+	robotino_vision_gen_cpp
+	${robotino_vision_EXPORTED_TARGETS}
+	)
+
 target_link_libraries(robotino_vision_node
 	${REC_ROBOTINO_API2_LIBRARY}
   	${catkin_LIBRARIES}

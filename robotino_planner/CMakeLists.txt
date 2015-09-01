@@ -52,7 +52,11 @@ target_link_libraries(robotino_planner_server_node
 	)
 
 add_dependencies(robotino_planner_server_node
-	robotino_leds_gencpp
+	robotino_planner_gen_cpp
+	robotino_leds_gen_cpp
+	robotino_mapping_gen_cpp
+	robotino_motion_gen_cpp
+	robotino_vision_gen_cpp
 	${robotino_planner_EXPORTED_TARGETS}
 	)
 
@@ -66,5 +70,9 @@ target_link_libraries(robotino_planner_client_node
 	)
 
 add_dependencies(robotino_planner_client_node
+	robotino_planner_gen_cpp
+	robotino_motion_gen_cpp
+	robotino_leds_gen_cpp
+	robotino_vision_gen_cpp
 	${robotino_planner_EXPORTED_TARGETS}
 	)
