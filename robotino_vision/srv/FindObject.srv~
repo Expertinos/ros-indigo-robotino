@@ -1,8 +1,0 @@
-uint8 color		# Object color code
-			# 0 for red
-			# 1 for green
-			# 2 for blue
-			# 3 for yellow
----
-float32 direction	# Object
-float32 distance

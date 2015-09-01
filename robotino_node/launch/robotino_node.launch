@@ -1,5 +1,5 @@
 <launch>
-	<arg name="hostname" default="192.168.0.107:12080"/>
+	<arg name="hostname" default="192.168.1.171:12080"/>
 	<node name="robotino_node" pkg="robotino_node" type="robotino_node" output="screen">
 		<param name="hostname" value="$(arg hostname)" />
 		<param name="max_linear_vel" value="0.5" />
@@ -18,5 +18,11 @@
     		<param name="hostname" value="$(arg hostname)" />
     		<param name="cameraNumber" value="0" />
 	</node>
+
+	<node name="robotino_laserrangefinder_node" pkg="robotino_node" type="robotino_laserrangefinder_node">
+    		<param name="hostname" value="$(arg hostname)" />
+    		<param name="laserRangeFinderNumber" value="0" />
+	</node>
+
 	<param name="robot_description" textfile="$(find robotino_description)/urdf/robotino.urdf" />
 </launch>

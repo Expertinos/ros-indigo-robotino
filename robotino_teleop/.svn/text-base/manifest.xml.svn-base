@@ -1,0 +1,14 @@
+<package>
+  <description brief="robotino_teleop">
+Implements nodes to control Robotino using a joystick or a keyboard.
+  </description>
+  <author>indorewala@servicerobotics.eu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robotino_teleop</url>
+  <depend package="robotino_node"/>
+  <depend package="geometry_msgs"/>
+  <depend package="sensor_msgs"/>
+</package>
+
+

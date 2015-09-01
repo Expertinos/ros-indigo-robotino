@@ -1,0 +1,9 @@
+<launch>
+	<!-- start rviz -->
+	<arg name="isgroovy" value='true'/>
+
+	<!-- node pkg="rviz" type="rviz" name="rviz" args="-d $(find robotino_navigation)/config/rviz.vcg" unless="$(arg isgroovy)"/ -->
+	
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find robotino_navigation)/config/robotino.rviz" if="$(arg isgroovy)"/>
+</launch>

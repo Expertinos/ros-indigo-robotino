@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/1311/robotino-ros-pkg/trunk/robotino/robotino_teleop/launch
+END
+joystick_teleop.launch
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/launch/joystick_teleop.launch
+END
+keyboard_teleop.launch
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/!svn/ver/1311/robotino-ros-pkg/trunk/robotino/robotino_teleop/launch/keyboard_teleop.launch
+END

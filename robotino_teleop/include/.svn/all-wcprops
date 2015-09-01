@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/1305/robotino-ros-pkg/trunk/robotino/robotino_teleop/include
+END
+JoystickTeleop.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/!svn/ver/1303/robotino-ros-pkg/trunk/robotino/robotino_teleop/include/JoystickTeleop.h
+END
+KeyboardTeleop.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/!svn/ver/1305/robotino-ros-pkg/trunk/robotino/robotino_teleop/include/KeyboardTeleop.h
+END

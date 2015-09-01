@@ -18,6 +18,7 @@ find_package(Boost REQUIRED COMPONENTS
 add_service_files(
 	FILES
 	Abort.srv
+	MoveTo.srv
 	StartModule.srv
 	)
 

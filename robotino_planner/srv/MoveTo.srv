@@ -1,0 +1,5 @@
+float64 x
+float64 y
+uint8 obstacle_code
+---
+bool succeed
