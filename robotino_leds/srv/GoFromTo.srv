@@ -1,0 +1,11 @@
+uint8 departure_place	# The place where Robotino will start up
+uint8 arrival_place 	# The place where Robotino will end up
+			# 0 represents the ORIGIN place
+			# 1 represents the SETOR_DE_CONTROLE place
+			# 2 represents the EXAMES place
+			# 3 represents the CENTRO_CIRURGICO place
+			# 4 represents the SETOR_DE_RECUPERACAO place
+			# 5 represents the SETOR_DE_SAIDA place
+---
+bool succeed		# It's true if the path has been setted up, otherwise, it's false
+

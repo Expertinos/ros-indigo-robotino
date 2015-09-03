@@ -1,0 +1,20 @@
+<package>
+  <description brief="robotino_local_planner">
+  </description>
+  <author>indorewala@servicerobotics.eu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robotino_local_planner</url>
+  <depend package="nav_core"/>
+  <depend package="nav_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="costmap_2d"/>
+  <depend package="tf"/>
+  <depend package="pluginlib"/>
+
+  <export>
+    <nav_core plugin="${prefix}/blp_plugin.xml"/>
+  </export>
+</package>
+
+

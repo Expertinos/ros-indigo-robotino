@@ -1,0 +1,7 @@
+---
+uint8[] products	# 1 for TV
+			# 2 for DVD
+			# 3 for CELULAR
+			# 4 for TABLET
+			# 5 for NOTEBOOK
+bool succeed

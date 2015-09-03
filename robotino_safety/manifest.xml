@@ -1,0 +1,20 @@
+<package>
+  <description brief="robotino_safety">
+
+The robotino_safety package contains the robotino_safety_node which controls the command velocities (cmd_vel) sent to Robotino so that potential collisions can be avoided.
+  </description>
+  <author>indorewala@servicerobotics.eu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robotino_safety</url>
+  <depend package="robotino_node"/>
+  <depend package="geometry_msgs"/>
+  <depend package="sensor_msgs"/>
+  <depend package="std_msgs"/>
+  <depend package="tf"/>
+  <depend package="laser_geometry"/>
+  <depend package="visualization_msgs"/>
+
+</package>
+
+

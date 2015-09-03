@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "robotino_teleop")
+set(robotino_teleop_MAINTAINER "Audeliano Wolian Li <audeliano@gmail.com>")
+set(robotino_teleop_DEPRECATED "")
+set(robotino_teleop_VERSION "0.0.0")
+set(robotino_teleop_BUILD_DEPENDS "robotino_node" "geometry_msgs" "sensor_msgs" "roscpp")
+set(robotino_teleop_RUN_DEPENDS "robotino_node" "geometry_msgs" "sensor_msgs" "roscpp")
+set(robotino_teleop_BUILDTOOL_DEPENDS "catkin")

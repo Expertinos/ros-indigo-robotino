@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+  	<arg name="hostname" default="192.168.1.107:12080"/>
+	<arg name="robot" default="robotino"/>
+  	<group ns="$(arg robot)">
+    		<include file="$(find robotino_node)/launch/robotino_node.launch">
+			<arg name="hostname" value="$(arg hostname)"/>
+		</include>
+		<include file="$(find robotino_motion)/launch/robotino_motion.launch"/>
+		<include file="$(find robotino_vision)/launch/robotino_vision.launch"/>		
+		<include file="$(find robotino_leds)/launch/robotino_leds.launch"/>
+		<node name="robotino_planner_client_node" pkg="robotino_planner" type="robotino_planner_client_node"  output="screen">
+		</node>
+	</group>
+</launch>

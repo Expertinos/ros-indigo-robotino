@@ -1,0 +1,10 @@
+uint8 color		# Object color code
+			# 0 for ORANGE (PUCK)
+			# 1 for YELLOW (TV)
+			# 2 for BLUE (DVD)
+			# 3 for GREEN (CELULAR)
+			# 4 for RED (TABLET)
+			# 5 for BLACK (NOTEBOOK)
+---
+float32[] distances	# Object distance
+float32[] directions	# Object direction

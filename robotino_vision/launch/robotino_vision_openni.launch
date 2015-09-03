@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find openni_launch)/launch/openni.launch"/>
+	<node name="kinect_aux" pkg="kinect_aux" type="kinect_aux_node" output="screen">
+	</node> 
+	<include file="$(find robotino_vision)/launch/robotino_vision.launch"/>
+</launch>

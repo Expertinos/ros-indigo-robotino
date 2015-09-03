@@ -1,0 +1,3 @@
+string image_name	# The path and name of the requested image.
+---
+bool succeed		# It's true if the image has been saved, otherwise, it's false.

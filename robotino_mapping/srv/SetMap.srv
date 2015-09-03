@@ -1,0 +1,6 @@
+string file_name		# map path
+uint8 product
+float32 delta_x			# pixel width
+float32 delta_y			# pixel height
+---
+bool setted			# true if a new map has been setted, otherwise, it's false

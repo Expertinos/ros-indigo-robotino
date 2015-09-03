@@ -24,7 +24,7 @@ private:
 
 	ros::Subscriber digital_sub_;
 
-	void setDigitalValuesCallback( const robotino_msgs::DigitalReadingsConstPtr& msg);
+	void setDigitalValuesCallback(const robotino_msgs::DigitalReadingsConstPtr& msg);
 
 };
 

@@ -1,0 +1,78 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(robotino_planner)
+
+find_package(catkin REQUIRED COMPONENTS
+	actionlib
+	actionlib_msgs
+	genmsg
+	message_generation
+	robotino_leds
+	robotino_motion
+	roscpp
+	std_msgs
+	)
+find_package(Boost REQUIRED COMPONENTS 
+	system
+	)
+
+add_service_files(
+	FILES
+	Abort.srv
+	MoveTo.srv
+	StartModule.srv
+	)
+
+add_action_files(
+	DIRECTORY action
+	FILES Planner.action
+	)
+
+generate_messages(
+	DEPENDENCIES
+	actionlib_msgs
+	std_msgs
+	)
+
+catkin_package(
+	CATKIN_DEPENDS 
+	message_runtime 
+	actionlib_msgs
+	robotino_leds
+	)
+
+include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+
+add_executable(robotino_planner_server_node 
+	src/robotino_planner_server_node.cpp
+	src/RobotinoPlannerServer.cpp
+	)
+
+target_link_libraries(robotino_planner_server_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(robotino_planner_server_node
+	robotino_planner_gen_cpp
+	robotino_leds_gen_cpp
+	robotino_mapping_gen_cpp
+	robotino_motion_gen_cpp
+	robotino_vision_gen_cpp
+	${robotino_planner_EXPORTED_TARGETS}
+	)
+
+add_executable(robotino_planner_client_node 
+	src/robotino_planner_client_node.cpp
+	src/RobotinoPlannerClient.cpp
+	)
+
+target_link_libraries(robotino_planner_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(robotino_planner_client_node
+	robotino_planner_gen_cpp
+	robotino_motion_gen_cpp
+	robotino_leds_gen_cpp
+	robotino_vision_gen_cpp
+	${robotino_planner_EXPORTED_TARGETS}
+	)

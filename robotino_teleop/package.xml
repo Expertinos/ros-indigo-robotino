@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>robotino_teleop</name>
+  <version>0.0.0</version>
+  <description>The robotino_teleop package</description>
+  <maintainer email="audeliano@gmail.com">Audeliano Wolian Li</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>robotino_node</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+
+  <run_depend>robotino_node</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+
+  <export>
+  </export>
+</package>

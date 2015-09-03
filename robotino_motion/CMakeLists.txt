@@ -4,6 +4,7 @@ project(robotino_motion)
 find_package(catkin REQUIRED COMPONENTS
 	actionlib
 	actionlib_msgs
+	genmsg
 	geometry_msgs
 	message_generation
 	nav_msgs
@@ -11,10 +12,22 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	tf
 	)
+
 find_package(Boost REQUIRED COMPONENTS system)
 
 add_message_files(
-	FILES RobotState.msg
+	FILES
+	RobotState.msg
+	HasArrived.msg
+	)
+
+add_service_files(
+	FILES
+	Align.srv
+	GetProduct.srv
+	AchievedGoal.srv
+	MoveTo.srv
+	SetAchievedGoal.srv
 	)
 
 add_action_files(
@@ -45,21 +58,23 @@ target_link_libraries(robotino_motion_server_node
 	${catkin_LIBRARIES}
 	)
 
-add_dependencies(
-	robotino_motion_server_node
+add_dependencies(robotino_motion_server_node
+	robotino_vision_gen_cpp
+	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
 add_executable(robotino_motion_client_node 
 	src/robotino_motion_client_node.cpp
 	src/RobotinoMotionClient.cpp
+	src/astar.cpp 
 	)
 
 target_link_libraries(robotino_motion_client_node
 	${catkin_LIBRARIES}
 	)
 
-add_dependencies(
-	robotino_motion_client_node
+add_dependencies(robotino_motion_client_node
+	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)
