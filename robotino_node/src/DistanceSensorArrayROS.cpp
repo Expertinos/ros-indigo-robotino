@@ -11,7 +11,7 @@
 DistanceSensorArrayROS::DistanceSensorArrayROS()
 {
 	distances_pub_ = nh_.advertise<sensor_msgs::PointCloud>("distance_sensors", 1, true);
-	laser_scan_pub_ = nh_.advertise<sensor_msgs::LaserScan>("scan", 1, false);
+	laser_scan_pub_ = nh_.advertise<sensor_msgs::LaserScan>("sonar_scan", 1, false);
 }
 
 DistanceSensorArrayROS::~DistanceSensorArrayROS()
@@ -33,10 +33,13 @@ void DistanceSensorArrayROS::distancesChangedEvent(const float* distances, unsig
 	distances_msg_.points.resize(size);
 
 	float distances_n[size];
+	int convert = 0;
 
 	for(unsigned int i = 0; i < size; ++i)
 	{
-		distances_n[i] = distances[i] + 0.2;
+		convert = (i + 5) % 9;
+
+		distances_n[i] = distances[convert] + 0.2;
 	}
 
 	for(unsigned int i = 0; i < size; ++i)
@@ -65,13 +68,13 @@ void DistanceSensorArrayROS::distancesChangedEvent(const float* distances, unsig
 	laser_scan_msg_.header.stamp = stamp_;
 	laser_scan_msg_.header.frame_id = "laser_link";
 
-	laser_scan_msg_.angle_min = 0;
-	laser_scan_msg_.angle_max = 3.14*2;
-	laser_scan_msg_.angle_increment = 0.698;
+	laser_scan_msg_.angle_min = - 160.0 * (M_PI / 180.0);
+	laser_scan_msg_.angle_max = 160.0 * (M_PI / 180.0);
+	laser_scan_msg_.angle_increment = 40.0 * (M_PI / 180.0);
 	laser_scan_msg_.time_increment = 0.1;
 	laser_scan_msg_.scan_time = 0.1;
-	laser_scan_msg_.range_min = 0.04;
-	laser_scan_msg_.range_max = 0.30;
+	laser_scan_msg_.range_min = 0.04 + 0.2;
+	laser_scan_msg_.range_max = 0.30 + 0.2;
 
 	laser_scan_msg_.ranges.resize( size );
 	laser_scan_msg_.intensities.resize( size);
