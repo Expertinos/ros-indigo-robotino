@@ -24,6 +24,9 @@
 	<run_depend>robotino_teleop</run_depend>
 	<run_depend>robotino_vision</run_depend>
 
+	<run_depend>invert_laser</run_depend>
+	<run_depend>simple_navigation_goals</run_depend>
+
 	<export>
 		<metapackage/>
 	</export>
