@@ -10,10 +10,9 @@
 
 #include <ros/ros.h>
 #include <vector>
+#include <std_srvs/Trigger.h>
 #include "robotino_msgs/DigitalReadings.h"
 #include "robotino_leds/GoFromTo.h"
-#include "robotino_leds/SinalizeEnd.h"
-#include "robotino_leds/StopTransportation.h"
 #include "robotino_leds/TransportProduct.h"
 
 /**
@@ -57,8 +56,8 @@ private:
 
 	void publish();	
 	bool goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds::GoFromTo::Response &res);
-	bool sinalizeEnd(robotino_leds::SinalizeEnd::Request &req, robotino_leds::SinalizeEnd::Response &res);
-	bool stopTransportation(robotino_leds::StopTransportation::Request &req, robotino_leds::StopTransportation::Response &res);
+	bool sinalizeEnd(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+	bool stopTransportation(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 	bool transportProduct(robotino_leds::TransportProduct::Request &req, robotino_leds::TransportProduct::Response &res);
 	bool sinalizeTransportation();
 	bool sinalizeEndOfTask();
@@ -69,7 +68,7 @@ private:
 	bool resetLeds();
 	bool resetLeds(std::vector<bool> mask);
 	bool isLighting(int led);
-	char* placeToString(Place place);
+	std::string placeToString(Place place);
 };
 
 #endif /* RobotinoLeds_H */

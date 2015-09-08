@@ -5,4 +5,5 @@ uint8 product		# asks to blink leds acording to product
 			# 4 to alternate between red and blue LEDs 		(Tablet)
 			# 5 to alternate between green and red LEDs		(Notebook)
 ---
-bool succeed		# It is true if the parameter has been correctly passed. Otherwise, it is false.
+bool success		# It is true if the parameter has been correctly passed. Otherwise, it is false.
+string message		# Informational, e.g. for error messages

@@ -27,9 +27,10 @@ RobotinoLeds::RobotinoLeds()
 RobotinoLeds::~RobotinoLeds()
 {
 	digital_pub_.shutdown();
+	go_srv_.shutdown();
+	sinalize_srv_.shutdown();
 	stop_srv_.shutdown();
-	transport_srv_.shutdown();
-	go_srv_.shutdown();	
+	transport_srv_.shutdown();	
 }
 
 bool RobotinoLeds::spin()
@@ -39,7 +40,9 @@ bool RobotinoLeds::spin()
 	while(nh_.ok())
 	{
 		if (product_ != NONE || departure_place_ != ORIGIN || arrival_place_ != SETOR_DE_CONTROLE)
+		{
 			sinalizeTransportation();
+		}
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
@@ -54,8 +57,9 @@ void RobotinoLeds::publish()
 
 bool RobotinoLeds::goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds::GoFromTo::Response &res)
 {
-	bool succeed = true;
-	succeed = resetLeds();
+	bool success = true;
+	std::stringstream message;
+	success = resetLeds();
 	publish();
 	switch (req.departure_place)
 	{
@@ -78,8 +82,9 @@ bool RobotinoLeds::goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds
 			departure_place_ = SETOR_DE_SAIDA;
 			break;
 		default:
-			ROS_ERROR("Invalid departure place code: %d", req.departure_place);
-			succeed = false;
+			message << "Invalid departure place code: " << req.departure_place << "!!!";
+			ROS_ERROR("Invalid departure place code: %d!!!", req.departure_place);
+			success = false;
 	}
 	switch (req.arrival_place)
 	{
@@ -102,114 +107,145 @@ bool RobotinoLeds::goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds
 			arrival_place_ = SETOR_DE_SAIDA;
 			break;
 		default:
-			ROS_ERROR("Invalid arrival place code: %d", req.arrival_place);
-			succeed = false;
+			message << "Invalid arrival place code: " << req.arrival_place << "!!!";
+			ROS_ERROR("Invalid arrival place code: %d!!!", req.arrival_place);
+			ROS_ERROR("%s", message.str().c_str());
+			success = false;
 	}
-	if (succeed)
-		ROS_INFO("Going from %s to %s!!!", placeToString(departure_place_), placeToString(arrival_place_));
-	res.succeed  = succeed;
-	return succeed;
+	if (success) 
+	{
+		message << "Going from " << placeToString(departure_place_) << " to " << placeToString(arrival_place_) << "!!!";
+		ROS_DEBUG("%s", message.str().c_str());
+	}
+	res.success = success;
+	res.message = message.str();
+	return success;
 }
 
-bool RobotinoLeds::sinalizeEnd(robotino_leds::SinalizeEnd::Request &req, robotino_leds::SinalizeEnd::Response &res)
+bool RobotinoLeds::sinalizeEnd(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
-	ROS_INFO("Sinalizing End!!!");
-	bool succeed = false;
+	ROS_DEBUG("Sinalizing End!!!");
+	bool success = false;
 	product_ = NONE;
 	departure_place_ = ORIGIN;
 	arrival_place_ = SETOR_DE_CONTROLE;
-	succeed = sinalizeEndOfTask();
-	res.succeed = succeed;
-	return succeed;
+	success = sinalizeEndOfTask();
+	res.success = success;
+	res.message = "Sinalized!!!";
+	if (!success) 
+	{
+		res.message = "Unable to sinalize!!!";
+	}
+	return success;
 }
 
-bool RobotinoLeds::stopTransportation(robotino_leds::StopTransportation::Request &req, robotino_leds::StopTransportation::Response &res)
+bool RobotinoLeds::stopTransportation(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
-	ROS_INFO("Stopping Transportation!!!");
-	bool succeed = true;
+	ROS_DEBUG("Stopping Transportation!!!");
+	bool success = true;
 	product_ = NONE;
 	departure_place_ = ORIGIN;
 	arrival_place_ = SETOR_DE_CONTROLE;
-	res.succeed = succeed;
-	return succeed;
+	res.success = success;
+	res.message = "Transportation has been aborted!!!";
+	if (!success)
+	{
+		res.message = "Unable to stop transportation!!!";
+	}
+	return success;
 }
 
 bool RobotinoLeds::transportProduct(robotino_leds::TransportProduct::Request &req, robotino_leds::TransportProduct::Response &res)
 {
-	bool succeed = true;
-	succeed = resetLeds();
+	bool success = true;
+	std::stringstream message;
+	success = resetLeds();
 	publish();
 	switch (req.product)
 	{
 		case 1:
 			product_ = TV;
-			ROS_INFO("Transporting a TV!!!");
+			message << "Transporting a TV!!!";
 			break;
 		case 2:
 			product_ = DVD;
-			ROS_INFO("Transporting a DVD!!!");
+			message << "Transporting a DVD!!!";
 			break;
 		case 3:
 			product_ = CELULAR;
-			ROS_INFO("Transporting a CELULAR!!!");
+			message << "Transporting a CELULAR!!!";
 			break;
 		case 4:
 			product_ = TABLET;
-			ROS_INFO("Transporting a TABLET!!!");
+			message << "Transporting a TABLET!!!";
 			break;
 		case 5:
 			product_ = NOTEBOOK;
-			ROS_INFO("Transporting a NOTEBOOK!!!");
+			message << "Transporting a NOTEBOOK!!!";
 			break;
 		default:
+			message << "Invalid requested product: " << req.product <<"!!!";
 			ROS_ERROR("Invalid requested product: %d!!!", req.product);
-			succeed = false;
+			success = false;
 	}	
-	res.succeed = succeed;
-	return succeed;
+	if (success) 
+	{
+		ROS_DEBUG("%s", message.str().c_str());
+	}
+	res.success = success;
+	res.message = message.str();
+	return success;
 }
 
 bool RobotinoLeds::sinalizeTransportation()
 {
-	bool succeed = true;
+	bool success = true;
 	switch (product_)
 	{
 		case NONE:
-			succeed = false;
+			success = false;
 			break;
 		case TV:
-			succeed = toggleLed(YELLOW, BLUE);
+			success = toggleLed(YELLOW, BLUE);
 			break;
 		case DVD:
-			succeed = toggleLed(BLUE, GREEN);
+			success = toggleLed(BLUE, GREEN);
 			break;
 		case CELULAR:
-			succeed = toggleLed(GREEN, YELLOW);
+			success = toggleLed(GREEN, YELLOW);
 			break;
 		case TABLET:
-			succeed = toggleLed(RED, BLUE);
+			success = toggleLed(RED, BLUE);
 			break;
 		case NOTEBOOK:
-			succeed = toggleLed(GREEN, RED);
+			success = toggleLed(GREEN, RED);
 			break;
 		default:
-			succeed = false;
+			success = false;
 	}
 	if (departure_place_ == EXAMES && arrival_place_ == SETOR_DE_SAIDA)
-		succeed = toggleLed(GREEN);
+	{
+		success = toggleLed(GREEN);
+	}
 	else if (departure_place_ == CENTRO_CIRURGICO && arrival_place_ == SETOR_DE_RECUPERACAO)
-		succeed = toggleLed(RED);
+	{
+		success = toggleLed(RED);
+	}
 	else if (departure_place_ == SETOR_DE_RECUPERACAO && arrival_place_ == SETOR_DE_SAIDA)
-		succeed = toggleLed(YELLOW);
+	{
+		success = toggleLed(YELLOW);
+	}
 	else if (departure_place_ == EXAMES && arrival_place_ == CENTRO_CIRURGICO)
-		succeed = toggleLed(BLUE);
+	{
+		success = toggleLed(BLUE);
+	}
 	publish();
-	return succeed;
+	return success;
 }
 
 bool RobotinoLeds::sinalizeEndOfTask()
 {
-	ROS_INFO("Sinalizing The End!!!");
+	ROS_DEBUG("Sinalizing The End!!!");
 	ros::Duration d(.5 / frequency_);
 	resetLeds();
 	publish();
@@ -228,25 +264,29 @@ bool RobotinoLeds::sinalizeEndOfTask()
 
 bool RobotinoLeds::toggleLed(int led)
 {
-	bool succeed = false;
+	bool success = false;
 	std::vector<bool> mask(size_, false);
 	mask[led] = true;
 	for (int i = 0; i < size_; i++)
+	{
 		digital_msg_.values[i] = digital_msg_.values[i] ? !mask[i] : mask[i]; // xor boolean logic
-	return succeed;
+	}
+	return success;
 }
 
 bool RobotinoLeds::toggleLed(int led1, int led2)
 {
-	bool succeed = false;
+	bool success = false;
 	if (!isLighting(led1) && !isLighting(led2))
+	{
 		toggleLed(led1);
+	}
 	else
 	{
 		toggleLed(led1);
 		toggleLed(led2);
 	}
-	return succeed;
+	return success;
 }
 
 bool RobotinoLeds::setLeds()
@@ -267,7 +307,9 @@ bool RobotinoLeds::setLeds(std::vector<bool> mask)
 		return false;
 	}
 	for (int i = 0; i < mask.size(); i++)
+	{
 		digital_msg_.values[i] = true ? digital_msg_.values[i] || mask[i] : false; // or boolean logic
+	}
 	return true;		
 }
 
@@ -289,7 +331,9 @@ bool RobotinoLeds::resetLeds(std::vector<bool> mask)
 		return false;
 	}
 	for (int i = 0; i < mask.size(); i++)
+	{
 		digital_msg_.values[i] = true ? !(!digital_msg_.values[i] || mask[i]) : false; // nonimplication boolean logic
+	}
 	return true;	
 }
 
@@ -298,9 +342,9 @@ bool RobotinoLeds::isLighting(int led)
 	return digital_msg_.values[led];
 }
 
-char* RobotinoLeds::placeToString(Place place)
+std::string RobotinoLeds::placeToString(Place place)
 {
-	char* place_name;
+	std::string place_name;
 	switch (place)
 	{
 		case ORIGIN:

@@ -40,6 +40,6 @@ int main( int argc, char** argv )
 
 	my_thread.interrupt();
 	my_thread.join();
-
+	
 	return 0;
 }

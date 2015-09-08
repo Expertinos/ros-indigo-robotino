@@ -130,7 +130,7 @@ bool RobotinoPlannerClient::setLeds(Color color)
 		ROS_ERROR("Falure to set LEDs!!!");
 		return false;
 	}
-	srv.response.succeed = true;
+	srv.response.success = true;
 	return true;
 }
 

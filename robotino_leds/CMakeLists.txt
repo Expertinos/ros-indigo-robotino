@@ -3,21 +3,19 @@ project(robotino_leds)
 
 find_package(catkin REQUIRED COMPONENTS
 	roscpp
-	std_msgs
+	std_srvs
 	message_generation
 	)
 
 add_service_files(
 	FILES
 	GoFromTo.srv
-	SinalizeEnd.srv
-	StopTransportation.srv
 	TransportProduct.srv
 	)
 
 generate_messages(
 	DEPENDENCIES
-	std_msgs
+	std_srvs
 	)
 
 catkin_package()
