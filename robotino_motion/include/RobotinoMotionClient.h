@@ -21,7 +21,6 @@
 #include "robotino_motion/HasArrived.h"
 #include "robotino_motion/MoveTo.h"
 #include "robotino_motion/AchievedGoal.h"
-#include "robotino_mapping/GetMap.h"
 #include "robotino_motion/SetAchievedGoal.h"
 #include "RobotinoMotionServer.h"
 #include "astar.h"
@@ -47,8 +46,6 @@ private:
 	ros::ServiceServer achieved_goal_srv_;
 
 	ros::ServiceServer set_achieved_goal_srv_;
-
-	ros::ServiceClient get_map_cli_;
 
 	ros::Subscriber odometry_sub_cli_;
 

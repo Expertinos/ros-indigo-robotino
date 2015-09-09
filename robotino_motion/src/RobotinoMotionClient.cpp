@@ -18,8 +18,6 @@ RobotinoMotionClient::RobotinoMotionClient():
 
 	move_srv_ = nh_.advertiseService("move_to", &RobotinoMotionClient::moveTo, this);
 
-	get_map_cli_ = nh_.serviceClient<robotino_mapping::GetMap>("get_map");
-
 	set_achieved_goal_srv_ = nh_.advertiseService("set_achieved_goal", &RobotinoMotionClient::setAchievedGoal, this);
 
 	achieved_goal_srv_ = nh_.advertiseService("achieved_goal", &RobotinoMotionClient::achievedGoal, this);
@@ -36,7 +34,6 @@ RobotinoMotionClient::~RobotinoMotionClient()
 	goal_sub_.shutdown();
 	has_arrived_pub_.shutdown();
 	move_srv_.shutdown();
-	get_map_cli_.shutdown();
 	achieved_goal_srv_.shutdown();
 	odometry_sub_cli_.shutdown();
 	set_achieved_goal_srv_.shutdown();
