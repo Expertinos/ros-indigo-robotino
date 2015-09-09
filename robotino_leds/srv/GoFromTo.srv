@@ -7,5 +7,6 @@ uint8 arrival_place 	# The place where Robotino will end up
 			# 4 represents the SETOR_DE_RECUPERACAO place
 			# 5 represents the SETOR_DE_SAIDA place
 ---
-bool succeed		# It's true if the path has been setted up, otherwise, it's false
+bool success		# It's true if the path has been setted up, otherwise, it's false
+string message		# Informational, e.g. error messages
 
