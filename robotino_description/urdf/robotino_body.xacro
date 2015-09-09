@@ -56,7 +56,8 @@
     </anglebracketusb>
     
     <laser name="laser" parent="base_link">
-      <origin xyz="-0.022 0 0.232" rpy="0 0 0"/>
+      <!--origin xyz="-0.022 0 0.232" rpy="0 0 0"/-->
+      <origin xyz="0.1 0 0" rpy="0 0 0"/>
     </laser>
     
     <!--laser name="laser" parent="base_link"-->
