@@ -122,7 +122,7 @@ bool RobotinoLeds::goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds
 	return success;
 }
 
-bool RobotinoLeds::sinalizeEnd(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool RobotinoLeds::sinalizeEnd(robotino_leds::Trigger::Request &req, robotino_leds::Trigger::Response &res)
 {
 	ROS_DEBUG("Sinalizing End!!!");
 	bool success = false;
@@ -139,7 +139,7 @@ bool RobotinoLeds::sinalizeEnd(std_srvs::Trigger::Request &req, std_srvs::Trigge
 	return success;
 }
 
-bool RobotinoLeds::stopTransportation(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool RobotinoLeds::stopTransportation(robotino_leds::Trigger::Request &req, robotino_leds::Trigger::Response &res)
 {
 	ROS_DEBUG("Stopping Transportation!!!");
 	bool success = true;
