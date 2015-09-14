@@ -53,7 +53,6 @@ private:
 
 	double frequency_;
 	int size_;
-	bool resetted_;
 
 	void publish();	
 	bool goFromTo(robotino_leds::GoFromTo::Request &req, robotino_leds::GoFromTo::Response &res);
