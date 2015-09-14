@@ -152,6 +152,8 @@ bool RobotinoLeds::stopTransportation(robotino_leds::Trigger::Request &req, robo
 	{
 		res.message = "Unable to stop transportation!!!";
 	}
+	resetLeds();
+	publish();
 	return success;
 }
 
@@ -203,7 +205,7 @@ bool RobotinoLeds::sinalizeTransportation()
 	switch (product_)
 	{
 		case NONE:
-			success = false;
+			success = resetLeds();
 			break;
 		case TV:
 			success = toggleLed(YELLOW, BLUE);
@@ -310,6 +312,7 @@ bool RobotinoLeds::setLeds(std::vector<bool> mask)
 	{
 		digital_msg_.values[i] = true ? digital_msg_.values[i] || mask[i] : false; // or boolean logic
 	}
+	ROS_DEBUG("Leds have been setted!!!");
 	return true;		
 }
 
@@ -334,6 +337,7 @@ bool RobotinoLeds::resetLeds(std::vector<bool> mask)
 	{
 		digital_msg_.values[i] = true ? !(!digital_msg_.values[i] || mask[i]) : false; // nonimplication boolean logic
 	}
+	ROS_DEBUG("Leds have been resetted!!!");
 	return true;	
 }
 
