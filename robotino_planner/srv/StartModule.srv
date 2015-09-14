@@ -1,3 +1,0 @@
-uint8 module			# 0 for Module A and 1 for Module B
----
-bool hasStarted			# true if the Module has been started, otherwise, it is false
