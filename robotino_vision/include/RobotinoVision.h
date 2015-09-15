@@ -8,24 +8,22 @@
 #ifndef RobotinoVision_H
 #define RobotinoVision_H
 
+#include <vector>
 #include <ros/ros.h>
+#include <sensor_msgs/image_encodings.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/image_encodings.h>
 #include <opencv/cv.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <vector>
+#include <fl/Headers.h>
 
 #include "robotino_vision/FindObjects.h"
 #include "robotino_vision/SaveImage.h"
 #include "robotino_vision/SetCalibration.h"
 #include "robotino_vision/GetProductsList.h"
-
-using namespace cv;
-using namespace std;
 
 typedef enum {ORANGE, YELLOW, BLUE, GREEN, RED, BLACK} Color;
 
@@ -53,7 +51,7 @@ private:
 	ros::ServiceServer find_objects_srv_; 
 	ros::ServiceServer get_list_srv_;
 
-	Mat imgRGB_;
+	cv::Mat imgRGB_;
 
 	Color color_;
 

@@ -1,0 +1,3 @@
+/home/adrianohrl/fuzzylite-5.0/fuzzylite-5.0/fuzzylite/debug/CMakeFiles/fl-bin.dir
+/home/adrianohrl/fuzzylite-5.0/fuzzylite-5.0/fuzzylite/debug/CMakeFiles/fl-shared.dir
+/home/adrianohrl/fuzzylite-5.0/fuzzylite-5.0/fuzzylite/debug/CMakeFiles/fl-static.dir
