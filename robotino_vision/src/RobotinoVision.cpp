@@ -23,22 +23,22 @@ RobotinoVision::RobotinoVision()
 	set_calibration_srv_ = nh_.advertiseService("set_calibration", &RobotinoVision::setCalibration, this);
 	get_list_srv_ = nh_.advertiseService("get_products_list", &RobotinoVision::getList, this);
 
-	imgRGB_ = Mat(width_, height_, CV_8UC3, Scalar::all(0));
+	imgRGB_ = cv::Mat(width_, height_, CV_8UC3, cv::Scalar::all(0));
 
 	setColor(ORANGE);	
 
-	namedWindow(BLACK_MASK_WINDOW);
-	namedWindow(PUCKS_MASK_WINDOW);
-	namedWindow(COLOR_MASK_WINDOW);
-	namedWindow(FINAL_MASK_WINDOW);
-	namedWindow(BGR_WINDOW);
-	namedWindow(CONTOURS_WINDOW);
-	moveWindow(BLACK_MASK_WINDOW, 0 * width_, 600);
-	moveWindow(PUCKS_MASK_WINDOW, 1 * width_, 600);
-	moveWindow(COLOR_MASK_WINDOW, 2 * width_, 600);
-	moveWindow(FINAL_MASK_WINDOW, 3 * width_, 600);
-	moveWindow(BGR_WINDOW, 4 * width_, 600);
-	moveWindow(CONTOURS_WINDOW, 5 * width_, 600);
+	cv::namedWindow(BLACK_MASK_WINDOW);
+	cv::namedWindow(PUCKS_MASK_WINDOW);
+	cv::namedWindow(COLOR_MASK_WINDOW);
+	cv::namedWindow(FINAL_MASK_WINDOW);
+	cv::namedWindow(BGR_WINDOW);
+	cv::namedWindow(CONTOURS_WINDOW);
+	cv::moveWindow(BLACK_MASK_WINDOW, 0 * width_, 600);
+	cv::moveWindow(PUCKS_MASK_WINDOW, 1 * width_, 600);
+	cv::moveWindow(COLOR_MASK_WINDOW, 2 * width_, 600);
+	cv::moveWindow(FINAL_MASK_WINDOW, 3 * width_, 600);
+	cv::moveWindow(BGR_WINDOW, 4 * width_, 600);
+	cv::moveWindow(CONTOURS_WINDOW, 5 * width_, 600);
 	calibration_ = true;
 }
 
@@ -48,7 +48,7 @@ RobotinoVision::~RobotinoVision()
 	image_sub_.shutdown();
 	save_srv_.shutdown();
 	set_calibration_srv_.shutdown();
-	destroyAllWindows();
+	cv::destroyAllWindows();
 }
 
 bool RobotinoVision::spin()
@@ -64,13 +64,13 @@ bool RobotinoVision::spin()
 
 		//const char* imageName ="/home/adriano/Pictures/black001.png";
 		/*const char* imageName ="/home/adriano/Pictures/possibilidade 4 1.png";
-		Mat imgBGR = readImage(imageName);
-		cvtColor(imgBGR, imgRGB_, CV_BGR2RGB);*/
+		cv::Mat imgBGR = readImage(imageName);
+		cv::cvtColor(imgBGR, imgRGB_, CV_BGR2RGB);*/
 		if (calibration_)
 		{	
-			vector<Point2f> mass_center = processColor();
+			std::vector<cv::Point2f> mass_center = processColor();
 			//ROS_INFO("Getting Positions!!!");
-			vector<Point2f> positions = getPositions(mass_center);
+			std::vector<cv::Point2f> positions = getPositions(mass_center);
 		}
 		//ROS_INFO("-----------------------------");
 		/*for (int i = 0; i < positions.size(); i++)
@@ -83,7 +83,7 @@ bool RobotinoVision::spin()
 
 bool RobotinoVision::saveImage(robotino_vision::SaveImage::Request &req, robotino_vision::SaveImage::Response &res)
 {
-	imwrite(req.image_name.c_str(), imgRGB_);
+	cv::imwrite(req.image_name.c_str(), imgRGB_);
 	return true;
 }
 
@@ -91,22 +91,22 @@ bool RobotinoVision::setCalibration(robotino_vision::SetCalibration::Request &re
 {
 	if (req.calibration)
 	{
-		namedWindow(BLACK_MASK_WINDOW);
-		namedWindow(PUCKS_MASK_WINDOW);
-		namedWindow(COLOR_MASK_WINDOW);
-		namedWindow(FINAL_MASK_WINDOW);
-		namedWindow(BGR_WINDOW);
-		namedWindow(CONTOURS_WINDOW);
-		moveWindow(BLACK_MASK_WINDOW, 0 * width_, 600);
-		moveWindow(PUCKS_MASK_WINDOW, 1 * width_, 600);
-		moveWindow(COLOR_MASK_WINDOW, 2 * width_, 600);
-		moveWindow(FINAL_MASK_WINDOW, 3 * width_, 600);
-		moveWindow(BGR_WINDOW, 4 * width_, 600);
-		moveWindow(CONTOURS_WINDOW, 5 * width_, 600);
+		cv::namedWindow(BLACK_MASK_WINDOW);
+		cv::namedWindow(PUCKS_MASK_WINDOW);
+		cv::namedWindow(COLOR_MASK_WINDOW);
+		cv::namedWindow(FINAL_MASK_WINDOW);
+		cv::namedWindow(BGR_WINDOW);
+		cv::namedWindow(CONTOURS_WINDOW);
+		cv::moveWindow(BLACK_MASK_WINDOW, 0 * width_, 600);
+		cv::moveWindow(PUCKS_MASK_WINDOW, 1 * width_, 600);
+		cv::moveWindow(COLOR_MASK_WINDOW, 2 * width_, 600);
+		cv::moveWindow(FINAL_MASK_WINDOW, 3 * width_, 600);
+		cv::moveWindow(BGR_WINDOW, 4 * width_, 600);
+		cv::moveWindow(CONTOURS_WINDOW, 5 * width_, 600);
 	}
 	else 
 	{
-		destroyAllWindows();
+		cv::destroyAllWindows();
 	}
 	calibration_ = req.calibration;
 	return true;
@@ -134,10 +134,10 @@ bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, rob
 		case 5:
 			setColor(BLACK); // NOTEBOOK
 	}
-	vector<Point2f> mass_center = processColor();
-	vector<Point2f> positions = getPositions(mass_center);
-	vector<float> distances(positions.size());
-	vector<float> directions(positions.size());
+	std::vector<cv::Point2f> mass_center = processColor();
+	std::vector<cv::Point2f> positions = getPositions(mass_center);
+	std::vector<float> distances(positions.size());
+	std::vector<float> directions(positions.size());
 	for (int k = 0; k < positions.size(); k++)
 	{
 		distances[k] = positions[k].x;
@@ -180,7 +180,7 @@ bool RobotinoVision::getList(robotino_vision::GetProductsList::Request &req, rob
 	int i = 0;
 	res.products.clear();
 	/*ROS_INFO("Y=%d, B=%d, G=%d, R=%d, K=%d", numOfYellowObjects, numOfBlueObjects, numOfGreenObjects, numOfRedObjects, numOfBlackObjects);*/
-	ROS_INFO("%d", i);
+	ROS_DEBUG("%d", i);
 	for (; i < numOfYellowObjects;)
 	{
 		res.products.push_back(1);
@@ -234,19 +234,19 @@ void RobotinoVision::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 int RobotinoVision::getNumberOfObjects(Color color)
 {
 	setColor(color);
-	vector<Point2f> points = processColor();
+	std::vector<cv::Point2f> points = processColor();
 	return points.size();
 }
 
 cv::Mat RobotinoVision::readImage(const char* imageName)
 {
-	Mat image;
-	image = imread(imageName, 1);
+	cv::Mat image;
+	image = cv::imread(imageName, 1);
 	
 	if (!image.data)
 	{
 		ROS_ERROR("No image data!!!");
-		return Mat(width_, height_, CV_8UC3, Scalar::all(0));
+		return cv::Mat(width_, height_, CV_8UC3, cv::Scalar::all(0));
 	}
 	
 	return image;
@@ -254,46 +254,46 @@ cv::Mat RobotinoVision::readImage(const char* imageName)
 
 std::vector<cv::Point2f> RobotinoVision::processColor()
 {
-	//ROS_INFO("Getting Black Mask!!!");
-	Mat black_mask = getBlackMask();
-	//ROS_INFO("Getting Pucks Mask!!!");
-	Mat pucks_mask = getPucksMask();
-	//ROS_INFO("Getting Color Mask!!!");
-	Mat color_mask = getColorMask();
-	//ROS_INFO("Getting Final Mask!!!");
-	Mat final_mask = getFinalMask(black_mask, pucks_mask, color_mask);
-	//ROS_INFO("Getting Contours based on Final Mask!!!");
+	ROS_DEBUG("Getting Black Mask!!!");
+	cv::Mat black_mask = getBlackMask();
+	ROS_DEBUG("Getting Pucks Mask!!!");
+	cv::Mat pucks_mask = getPucksMask();
+	ROS_DEBUG("Getting Color Mask!!!");
+	cv::Mat color_mask = getColorMask();
+	ROS_DEBUG("Getting Final Mask!!!");
+	cv::Mat final_mask = getFinalMask(black_mask, pucks_mask, color_mask);
+	ROS_DEBUG("Getting Contours based on Final Mask!!!");
 	
 	if (calibration_)
 	{
-		createTrackbar("Value threshold parameter: ", BLACK_MASK_WINDOW, &thresh0_, 255);
-		createTrackbar("Erosion size parameter: ", BLACK_MASK_WINDOW, &erosion0_, 20);
-		imshow(BLACK_MASK_WINDOW, black_mask);
+		cv::createTrackbar("Value threshold parameter: ", BLACK_MASK_WINDOW, &thresh0_, 255);
+		cv::createTrackbar("Erosion size parameter: ", BLACK_MASK_WINDOW, &erosion0_, 20);
+		cv::imshow(BLACK_MASK_WINDOW, black_mask);
 
-		createTrackbar("Value threshold parameter: ", PUCKS_MASK_WINDOW, &thresh1_, 255);
-		createTrackbar("Close size parameter: ", PUCKS_MASK_WINDOW, &close1_, 20);
-		createTrackbar("Open size parameter: ", PUCKS_MASK_WINDOW, &open1_, 20);
-		imshow(PUCKS_MASK_WINDOW, pucks_mask);
+		cv::createTrackbar("Value threshold parameter: ", PUCKS_MASK_WINDOW, &thresh1_, 255);
+		cv::createTrackbar("Close size parameter: ", PUCKS_MASK_WINDOW, &close1_, 20);
+		cv::createTrackbar("Open size parameter: ", PUCKS_MASK_WINDOW, &open1_, 20);
+		cv::imshow(PUCKS_MASK_WINDOW, pucks_mask);
 	
-		createTrackbar("Initial range value: ", COLOR_MASK_WINDOW, &initialRangeValue_, 255);
-		createTrackbar("Range width: ", COLOR_MASK_WINDOW, &rangeWidth_, 255);
-		imshow(COLOR_MASK_WINDOW, color_mask);
+		cv::createTrackbar("Initial range value: ", COLOR_MASK_WINDOW, &initialRangeValue_, 255);
+		cv::createTrackbar("Range width: ", COLOR_MASK_WINDOW, &rangeWidth_, 255);
+		cv::imshow(COLOR_MASK_WINDOW, color_mask);
 	
-		createTrackbar("Open size parameter (before): ", FINAL_MASK_WINDOW, &open2_, 20);
-		createTrackbar("Close size parameter: ", FINAL_MASK_WINDOW, &close2_, 20);
-		createTrackbar("Open size parameter (after): ", FINAL_MASK_WINDOW, &open3_, 20);
-		imshow(FINAL_MASK_WINDOW, final_mask);
+		cv::createTrackbar("Open size parameter (before): ", FINAL_MASK_WINDOW, &open2_, 20);
+		cv::createTrackbar("Close size parameter: ", FINAL_MASK_WINDOW, &close2_, 20);
+		cv::createTrackbar("Open size parameter (after): ", FINAL_MASK_WINDOW, &open3_, 20);
+		cv::imshow(FINAL_MASK_WINDOW, final_mask);
 	
 		showImageBGRwithMask(final_mask);
 	
-		waitKey(3);
+		cv::waitKey(3);
 	}
 
 	black_mask.release();
 	pucks_mask.release();
 	color_mask.release();
 
-	vector<cv::Point2f> point = getContours(final_mask);
+	std::vector<cv::Point2f> point = getContours(final_mask);
 
 	final_mask.release();
 
@@ -302,23 +302,23 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 
 cv::Mat RobotinoVision::getBlackMask()
 {
-	Mat black_mask;
+	cv::Mat black_mask;
 
 	// convertendo de RGB para HSV
-	Mat imgHSV;
-	cvtColor(imgRGB_, imgHSV, CV_RGB2HSV);
+	cv::Mat imgHSV;
+	cv::cvtColor(imgRGB_, imgHSV, CV_RGB2HSV);
 
 	// separando a HSV 
-	Mat splitted[3];
-	split(imgHSV, splitted);
+	cv::Mat splitted[3];
+	cv::split(imgHSV, splitted);
 	black_mask = splitted[2];
 
 	// fazendo threshold da imagem V
-	threshold(black_mask, black_mask, thresh0_, 255, THRESH_BINARY);
+	cv::threshold(black_mask, black_mask, thresh0_, 255, cv::THRESH_BINARY);
 
 	// fazendo erosão na imagem acima
-	Mat element = getStructuringElement(MORPH_RECT, Size(2 * erosion0_ + 1, 2 * erosion0_ + 1), Point(erosion0_, erosion0_));
-	erode(black_mask, black_mask, element);
+	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * erosion0_ + 1, 2 * erosion0_ + 1), cv::Point(erosion0_, erosion0_));
+	cv::erode(black_mask, black_mask, element);
 
 	imgHSV.release();
 	splitted[0].release();
@@ -331,28 +331,28 @@ cv::Mat RobotinoVision::getBlackMask()
 
 cv::Mat RobotinoVision::getPucksMask()
 {
-	Mat pucks_mask;
+	cv::Mat pucks_mask;
 	
 	// convertendo de RGB para HSV
-	Mat imgHSV;
-	cvtColor(imgRGB_, imgHSV, CV_RGB2HSV);
+	cv::Mat imgHSV;
+	cv::cvtColor(imgRGB_, imgHSV, CV_RGB2HSV);
 
 	// separando a HSV 
-	Mat splitted[3];
-	split(imgHSV, splitted);
+	cv::Mat splitted[3];
+	cv::split(imgHSV, splitted);
 	pucks_mask = splitted[1];
 
 	// fazendo threshold da imagem S
-	threshold(pucks_mask, pucks_mask, thresh1_, 255, THRESH_BINARY);
+	cv::threshold(pucks_mask, pucks_mask, thresh1_, 255, cv::THRESH_BINARY);
 
 	// fechando buracos
-	Mat element = getStructuringElement(MORPH_CROSS, Size(2 * close1_ + 1, 2 * close1_ + 1), Point(close1_, close1_));
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * close1_ + 1, 2 * close1_ + 1), cv::Point(close1_, close1_));
 
-	morphologyEx(pucks_mask, pucks_mask, 3, element);
+	cv::morphologyEx(pucks_mask, pucks_mask, 3, element);
 
 	// filtro de partícula pequenas
-	element = getStructuringElement(MORPH_CROSS, Size(2 * open1_ + 1, 2 * open1_ + 1), Point(open1_, open1_));
-	morphologyEx(pucks_mask, pucks_mask, 2, element);
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * open1_ + 1, 2 * open1_ + 1), cv::Point(open1_, open1_));
+	cv::morphologyEx(pucks_mask, pucks_mask, 2, element);
 
 	imgHSV.release();
 	splitted[0].release();
@@ -365,32 +365,32 @@ cv::Mat RobotinoVision::getPucksMask()
 
 cv::Mat RobotinoVision::getColorMask()
 {
-	Mat color_mask;
+	cv::Mat color_mask;
 
 	// convertendo de RGB para HLS
-	Mat imgHLS;
-	cvtColor(imgRGB_, imgHLS, CV_RGB2HLS);
+	cv::Mat imgHLS;
+	cv::cvtColor(imgRGB_, imgHLS, CV_RGB2HLS);
 
 	// separando a HLS 
-	Mat splitted[3];
-	split(imgHLS, splitted);
+	cv::Mat splitted[3];
+	cv::split(imgHLS, splitted);
 	color_mask = 1.41666 * splitted[0];
 
 	// rodando a roleta da imagem H
-	Mat unsaturated = color_mask - initialRangeValue_;
-	Mat saturated = color_mask + (255 - initialRangeValue_); 
-	Mat aux;
-	threshold(saturated, aux, 254, 255, THRESH_BINARY);
+	cv::Mat unsaturated = color_mask - initialRangeValue_;
+	cv::Mat saturated = color_mask + (255 - initialRangeValue_); 
+	cv::Mat aux;
+	cv::threshold(saturated, aux, 254, 255, cv::THRESH_BINARY);
 	aux = 255 - aux; 
-	bitwise_and(saturated, aux, saturated);
+	cv::bitwise_and(saturated, aux, saturated);
 	color_mask = unsaturated + saturated;
 	if (calibration_)
 	{
-		imshow("Rotated HSL Model Window", color_mask);
+		cv::imshow("Rotated HSL Model Window", color_mask);
 	}
 
 	// define o intervalo da cor
-	threshold(color_mask, color_mask, rangeWidth_, 255, THRESH_BINARY);
+	cv::threshold(color_mask, color_mask, rangeWidth_, 255, cv::THRESH_BINARY);
 	color_mask = 255 - color_mask;
 
 	imgHLS.release();
@@ -407,21 +407,21 @@ cv::Mat RobotinoVision::getColorMask()
 cv::Mat RobotinoVision::getFinalMask(cv::Mat black_mask, cv::Mat pucks_mask, cv::Mat color_mask)
 {
 	// juntando todas as máscaras
-	Mat final_mask = pucks_mask;
-	bitwise_and(final_mask, black_mask, final_mask);
-	bitwise_and(final_mask, color_mask, final_mask);
+	cv::Mat final_mask = pucks_mask;
+	cv::bitwise_and(final_mask, black_mask, final_mask);
+	cv::bitwise_and(final_mask, color_mask, final_mask);
 
 	// removendo particulas pequenas
-	Mat element = getStructuringElement(MORPH_RECT, Size(2 * open2_ + 1, 2 * open2_ + 1), Point(open2_, open2_));
-	morphologyEx(final_mask, final_mask, 2, element);
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * open2_ + 1, 2 * open2_ + 1), cv::Point(open2_, open2_));
+	cv::morphologyEx(final_mask, final_mask, 2, element);
 	
 	// fechando buracos
-	element = getStructuringElement(MORPH_RECT, Size(2 * close2_ + 1, 2 * close2_ + 1), Point(close2_, close2_));
+	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * close2_ + 1, 2 * close2_ + 1), cv::Point(close2_, close2_));
 	morphologyEx(final_mask, final_mask, 3, element);
 
 	// removendo particulas pequenas
-	element = getStructuringElement(MORPH_RECT, Size(2 * open3_ + 1, 2 * open3_ + 1), Point(open3_, open3_));
-	morphologyEx(final_mask, final_mask, 2, element);
+	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * open3_ + 1, 2 * open3_ + 1), cv::Point(open3_, open3_));
+	cv::morphologyEx(final_mask, final_mask, 2, element);
 
 	element.release();
 
@@ -430,20 +430,20 @@ cv::Mat RobotinoVision::getFinalMask(cv::Mat black_mask, cv::Mat pucks_mask, cv:
 
 void RobotinoVision::showImageBGRwithMask(cv::Mat mask)
 {
-	Mat imgBGR;
-	cvtColor(imgRGB_, imgBGR, CV_RGB2BGR);
-	imshow(BGR_WINDOW, imgBGR);
+	cv::Mat imgBGR;
+	cv::cvtColor(imgRGB_, imgBGR, CV_RGB2BGR);
+	cv::imshow(BGR_WINDOW, imgBGR);
 
-	Mat splitted[3];
-	split(imgBGR, splitted);
+	cv::Mat splitted[3];
+	cv::split(imgBGR, splitted);
 	
-	vector<Mat> channels;
+	std::vector<cv::Mat> channels;
 	for (int i = 0; i < 3; i++)
 	{
-		bitwise_and(splitted[i], mask, splitted[i]);
+		cv::bitwise_and(splitted[i], mask, splitted[i]);
 		channels.push_back(splitted[i]);
 	}
-	merge(channels, imgBGR);
+	cv::merge(channels, imgBGR);
 
 	splitted[0].release();
 	splitted[1].release();
@@ -456,43 +456,43 @@ void RobotinoVision::showImageBGRwithMask(cv::Mat mask)
 
 std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat input)
 {
-	vector<vector<Point> > contours;
-	vector<Vec4i> hierarchy;
+	std::vector<std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
 
 	/// Find contours
-	findContours(input, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	cv::findContours(input, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
 	/// Get the moments
-	vector<Moments> mu(contours.size());
+	std::vector<cv::Moments> mu(contours.size());
 	for(int i = 0; i < contours.size(); i++)
 	{
 		mu[i] = moments(contours[i], false); 
 	}
 
 	///  Get the mass centers:
-	vector<Point2f> mass_center(contours.size());
+	std::vector<cv::Point2f> mass_center(contours.size());
 	for(int i = 0; i < contours.size(); i++)
 	{
-		mass_center[i] = Point2f(mu[i].m10/mu[i].m00, mu[i].m01/mu[i].m00); 
+		mass_center[i] = cv::Point2f(mu[i].m10/mu[i].m00, mu[i].m01/mu[i].m00); 
 	}
 	
 	if (calibration_)
 	{
 		
-		RNG rng(12345);
-		//ROS_INFO("******************************************");
+		cv::RNG rng(12345);
+		ROS_DEBUG("******************************************");
 		/// Draw contours
-		Mat drawing = Mat::zeros(input.size(), CV_8UC3);
+		cv::Mat drawing = cv::Mat::zeros(input.size(), CV_8UC3);
 		for(int i = 0; i< contours.size(); i++)
 		{
-			Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255));
-			drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, Point());
-			circle(drawing, mass_center[i], 4, color, -1, 8, 0);
-			//ROS_INFO("P%d = (xc, yc) = (%f, %f)", i, mass_center[i].x, mass_center[i].y);
+			cv::Scalar color = cv::Scalar(rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255));
+			cv::drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, cv::Point());
+			cv::circle(drawing, mass_center[i], 4, color, -1, 8, 0);
+			ROS_DEBUG("P%d = (xc, yc) = (%f, %f)", i, mass_center[i].x, mass_center[i].y);
 		}
 
 		/// Show in a window
-		imshow(CONTOURS_WINDOW, drawing);
+		cv::imshow(CONTOURS_WINDOW, drawing);
 	}
 
 	return mass_center;
@@ -502,7 +502,7 @@ std::vector<cv::Point2f> RobotinoVision::getPositions(std::vector<cv::Point2f> m
 {
 	double alpha = atan(camera_close_distance_ / camera_height_);
 	double beta = atan(camera_far_distance_ / camera_height_);
-	vector<Point2f> positions(mass_center.size());
+	std::vector<cv::Point2f> positions(mass_center.size());
 
 	for (int k = 0; k < positions.size(); k++)
 	{
@@ -512,10 +512,10 @@ std::vector<cv::Point2f> RobotinoVision::getPositions(std::vector<cv::Point2f> m
 		double distance = camera_height_ * tan(theta);
 		double gama = atan(.5 * camera_depth_width_ / camera_close_distance_);
 		double direction =  gama * (i - width_ / 2) / (width_ / 2);
-		positions[k] = Point2f(distance, direction);
+		positions[k] = cv::Point2f(distance, direction);
 		if (calibration_)
 		{
-			//ROS_INFO("(%d): Distance = %f, Direction = %f", k, distance, direction * 180 / 3.14159);
+			ROS_DEBUG("(%d): Distance = %f, Direction = %f", k, distance, direction * 180 / 3.14159);
 		}
 	}
 	return positions;
@@ -591,34 +591,35 @@ void RobotinoVision::setColor(Color color)
 
 void RobotinoVision::processImageLampPost()
 {
-	Mat imgBGR;
-	cvtColor(imgRGB_, imgBGR, CV_RGB2BGR);
-	imshow("BRG Model", imgBGR);
-	Mat imgHSL;
-	cvtColor(imgRGB_, imgHSL, CV_RGB2HLS);
-	imshow("HSL Model", imgHSL);
-	Mat splittedImgHSL[3];
-	split(imgHSL, splittedImgHSL);
-	Mat imgH = splittedImgHSL[0];
-	imshow("Hue", imgH);
-	Mat imgS = splittedImgHSL[1];
-	imshow("Saturation", imgS);
-	Mat imgL = splittedImgHSL[2];
-	imshow("Lightness", imgL);
+	cv::Mat imgBGR;
+	cv::cvtColor(imgRGB_, imgBGR, CV_RGB2BGR);
+	cv::imshow("BRG Model", imgBGR);
+	cv::Mat imgHSL;
+	cv::cvtColor(imgRGB_, imgHSL, CV_RGB2HLS);
+	cv::imshow("HSL Model", imgHSL);
+	cv::Mat splittedImgHSL[3];
+	cv::split(imgHSL, splittedImgHSL);
+	cv::Mat imgH = splittedImgHSL[0];
+	cv::imshow("Hue", imgH);
+	cv::Mat imgS = splittedImgHSL[1];
+	cv::imshow("Saturation", imgS);
+	cv::Mat imgL = splittedImgHSL[2];
+	cv::imshow("Lightness", imgL);
 	
-	Mat threshImgL;
-	namedWindow("Lightness Window", 1);
-	createTrackbar("Lightness threshold value:", "Lightness Window", &threshVal_, 255);
+	cv::Mat threshImgL;
+	cv::namedWindow("Lightness Window", 1);
+	cv::createTrackbar("Lightness threshold value:", "Lightness Window", &threshVal_, 255);
 	int maxVal = 255;
-	threshold(imgL, threshImgL, threshVal_, maxVal, THRESH_BINARY);
-//	std::vector<std::vector<Point>> contours;
-//	std::vector<Vec4i> hierarchy;
-//	findContours(threshImgL, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-//	Mat imgBorders = Mat::zeros(threshImgL.size(), CV_8U);
-//	for (int i = 0; i < contours.size(); i++)
-//		drawContours(imgBorders, contours, i, Scalar(255), 2, 8, hierarchy, 0, Point());
-//	imshow("Contours", imgBorders);
-	//imshow("Lightness Window", threshImgL);
+	cv::threshold(imgL, threshImgL, threshVal_, maxVal, cv::THRESH_BINARY);
+//	std::vector<std::vector<cv::Point>> contours;
+//	std::vector<cv::Vec4i> hierarchy;
+//	cv::findContours(threshImgL, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+//	cv::Mat imgBorders = cv::Mat::zeros(threshImgL.size(), CV_8U);
+//	for (int i = 0; i < contours.size(); i++) {
+//		cv::drawContours(imgBorders, contours, i, cv::Scalar(255), 2, 8, hierarchy, 0, cv::Point());
+//	}
+//	cv::imshow("Contours", imgBorders);
+	//cv::imshow("Lightness Window", threshImgL);
 	
 	/*const int maskSize = 7;
 	int mask[maskSize][maskSize] = {{0, 0, 0, 0, 0, 0, 0},
@@ -628,10 +629,10 @@ void RobotinoVision::processImageLampPost()
 					{0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0}, 
 					{0, 0, 0, 0, 0, 0, 0}};  
-	Mat kernel = Mat(maskSize, maskSize, CV_8U, (void*) mask, maskSize);*/
-/*	namedWindow("Dilated Lightness", 1);
-	createTrackbar("Dilation Size", "Dilated Lightness", &dilationSize_, 10);
-	Mat element = getStructuringElement(MORPH_RECT, Size(2 * dilationSize_ + 1, 2 * dilationSize_ + 1), Point(dilationSize_, dilationSize_)); */
+	cv::Mat kernel = cv::Mat(maskSize, maskSize, CV_8U, (void*) mask, maskSize);*/
+/*	cv::namedWindow("Dilated Lightness", 1);
+	cv::createTrackbar("Dilation cv::Size", "Dilated Lightness", &dilationSize_, 10);
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * dilationSize_ + 1, 2 * dilationSize_ + 1), Point(dilationSize_, dilationSize_)); */
 	/*std::sstream == "";
 	for (t_size i = 0; i < element.rows; i++)
 	{
@@ -640,78 +641,78 @@ void RobotinoVision::processImageLampPost()
 		s << std::endl;
 	}	*/
 /*
-	Mat dilatedImgL;
-	dilate(threshImgL, dilatedImgL, element);
-	imshow("Dilated Lightness", dilatedImgL);
+	cv::Mat dilatedImgL;
+	cv::dilate(threshImgL, dilatedImgL, element);
+	cv::imshow("Dilated Lightness", dilatedImgL);
 	
-	Mat mask = dilatedImgL - threshImgL;
-	imshow("Mask", mask);
+	cv::Mat mask = dilatedImgL - threshImgL;
+	cv::imshow("Mask", mask);
 	mask /= 255;*/
 /*
-	Mat imgH1, imgH2; 
+	cv::Mat imgH1, imgH2; 
 	imgH.copyTo(imgH1);//, CV_8U);
-	Scalar s1 = Scalar(25);
+	cv::Scalar s1 = cv::Scalar(25);
 	imgH1 += s1;
 	//std::cout << imgH1;
 	imgH.copyTo(imgH2);//, CV_8U;
-	Scalar s2 = Scalar(230);
+	cv::Scalar s2 = cv::Scalar(230);
 	imgH2 -= s2;
-	Mat newImgH = imgH1 + imgH2;*/
-/*	vector<Mat> masks;
+	cv::Mat newImgH = imgH1 + imgH2;*/
+/*	std::vector<cv::Mat> masks;
 	masks.push_back(mask);
 	masks.push_back(mask);
 	masks.push_back(mask);
-	Mat imgMask;
-	merge(masks, imgMask);
-	Mat maskedImgBGR;
+	cv::Mat imgMask;
+	cv::merge(masks, imgMask);
+	cv::Mat maskedImgBGR;
 	maskedImgBGR = imgBGR.mul(imgMask);
-	Mat finalImgH = imgH.mul(mask); 
-	imshow("Final Filter", maskedImgBGR);
+	cv::Mat finalImgH = imgH.mul(mask); 
+	cv::imshow("Final Filter", maskedImgBGR);
 
-	Mat imgRed, imgRed1, imgRed2, imgRed3, imgRed4;
+	cv::Mat imgRed, imgRed1, imgRed2, imgRed3, imgRed4;
 	//int redThreshMinVal1 = 0;
 	//int redThreshMaxVal1 = 10;
-	namedWindow("Red Range", 1);
-	createTrackbar("Range1MinVal", "Red Range", &redThreshMinVal1_, 255);
-	createTrackbar("Range1MaxVal", "Red Range", &redThreshMaxVal1_, 255);
+	cv::namedWindow("Red Range", 1);
+	cv::createTrackbar("Range1MinVal", "Red Range", &redThreshMinVal1_, 255);
+	cv::createTrackbar("Range1MaxVal", "Red Range", &redThreshMaxVal1_, 255);
 	int redMaxVal = 1;
-	threshold(finalImgH, imgRed1, redThreshMinVal1_, redMaxVal, THRESH_BINARY);
-	threshold(finalImgH, imgRed2, redThreshMaxVal1_, redMaxVal, THRESH_BINARY_INV);
+	cv::threshold(finalImgH, imgRed1, redThreshMinVal1_, redMaxVal, cv::THRESH_BINARY);
+	cv::threshold(finalImgH, imgRed2, redThreshMaxVal1_, redMaxVal, cv::THRESH_BINARY_INV);
 	imgRed3 = imgRed1.mul(imgRed2); 
 	//int redThreshMinVal2 = 228;
 	//int redThreshMaxVal2 = 255;
-	createTrackbar("Range2MinVal", "Red Range", &redThreshMinVal2_, 255);
-	createTrackbar("Range2MaxVal", "Red Range", &redThreshMaxVal2_, 255);
-	threshold(finalImgH, imgRed1, redThreshMinVal2_, redMaxVal, THRESH_BINARY);
-	threshold(finalImgH, imgRed2, redThreshMaxVal2_, redMaxVal, THRESH_BINARY_INV);
+	cv::createTrackbar("Range2MinVal", "Red Range", &redThreshMinVal2_, 255);
+	cv::createTrackbar("Range2MaxVal", "Red Range", &redThreshMaxVal2_, 255);
+	cv::threshold(finalImgH, imgRed1, redThreshMinVal2_, redMaxVal, cv::THRESH_BINARY);
+	cv::threshold(finalImgH, imgRed2, redThreshMaxVal2_, redMaxVal, cv::THRESH_BINARY_INV);
 	imgRed4 = imgRed1.mul(imgRed2);
 	imgRed = (imgRed3 + imgRed4) * 255;
-	imshow("Red Range", imgRed);
+	cv::imshow("Red Range", imgRed);
 
-	Mat imgYellow, imgYellow1, imgYellow2;
+	cv::Mat imgYellow, imgYellow1, imgYellow2;
 	//int yellowThreshMinVal = 15;
 	//int yellowThreshMaxVal = 55;
-	namedWindow("Yellow Range", 1);
-	createTrackbar("RangeMinVal", "Yellow Range", &yellowThreshMinVal_, 255);
-	createTrackbar("RangeMaxVal", "Yellow Range", &yellowThreshMaxVal_, 255);
+	cv::namedWindow("Yellow Range", 1);
+	cv::createTrackbar("RangeMinVal", "Yellow Range", &yellowThreshMinVal_, 255);
+	cv::createTrackbar("RangeMaxVal", "Yellow Range", &yellowThreshMaxVal_, 255);
 	int yellowMaxVal = 1;
-	threshold(finalImgH, imgYellow1, yellowThreshMinVal_, yellowMaxVal, THRESH_BINARY);
-	threshold(finalImgH, imgYellow2, yellowThreshMaxVal_, yellowMaxVal, THRESH_BINARY_INV);
+	cv::threshold(finalImgH, imgYellow1, yellowThreshMinVal_, yellowMaxVal, cv::THRESH_BINARY);
+	cv::threshold(finalImgH, imgYellow2, yellowThreshMaxVal_, yellowMaxVal, cv::THRESH_BINARY_INV);
 	imgYellow = imgYellow1.mul(imgYellow2) * 255;
-	imshow("Yellow Range", imgYellow);
+	cv::imshow("Yellow Range", imgYellow);
 	
-	Mat imgGreen, imgGreen1, imgGreen2;
+	cv::Mat imgGreen, imgGreen1, imgGreen2;
 	//int greenThreshMinVal = 58;
 	//int greenThreshMaxVal = 96;
-	namedWindow("Green Range", 1);
-	createTrackbar("RangeMinVal", "Green Range", &greenThreshMinVal_, 255);
-	createTrackbar("RangeMaxVal", "Green Range", &greenThreshMaxVal_, 255);
+	cv::namedWindow("Green Range", 1);
+	cv::createTrackbar("RangeMinVal", "Green Range", &greenThreshMinVal_, 255);
+	cv::createTrackbar("RangeMaxVal", "Green Range", &greenThreshMaxVal_, 255);
 	int greenMaxVal = 1;
-	threshold(finalImgH, imgGreen1, greenThreshMinVal_, greenMaxVal, THRESH_BINARY);
-	threshold(finalImgH, imgGreen2, greenThreshMaxVal_, greenMaxVal, THRESH_BINARY_INV);
+	cv::threshold(finalImgH, imgGreen1, greenThreshMinVal_, greenMaxVal, cv::THRESH_BINARY);
+	cv::threshold(finalImgH, imgGreen2, greenThreshMaxVal_, greenMaxVal, cv::THRESH_BINARY_INV);
 	imgGreen = imgGreen1.mul(imgGreen2) * 255;
-	imshow("Green Range", imgGreen);
+	cv::imshow("Green Range", imgGreen);
 	
-	waitKey(80);
+	cv::waitKey(80);
 }*/
 
