@@ -128,7 +128,7 @@ Visualization Manager:
       Marker Topic: /move_base/RobotinoLocalPlanner/marker
       Name: Marker
       Namespaces:
-        waypoints: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -186,10 +186,10 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Map
       Topic: /move_base/global_costmap/costmap
-      Value: true
+      Value: false
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: map
@@ -217,22 +217,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.30702
+      Distance: 9.51115
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 3.20999
-        Y: 2.26067
-        Z: -0.118527
+        X: -0.555467
+        Y: 0.274112
+        Z: -0.121128
       Name: Current View
       Near Clip Distance: 0.01
       Pitch: 1.5698
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.71858
+      Yaw: 6.2036
     Saved: ~
 Window Geometry:
   Displays:
@@ -244,5 +244,5 @@ Window Geometry:
   Tool Properties:
     collapsed: false
   Width: 1317
-  X: 49
+  X: 58
   Y: 24
