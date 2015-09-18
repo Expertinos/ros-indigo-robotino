@@ -2,7 +2,7 @@
 <package>
   <name>cbr2015_module_a_planner</name>
   <version>0.0.0</version>
-  <description>The planejamento_cbr package</description>
+  <description>The cbr2015_module_a_planner package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
