@@ -5,6 +5,12 @@
 <!-- =================================================================================== -->
 <robot name="robotino">
   <!-- Include files -->
+  <!-- WHEEL -->
+  <!-- COMMAND BRIDGE -->
+  <!-- LASER SCANNER -->
+  <!-- Camera -->
+  <!-- AngleBracket With USB Hub -->
+  <!-- KINECT -->
   <link name="base_link">
     <inertial>
       <mass value="20"/>
@@ -136,7 +142,7 @@
     </visual>
   </link>
   <joint name="laser_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="-0.022 10 0.232"/>
+    <origin rpy="0 0 0" xyz="0.1 0 0"/>
     <parent link="base_link"/>
     <child link="laser_link"/>
   </joint>
@@ -159,5 +165,8 @@
       </geometry>
     </collision>
   </link>
+  <!--laser name="laser" parent="base_link"-->
+  <!--origin xyz="0.12 0 ${BASE_HEIGHT/2}" rpy="0 0 0"/-->
+  <!--/laser-->
 </robot>
 
