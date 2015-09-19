@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('planejamento_cbr')
+import roslib; roslib.load_manifest('cbr2015_module_a_planner')
 import rospy
 import smach
 import smach_ros
@@ -16,14 +16,16 @@ from LigarLed import ligarLed
 from PiscarLed import piscarLed
 from std_msgs.msg import String
 from enum import *
+from std_srvs.srv import Empty
 
-area_casa = [0, 0]
-area_deposito = [300, 300]
-area_pedido = [50, 50]
-areas = [[10,20], [100, 200], [50, 100], [100, 50], [200, 200]]
+global area_casa
+global area_deposito
+global area_pedido
+global areas_produtos
 produtos = [Product.TV, Product.DVD, Product.CELULAR, Product.TABLET, Product.NOTEBOOK]
 pedidos = [Product.DVD, Product.CELULAR, Product.TABLET]
 led = False
+seq = 0
 
 # define state Foo
 class Casa(smach.State):
@@ -43,21 +45,25 @@ class LigarNavigation(smach.State):
 
     def execute(self, userdata):
 	global led
+	global seq
+	global areas_produtos
+
+	seq += 1
 
 	if led == True:
-		ligarNavigation(area_deposito)
+		ligarNavigation(Areas.DEPOSITO, seq)
 		return 'indo_deposito'
 
 	if len(produtos) == 0 or len(pedidos) == 0:
-		ligarNavigation(area_casa)
+		ligarNavigation(Areas.CASA, seq)
 		return 'voltar_casa'
 
         if self.count == 0:
             self.count += 1
-    	    ligarNavigation(area_pedido)
+    	    ligarNavigation(Areas.PEDIDOS, seq)
 	    return 'coleta_pedido'
 
-        ligarNavigation(areas.pop(0))
+        ligarNavigation(areas_produtos.pop(0), seq)
         return 'coleta_produto'
 
 class BuscarPedido(smach.State):
@@ -142,7 +148,7 @@ class IrParaCasa(smach.State):
 # main
 def main():
     global pub
-    nh = rospy.init_node('planejamento_cbr')
+    #nh = rospy.init_node('cbr2015_modulo_a_node')
     pub = rospy.Publisher('action', String, queue_size=100)
     #rospy.Subscriber('outcome', String, callback)
 
@@ -194,10 +200,57 @@ def main():
     outcome = sm.execute()
 
 	# Wait for ctrl-c to stop the application
-    rospy.spin()
     sis.stop()
 
+def seta_parametros():
+
+    global areas_produtos
+    areas_produtos = []
+
+    Areas.AREA1[1] = rospy.get_param("/cbr2015_modulo_a_node/area1_x")
+    Areas.AREA1[2] = rospy.get_param("/cbr2015_modulo_a_node/area1_y")
+    Areas.AREA1[3] = rospy.get_param("/cbr2015_modulo_a_node/area1_orientation")
+
+    Areas.AREA2[1] = rospy.get_param("/cbr2015_modulo_a_node/area2_x")
+    Areas.AREA2[2] = rospy.get_param("/cbr2015_modulo_a_node/area2_y")
+    Areas.AREA2[3] = rospy.get_param("/cbr2015_modulo_a_node/area2_orientation")
+
+    Areas.AREA3[1] = rospy.get_param("/cbr2015_modulo_a_node/area3_x")
+    Areas.AREA3[2] = rospy.get_param("/cbr2015_modulo_a_node/area3_y")
+    Areas.AREA3[3] = rospy.get_param("/cbr2015_modulo_a_node/area3_orientation")
+
+    Areas.AREA4[1] = rospy.get_param("/cbr2015_modulo_a_node/area4_x")
+    Areas.AREA4[2] = rospy.get_param("/cbr2015_modulo_a_node/area4_y")
+    Areas.AREA4[3] = rospy.get_param("/cbr2015_modulo_a_node/area4_orientation")
+
+    Areas.AREA5[1] = rospy.get_param("/cbr2015_modulo_a_node/area5_x")
+    Areas.AREA5[2] = rospy.get_param("/cbr2015_modulo_a_node/area5_y")
+    Areas.AREA5[3] = rospy.get_param("/cbr2015_modulo_a_node/area5_orientation")
+
+    areas_produtos.append(Areas.AREA1)
+    areas_produtos.append(Areas.AREA2)
+    areas_produtos.append(Areas.AREA3)
+    areas_produtos.append(Areas.AREA4)
+    areas_produtos.append(Areas.AREA5)
+
+    Areas.CASA[1] = rospy.get_param("/cbr2015_modulo_a_node/casa_x")
+    Areas.CASA[2] = rospy.get_param("/cbr2015_modulo_a_node/casa_y")
+    Areas.CASA[3] = rospy.get_param("/cbr2015_modulo_a_node/casa_orientation")
+
+    Areas.DEPOSITO[1] = rospy.get_param("/cbr2015_modulo_a_node/deposito_x")
+    Areas.DEPOSITO[2] = rospy.get_param("/cbr2015_modulo_a_node/deposito_y")
+    Areas.DEPOSITO[3] = rospy.get_param("/cbr2015_modulo_a_node/deposito_orientation")
+
+    Areas.PEDIDOS[1] = rospy.get_param("/cbr2015_modulo_a_node/pedido_x")
+    Areas.PEDIDOS[2] = rospy.get_param("/cbr2015_modulo_a_node/pedido_y")
+    Areas.PEDIDOS[3] = rospy.get_param("/cbr2015_modulo_a_node/pedido_orientation")
 
 if __name__ == '__main__':
+    rospy.init_node('cbr2015_modulo_a_node')
+    rospy.loginfo("cbr2015_modula_a node is up and running!!!")
+    #s = rospy.Service('get_started', Empty, main)    
+    seta_parametros()
     main()
+
+    rospy.spin()
 
