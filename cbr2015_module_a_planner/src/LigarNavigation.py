@@ -16,9 +16,7 @@ def ligarNavigation(area, seq):
 
         # Waits until the action server has started up and started
         # listening for goals.
-#        client.wait_for_server()
 
-	#MoveBaseClient = SimpleActionClient('move_base', MoveBaseAction)
 	goal = MoveBaseGoal()
 
 	q = transformations.quaternion_from_euler(0, 0, area[3])
@@ -31,6 +29,13 @@ def ligarNavigation(area, seq):
 	goal.target_pose.pose.position.x = area[1]
 	goal.target_pose.pose.position.y = area[2]
 	goal.target_pose.pose.orientation = quat
+
+	#pub = rospy.Publisher("move_base_simple/goal", PoseStamped)
+	#pub.publish(goal.target_pose)
+
+	print "antes do wait"
+        client.wait_for_server()
+	print "depois do wait"
 
         # Sends the goal to the action server.
         client.send_goal(goal)

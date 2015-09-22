@@ -1,0 +1,7 @@
+camera/height: 28.0
+camera/close_distance: 20.0
+camera/far_distance: 62.0
+camera/depth_width: 50.0
+
+image/height: 240
+image/width: 320
