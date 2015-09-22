@@ -1,9 +1,8 @@
 <launch>
-	<node name="cbr2015_module_a_planner" pkg="cbr2015_module_a_planner" type="cbr2015_module_a_planner"  output="screen">
+	<node name="cbr2015_modulo_a_node" pkg="cbr2015_module_a_planner" type="cbr2015_module_a_planner.py" >
 		<rosparam command="load" file="$(find cbr2015_module_a_planner)/config/setup.yaml" />
 	</node>
-	<node name="robotino_leds_node" pkg="robotino_leds" type="robotino_leds_node"  output="screen">
-	</node>
+	
 </launch>
 
 
