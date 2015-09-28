@@ -41,4 +41,4 @@ Thumbs.db
 
 # ROS Bags#
 ###########
-.bag
+*.bag
