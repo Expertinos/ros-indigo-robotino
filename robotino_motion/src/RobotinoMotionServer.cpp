@@ -186,7 +186,7 @@ void RobotinoMotionServer::digitalCallback(const robotino_msgs::DigitalReadings&
 	optical_value_right_ = msg.values.at(4);
 	optical_value_left_ = msg.values.at(2);
 	optical_value_test_ = msg.values.at(0);
-	is_loaded_ = !msg.values.at(4);
+	is_loaded_ = !msg.values.at(0);
 
 	//ROS_INFO("Optical Right: %i || Optical Left: %i", msg.values.at(4),msg.values.at(2));
 
@@ -757,7 +757,9 @@ bool RobotinoMotionServer::getProduct(robotino_motion::GetProduct::Request &req,
 {
 	state_ = PROCESSING;	
 	setAchievedGoal(false);
-	int nframes_no_puck_ = 0;
+	product_code_ = req.product;
+	nframes_no_puck_ = 0;
+	up_to_grab_puck_ = false;
 	res.succeed = true;
 	return true;
 }
@@ -768,10 +770,10 @@ void RobotinoMotionServer::controlImageProcessing()
 	double vel_x = 0;
 	double vel_y = 0;
 	double vel_phi = 0;
-	if (!is_loaded_ || nframes_no_puck_ > 5)
+	if (!is_loaded_ || nframes_no_puck_ > 50)
 	{
 		robotino_vision::FindObjects srv;
-		srv.request.color = 0; // always ORANGE (PUCK)
+		srv.request.color = product_code_; // always ORANGE (PUCK) -> 0
 		vector<float> distances;
 		vector<float> directions;
 		if (!find_objects_cli_.call(srv))
@@ -785,7 +787,7 @@ void RobotinoMotionServer::controlImageProcessing()
 		
 		int closest_index = 0;
 
-		if (num_products > 0)
+		if (num_products > 0 && !up_to_grab_puck_)
 		{
 			nframes_no_puck_ = 0;
 		
@@ -807,7 +809,7 @@ void RobotinoMotionServer::controlImageProcessing()
 			}
 
 			float tolerance_y = 0.1;
-			float tolerance_x = 25;
+			float tolerance_x = 35;
 			double error_abs = fabs(directions.at(closest_index));
 			double K_error = .3;
 			double K_error_front = .002;
@@ -832,15 +834,22 @@ void RobotinoMotionServer::controlImageProcessing()
 			}
 			else
 			{
+				up_to_grab_puck_ = true;
 				vel_x = .05;
 				vel_y = 0;
 				vel_phi = 0;
 			}
 		}
-		else
-		{	
-			nframes_no_puck_++;
+		else if (!is_loaded_ && up_to_grab_puck_) 
+		{
+			vel_x = .05;
+			vel_y = 0;
+			vel_phi = 0;
 		}
+		else 
+		{
+			nframes_no_puck_++;
+		}			
 	}
 	else 
 	{	
