@@ -129,6 +129,7 @@ private:
 
 	bool odom_set_;
 	bool is_loaded_;
+	bool up_to_grab_puck_;
 
 	bool ident_obstacle_;
 	bool obstacle_;
@@ -150,6 +151,7 @@ private:
 
 	// Image Processing Variable
 	int nframes_no_puck_;
+	int product_code_;
 
 	// Back Alignment Variables
 	int alignment_mode_;

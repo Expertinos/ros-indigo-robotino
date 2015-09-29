@@ -3,6 +3,8 @@ ros-indigo-robotino
 
 This repository contains Expertinos' ROS packages (for ROS Indigo Distro) that were developed to a FESTO Robotino mobile robot.
 
+For robotino_vision package, it is necessary to install fuzzylite-5.0
+
 ============
 
 Developers:
