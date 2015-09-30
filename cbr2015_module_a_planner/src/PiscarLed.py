@@ -1,4 +1,4 @@
 import rospy
 
 def piscarLed():
-	rospy.loginfo("Piscando Led")
+	rospy.logwarn("Piscando Led")

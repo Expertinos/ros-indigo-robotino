@@ -1,4 +1,4 @@
 import rospy
 
 def casa():
-	rospy.loginfo('Estou em casa')
+	rospy.logwarn('Estou em casa')

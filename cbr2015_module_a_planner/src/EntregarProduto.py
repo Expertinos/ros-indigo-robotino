@@ -7,7 +7,7 @@ def entregarProduto():
 	#stop_transportation = rospy.ServiceProxy('stop_transportation', Trigger)
 	#resp = stop_transportation()
 	#rospy.loginfo(resp.message)
-	rospy.loginfo("Entregando Produto")
+	rospy.logwarn("Entregando Produto")
 
    	sinalize_end = rospy.ServiceProxy('sinalize_end', Trigger)
 	resp = sinalize_end() 
