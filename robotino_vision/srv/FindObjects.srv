@@ -1,4 +1,4 @@
-uint8 color		# Object color code
+int8 color		# Object color code
 			# 0 for ORANGE (PUCK)
 			# 1 for YELLOW (TV)
 			# 2 for BLUE (DVD)

@@ -10,7 +10,13 @@ import tf
 import actionlib
 from actionlib import SimpleActionClient
 
+
 def ligarNavigation(area, seq):
+	rospy.logwarn("Indo para pose "+ str(area[1]) + str(area[2]))
+	time.sleep(30)
+	rospy.logwarn("Cheguei no pose "+ str(area[1]) + str(area[2]))
+
+'''def ligarNavigation(area, seq):
 	#send_goal
 	client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
@@ -44,7 +50,7 @@ def ligarNavigation(area, seq):
         client.wait_for_result()
 
 	print "Cheguei no pose "+ str(area[1]) +" "+ str(area[2])
-	'''if client.getState() == actionlib.SimpleClientGoalState.SUCCEEDED:
+	if client.getState() == actionlib.SimpleClientGoalState.SUCCEEDED:
 		ROS_INFO("Cheguei no pose "+ str(area[0]) + str(area[1]));
 	else:
 		ROS_INFO("BUGOU!!!!");'''
