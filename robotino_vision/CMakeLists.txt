@@ -22,6 +22,7 @@ add_service_files(
   	FILES
 	FindObjects.srv
 	GetProductsList.srv
+	ContainInList.srv
   	SaveImage.srv
 	SetCalibration.srv
 	)
