@@ -1,7 +1,14 @@
 import rospy
+from robotino_motion.srv import *
+from robotino_vision.srv import *
 
-def verificarProduto():
-	transport_product = rospy.ServiceProxy('align', Align)
+def verificarProduto(pedidos):
+	#alinhar = rospy.ServiceProxy('align', Align)
+	#resp = alinhar()
 
-	resp = transport_product(produto)
-	rospy.loginfo('verificando produto')
+	contem = rospy.ServiceProxy('contain_in_list', ContainInList)
+	resp = contem(pedidos)
+
+	rospy.logwarn('verificando produto')	
+
+	return resp

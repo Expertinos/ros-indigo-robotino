@@ -1,8 +1,8 @@
-uint8[] products	# 1 for TV
+int8[] products		# 1 for TV
 			# 2 for DVD
 			# 3 for CELULAR
 			# 4 for TABLET
 			# 5 for NOTEBOOK
 ---
-uint8 product		# the same as above
+int8 product		# the same as above
 bool contain		# false if there is no product from the products list
