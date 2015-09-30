@@ -76,16 +76,16 @@ void KeyboardTeleop::spin()
 		{
 		// Walking
 		case KEYCODE_W:
-			vel_x = 0.05;
+			vel_x = 0.2;
 			break;
 		case KEYCODE_S:
-			vel_x = -0.05;
+			vel_x = -0.2;
 			break;
 		case KEYCODE_A:
-			vel_y = 0.05;
+			vel_y = 0.2;
 			break;
 		case KEYCODE_D:
-			vel_y = -0.05;
+			vel_y = -0.2;
 			break;
 		case KEYCODE_Q:
 			vel_omega = 0.5;
