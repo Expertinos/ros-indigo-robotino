@@ -23,7 +23,7 @@ global area_deposito
 global area_pedido
 global areas_produtos
 produtos = [Product.TV, Product.DVD, Product.CELULAR, Product.TABLET, Product.NOTEBOOK]
-pedidos = [Product.DVD, Product.CELULAR, Product.TABLET]
+global pedidos #= [Product.DVD, Product.CELULAR, Product.TABLET]
 led = False
 seq = 0
 
@@ -47,6 +47,7 @@ class LigarNavigation(smach.State):
 	global led
 	global seq
 	global areas_produtos
+	global pedidos
 
 	seq += 1
 
@@ -54,14 +55,14 @@ class LigarNavigation(smach.State):
 		ligarNavigation(Areas.DEPOSITO, seq)
 		return 'indo_deposito'
 
-	if len(produtos) == 0 or len(pedidos) == 0:
-		ligarNavigation(Areas.CASA, seq)
-		return 'voltar_casa'
-
         if self.count == 0:
             self.count += 1
     	    ligarNavigation(Areas.PEDIDOS, seq)
 	    return 'coleta_pedido'
+
+	if len(areas_produtos) == 0 or len(pedidos) == 0:
+		ligarNavigation(Areas.CASA, seq)
+		return 'voltar_casa'
 
         ligarNavigation(areas_produtos.pop(0), seq)
         return 'coleta_produto'
@@ -72,8 +73,9 @@ class BuscarPedido(smach.State):
 
     def execute(self, userdata):
 	global pub
+	global pedidos
 
-	buscarPedido(pub)
+	pedidos = buscarPedido(pub)
         return 'peguei_pedido'
 
 class BuscarProduto(smach.State):
@@ -91,13 +93,16 @@ class VerificarProduto(smach.State):
                                 output_keys=['produto'])
 
     def execute(self, userdata):
-	verificarProduto()
-        produto = produtos.pop(0)
-	if produto in pedidos:
-	    pedidos.remove(produto)
-	    userdata.produto = produto
+	global pedidos
+
+	resp = verificarProduto(pedidos)
+ 
+	if resp.contain == True:
+	    rospy.logwarn("produto correto")
+	    userdata.produto = resp.product
             return 'correto'
 
+        rospy.logwarn("produto errado")
 	return 'errado'
 
 class LigarLed(smach.State):
@@ -150,6 +155,7 @@ def main():
     global pub
     #nh = rospy.init_node('cbr2015_modulo_a_node')
     pub = rospy.Publisher('action', String, queue_size=100)
+    rospy.logwarn("comecou")
     #rospy.Subscriber('outcome', String, callback)
 
     # Create a SMACH state machine
