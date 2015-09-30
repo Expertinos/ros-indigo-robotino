@@ -4,4 +4,4 @@ uint8[] products	# 1 for TV
 			# 3 for CELULAR
 			# 4 for TABLET
 			# 5 for NOTEBOOK
-bool succeed
+bool succeed		# false if no product is found
