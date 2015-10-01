@@ -1,4 +1,4 @@
 import rospy
 
 def buscarProduto():
-        rospy.loginfo('buscando produto')
+        rospy.logwarn('buscando produto')
