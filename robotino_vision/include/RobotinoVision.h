@@ -27,7 +27,7 @@
 #include "robotino_vision/SaveImage.h"
 #include "robotino_vision/SetCalibration.h"
 
-#define MIN_AREA 350 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
+#define MIN_AREA 500 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
 
 typedef enum {ORANGE, YELLOW, BLUE, GREEN, RED, BLACK, NONE} Color;
 

@@ -547,7 +547,7 @@ void RobotinoVision::setColor(Color color)
 			color_name_ = "YELLOW";
 			break;
 		case BLACK:
-			color_params_ = black_params_;
+			//color_params_ = black_params_;
 			color_name_ = "BLACK";
 	}
 	color_ = color;
