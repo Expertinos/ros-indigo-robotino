@@ -33,6 +33,7 @@ add_service_files(
 add_action_files(
 	DIRECTORY action
 	FILES Motion.action
+	      GrabPuck.action	
 	)
 
 generate_messages(
@@ -60,6 +61,37 @@ target_link_libraries(robotino_motion_server_node
 
 add_dependencies(robotino_motion_server_node
 	robotino_vision_gen_cpp
+	robotino_motion_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(server_node 
+	src/server_node.cpp
+	src/Server.cpp
+	src/GrabPuckServer.cpp
+	src/Colors.cpp
+	)
+
+target_link_libraries(server_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(server_node
+	robotino_vision_gen_cpp
+	robotino_motion_gen_cpp
+	robotino_msgs_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(client_node 
+	src/client_node.cpp
+	)
+
+target_link_libraries(client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(client_node
 	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)
