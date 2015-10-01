@@ -24,7 +24,7 @@ RobotinoVision::RobotinoVision()
 	setColor(ORANGE);
 	contours_window_name_ = CONTOURS_WINDOW + ": " + color_name_;		
 
-	calibration_ = true;
+	calibration_ = false;
 	setImagesWindows();
 	cv::namedWindow(contours_window_name_);
 
@@ -104,11 +104,11 @@ bool RobotinoVision::getList(robotino_vision::GetProductsList::Request &req, rob
 	{
 		numOfRedObjects = 2;
 	}
-	int numOfBlackObjects = 3 - (numOfYellowObjects + numOfBlueObjects + numOfGreenObjects + numOfRedObjects);
+	int numOfBlackObjects = 0;/*3 - (numOfYellowObjects + numOfBlueObjects + numOfGreenObjects + numOfRedObjects);
 	if (numOfBlackObjects > 2) 
 	{	
 		numOfBlackObjects = 2;
-	}
+	}*/
 	setColor(ORANGE);
 	int i = 0;
 	res.products.clear();
@@ -174,7 +174,7 @@ bool RobotinoVision::containInList(robotino_vision::ContainInList::Request &req,
 			}
 		}		
 	}
-	res.product = 255;
+	res.product = -1;
 	if (closestProductColor != NONE)
 	{
 		res.product = convertColorToProduct(closestProductColor);
@@ -545,6 +545,10 @@ void RobotinoVision::setColor(Color color)
 		case YELLOW: //OK
 			color_params_ = yellow_params_;
 			color_name_ = "YELLOW";
+			break;
+		case BLACK:
+			//color_params_ = black_params_;
+			color_name_ = "BLACK";
 	}
 	color_ = color;
 }

@@ -2,17 +2,4 @@
 	<node name="cbr2015_modulo_a_node" pkg="cbr2015_module_a_planner" type="cbr2015_module_a_planner.py" >
 		<rosparam command="load" file="$(find cbr2015_module_a_planner)/config/setup.yaml" />
 	</node>
-	
-	<node name="robotino_leds_node" pkg="robotino_leds" type="robotino_leds_node"  output="screen">
-	</node>
-
-	<!--<node name="simple_navigation_goals" pkg="simple_navigation_goals" type="simple_navigation_goals"  output="screen">
-	</node>-->
-
-	<arg name="hostname" default="192.168.1.171:12080"/>
-	<include file="$(find robotino_node)/launch/robotino_node.launch">
-		<arg name="hostname" value="$(arg hostname)"/>
-	</include>
-	<include file="$(find robotino_navigation)/launch/navigation.launch">
-	</include>
 </launch>

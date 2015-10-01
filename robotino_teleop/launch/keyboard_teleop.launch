@@ -1,10 +1,8 @@
 <launch>
 	<!-- Keyboard Teleop Node -->
-	<node pkg="robotino_teleop" type="keyboard_teleop_node"
-		name="keyboard_teleop_node" output="screen" >
-				
-		<!-- Scale -->
-		<param name="scale_linear" value="2.0" type="double" />
-		<param name="scale_angular" value="1.0" type="double" />
+	<arg name="cmd_vel" default="/cmd_vel"/>
+	<node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop">
+		<param name="hostname" value="$(arg cmd_vel)" />
+		<!--remap from"cmd_vel" to="robot0/cmd_vel"/-->
 	</node>
 </launch>
