@@ -15,7 +15,7 @@ namespace GrabPuckStates
 {
 	typedef enum 
 	{
-		NON_INITIALIZED,
+		UNINITIALIZED,
 		IDLE, 
 		FINDING_PUCK,
 		GRABING_PUCK, 

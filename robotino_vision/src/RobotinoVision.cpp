@@ -24,7 +24,7 @@ RobotinoVision::RobotinoVision()
 	setColor(ORANGE);
 	contours_window_name_ = CONTOURS_WINDOW + ": " + color_name_;		
 
-	calibration_ = true;
+	calibration_ = false;
 	setImagesWindows();
 	cv::namedWindow(contours_window_name_);
 
@@ -174,7 +174,7 @@ bool RobotinoVision::containInList(robotino_vision::ContainInList::Request &req,
 			}
 		}		
 	}
-	res.product = 255;
+	res.product = -1;
 	if (closestProductColor != NONE)
 	{
 		res.product = convertColorToProduct(closestProductColor);

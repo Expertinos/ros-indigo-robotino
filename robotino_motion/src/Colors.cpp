@@ -85,7 +85,7 @@ void Colors::setColor(Color color)
 			code_ = 4;
 			name_ = "RED";
 			break;
-		case RED:
+		case BLACK:
 			code_ = 5;
 			name_ = "BLACK";
 			break;
@@ -171,7 +171,7 @@ std::string Colors::getProductString()
 /**
  *
  */
-static Color Colors::convertProductToColor(int product)
+Color Colors::convertProductToColor(int product)
 {
 	Color color;
 	switch (product)
@@ -206,7 +206,7 @@ static Color Colors::convertProductToColor(int product)
 /**
  *
  */
-static int Colors::toProduct(Color color)
+int Colors::toProduct(Color color)
 {
 	int product;
 	switch (color)
@@ -238,7 +238,7 @@ static int Colors::toProduct(Color color)
 /**
  *
  */
-static std::string Colors::toString(Color color)
+std::string Colors::toString(Color color)
 {
 	std::string color_name;
 	switch (color)
@@ -270,7 +270,7 @@ static std::string Colors::toString(Color color)
 /**
  *
  */
-static std::string Colors::convertProductToString(int product)
+std::string Colors::convertProductToString(int product)
 {
 	std::string product_name;
 	switch (product)
@@ -302,7 +302,7 @@ static std::string Colors::convertProductToString(int product)
 /**
  *
  */
-static std::string Colors::convertProductToString(Color color)
+std::string Colors::convertProductToString(Color color)
 {
 	std::string product_name;
 	switch (color)

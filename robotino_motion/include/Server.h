@@ -49,6 +49,7 @@ protected:
 	double getOdometry_PHI();
 
 	virtual void start() = 0;
+	virtual void stop() = 0;
 	virtual void controlLoop() = 0;
 
 private:
