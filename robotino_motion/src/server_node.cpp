@@ -5,13 +5,13 @@
  *      Author: expertinos.unifei@gmail.com
  */
 
-#include "Server.h"
+#include "GrabPuckServer.h"
 
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "server_node");
 	ros::NodeHandle nh;
-	Server node(nh, "", "") ;
+	GrabPuckServer node(nh, "") ;
 	node.spin();
 
 	return 0;

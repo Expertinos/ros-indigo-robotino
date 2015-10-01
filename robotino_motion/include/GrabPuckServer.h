@@ -11,6 +11,8 @@
 #ifndef GRAB_PUCK_SERVER_H_
 #define GRAB_PUCK_SERVER_H_
 
+#include <vector>
+
 #include "Server.h"
 
 #include "robotino_motion/GrabPuckAction.h"
@@ -26,7 +28,7 @@ class GrabPuckServer : public Server
 
 public:
 
-	GrabPuckServer(NodeHandle nh, std::string ns);
+	GrabPuckServer(ros::NodeHandle nh, std::string ns);
 	~GrabPuckServer();
 
 	bool isActing();	
@@ -34,6 +36,7 @@ public:
 protected:
 
 	void start();
+	void stop();
 	void controlLoop();
 
 private:
@@ -44,14 +47,14 @@ private:
 	void readParameters();
 
 	/** GrabPuck Action related Variables and Functions */ 	
-	actionlib::SimpleAction<robotino_motion::GrabPuckAction> server_;
+	actionlib::SimpleActionServer <robotino_motion::GrabPuckAction> server_;
 	robotino_motion::GrabPuckGoal goal_;
 	robotino_motion::GrabPuckFeedback feedback_;
 	robotino_motion::GrabPuckResult result_;
 
-	void executeCallback(const GrabPuckGoalConstPtr& goal);
+	void executeCallback(const robotino_motion::GrabPuckGoalConstPtr& goal);
 	void preemptCallback();
-	bool acceptNewGoal(const GrabPuckGoalConstPtr& goal);
+	bool validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr& goal);
 
 	/**  */
 	bool is_loaded_;

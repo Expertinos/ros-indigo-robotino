@@ -40,7 +40,7 @@ void Server::spin()
 	ROS_INFO("%s Server up and running!!!", name_.c_str());
 	ros::Rate loop_rate(10.0);
 	while (nh_.ok()) {
-		controlLoop();
+		//controlLoop();
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
@@ -57,15 +57,28 @@ std::string Server::getName() const
 /**
  *
  */
+void Server::executeEmergencyStop()
+{
+	setVelocity(0, 0, 0);
+	publishVelocity();
+	stop();
+}	
+
+/**
+ *
+ */
 void Server::setVelocity(double vel_x, double vel_y, double vel_phi) 
 {
-	if (fabs(vel_x) > max_linear_vel_) {
+	if (fabs(vel_x) > max_linear_vel_) 
+	{
 		vel_x = sign(vel_x) * max_linear_vel_;
 	}
-	if (fabs(vel_y) > max_linear_vel_) {
+	if (fabs(vel_y) > max_linear_vel_) 
+	{
 		vel_y = sign(vel_y) * max_linear_vel_;
 	}
-	if (fabs(vel_phi) > max_angular_vel_) {
+	if (fabs(vel_phi) > max_angular_vel_) 
+	{
 		vel_phi = sign(vel_phi) * max_angular_vel_;
 	}
 	cmd_vel_msg_.linear.x = vel_x;

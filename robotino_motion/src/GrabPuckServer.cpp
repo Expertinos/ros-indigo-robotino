@@ -17,14 +17,14 @@ GrabPuckServer::GrabPuckServer(ros::NodeHandle nh, std::string ns) :
 	Server(nh, "Grab Puck", ns),
 	server_(nh, "grab_puck", boost::bind(&GrabPuckServer::executeCallback, this, _1), false)
 {
-	server_.registerGoalCallback(boost::bind(&GrabPuckServer::goalCB, this));
 	server_.registerPreemptCallback(boost::bind(&GrabPuckServer::preemptCallback, this));
 	readParameters();
 	digital_readings_sub_ = nh_.subscribe("digital_readings", 1, &GrabPuckServer::digitalReadingsCallback, this);
 	find_objects_cli_ = nh_.serviceClient<robotino_vision::FindObjects>("find_objects");
 
-	state_ = NON_INITIALIZED;
+	state_ = GrabPuckStates::UNINITIALIZED;
 	is_loaded_ = false;
+	nframes_no_puck_ = 0;
 }
 
 /**
@@ -42,7 +42,7 @@ GrabPuckServer::~GrabPuckServer()
  */
 bool GrabPuckServer::isActing()
 {
-	return state != NON_INITIALIZED && state_ != IDLE;
+	return state_ != GrabPuckStates::UNINITIALIZED && state_ != GrabPuckStates::IDLE;
 }
 
 /**
@@ -50,10 +50,23 @@ bool GrabPuckServer::isActing()
  */
 void GrabPuckServer::start()
 {
-	if (state_ = NON_INITIALIZED)
+	if (state_ == GrabPuckStates::UNINITIALIZED)
 	{
 		server_.start();
+		state_ = GrabPuckStates::IDLE;
 	}
+}
+
+/**
+ *
+ */
+void GrabPuckServer::stop()
+{
+	setVelocity(0, 0, 0);
+	publishVelocity();
+	state_ = GrabPuckStates::IDLE;
+	result_.goal_achieved = false;
+	server_.setAborted(result_, "Emergency stop requested!!!");
 }
 
 /**
@@ -67,20 +80,21 @@ void GrabPuckServer::controlLoop()
 	{
 		robotino_vision::FindObjects srv;
 		srv.request.color = Colors::toProduct(color_);
-		ROS_INFO("Product: %s", Colors::getProductString(srv.request.color));
-		vector<float> distances,  directions;
+		//ROS_INFO("Product: %s", Colors::convertProductToString(srv.request.color).c_str());
 		if (!find_objects_cli_.call(srv))
 		{	
 			ROS_ERROR("Puck not found!!!");
-			state_ = LOST;
+			state_ = GrabPuckStates::LOST;
 			return;
 		}
-		int num_products = srv.response.distances.size();
+
+		std::vector<float> distances,  directions;
 		distances = srv.response.distances;
 		directions = srv.response.directions; 
 		
 		int closest_index = 0;
-		if (num_products > 0 && state_ != GRABBING)
+		int num_products = srv.response.distances.size();
+		if (num_products > 0 && state_ != GrabPuckStates::GRABING_PUCK)
 		{
 			nframes_no_puck_ = 0;
 		
@@ -125,13 +139,13 @@ void GrabPuckServer::controlLoop()
 			}
 			else
 			{
-				up_to_grab_puck_ = true;
+				state_ = GrabPuckStates::GRABING_PUCK;
 				vel_x = .05;
 				vel_y = 0;
 				vel_phi = 0;
 			}
 		}
-		else if (!is_loaded_ && state_ != GRABBING) 
+		else if (!is_loaded_ && state_ != GrabPuckStates::GRABING_PUCK) 
 		{
 			vel_x = .05;
 			vel_y = 0;
@@ -144,7 +158,7 @@ void GrabPuckServer::controlLoop()
 	}
 	else 
 	{	
-		state_ = IDLE;
+		state_ = GrabPuckStates::IDLE;
 	}
 	setVelocity(vel_x, vel_y, vel_phi);
 	publishVelocity();
@@ -155,8 +169,55 @@ void GrabPuckServer::controlLoop()
  */
 void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr& goal)
 {
+	ros::Rate loop_rate(20);
+	if(!validateNewGoal(goal))
+	{
+		ROS_WARN("Goal not accepted!!!");
+		result_.goal_achieved = false;
+		server_.setAborted(result_, "No puck found or invalid color code!!!");
+		return;
+	}
 	Color color = Colors::convertProductToColor(goal->color);
-	ROS_INFO("executeCb: desire to grab ", Colors::getProductString);
+	ROS_DEBUG("Color desired to grab: %s", Colors::convertProductToString(color).c_str());
+	while(nh_.ok())
+	{
+		if(server_.isPreemptRequested())
+		{
+			if(server_.isNewGoalAvailable() && !validateNewGoal(server_.acceptNewGoal()))
+			{
+				ROS_WARN("Goal not accepted!!!");
+				return;
+			}
+			ROS_INFO("Cancel request!!!");
+			server_.setPreempted();
+			state_ = GrabPuckStates::IDLE;
+			setVelocity(0, 0, 0);
+			publishVelocity();
+			return;
+		}
+		controlLoop();
+		if(state_ == GrabPuckStates::FINISHED)
+		{
+			state_ = GrabPuckStates::IDLE;
+			setVelocity(0, 0, 0);
+			publishVelocity();
+			result_.goal_achieved = true;
+			server_.setSucceeded(result_);
+			return;
+		}
+		if(state_ != GrabPuckStates::IDLE)
+		{
+			publishVelocity();
+			server_.publishFeedback(feedback_);
+		}
+		ros::spinOnce();
+		loop_rate.sleep();
+	}
+	state_ = GrabPuckStates::IDLE;
+	setVelocity(0, 0, 0);
+	publishVelocity();
+	result_.goal_achieved = false;
+	server_.setAborted(result_, "Aborting on the goal because the node has been killed");
 }
 
 
@@ -165,30 +226,52 @@ void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr
  */
 void GrabPuckServer::preemptCallback()
 {
-	ROS_INFO("executeCb: desire to grab ", Colors::getProductString);
+	color_ = NONE;
+	state_ = GrabPuckStates::IDLE;
 }
 
 /**
  *
  */
-bool GrabPuckServer::acceptNewGoal(const robotino_motion::GrabPuckGoalConstPtr& goal)
+bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr& goal)
 {
-	ROS_INFO("Accepting new goal!!!");
+	if(state_ == GrabPuckStates::UNINITIALIZED)
+	{
+		ROS_ERROR("Odometry not initialized!!!");
+		return false;
+	}
+
+	ROS_DEBUG("Accepting new goal!!!");
 	int color_code = goal->color;
-	if (color == -1)
+	if (color_code == -1)
 	{
 		ROS_WARN("Invalid color code: %d!!!", color_code);
 		return false;
 	}
 	goal_.color = color_code;
 	color_ = Colors::convertProductToColor(color_code);
-	return acceptNewGoal(goal);
+	
+	robotino_vision::FindObjects srv;
+	srv.request.color = Colors::toProduct(color_);
+	if (!find_objects_cli_.call(srv))
+	{	
+		ROS_ERROR("%s Puck not found!!!", Colors::toString(color_).c_str());
+		state_ = GrabPuckStates::LOST;
+		return false;
+	}
+	ROS_INFO("Goal accepted, grabbing %s puck!!!", Colors::toString(color_).c_str());
+	return true;
+}
+
+void GrabPuckServer::digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg)
+{
+	is_loaded_ = !msg.values.at(0);
 }
 
 /**
  *
  */
-bool GrabPuckServer::readParameters()
+void GrabPuckServer::readParameters()
 {
 	
 }

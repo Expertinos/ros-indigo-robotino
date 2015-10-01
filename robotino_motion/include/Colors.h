@@ -34,14 +34,14 @@ public:
 	void setColor(int color_code);
 	void setColor(Color color);
 	std::string toString();
-	std::string getProductCode();
+	int getProductCode();
 	std::string getProductString();
 
 	static Color convertProductToColor(int product);
 	static int toProduct(Color color);
 	static std::string toString(Color color);
-	static std::string getProductString(int product);
-	static std::string getProductString(Color color);
+	static std::string convertProductToString(int product);
+	static std::string convertProductToString(Color color);
 
 private:
 	
