@@ -13,42 +13,36 @@
 
 #include <string>
 
-typedef enum 
-{
-	ORANGE, 
-	YELLOW, 
-	BLUE, 
-	GREEN, 
-	RED, 
-	BLACK, 
-	NONE
-} Color;
-
-class Colors
+namespace colors
 {
 
-public:
+	typedef enum 
+	{
+		ORANGE, 
+		YELLOW, 
+		BLUE, 
+		GREEN, 
+		RED, 
+		BLACK, 
+		NONE
+	} ColorEnum;
 
-	Colors(Color color);
+	class Colors
+	{
 
-	void setColor(int color_code);
-	void setColor(Color color);
-	std::string toString();
-	int getProductCode();
-	std::string getProductString();
+	public:
 
-	static Color convertProductToColor(int product);
-	static int toProduct(Color color);
-	static std::string toString(Color color);
-	static std::string convertProductToString(int product);
-	static std::string convertProductToString(Color color);
+		static ColorEnum convertProductToColor(int product);
+		static int toProduct(ColorEnum color);
+		static std::string toString(ColorEnum color);
+		static std::string convertProductToString(int product);
+		static std::string convertProductToString(ColorEnum color);
 
-private:
-	
-	int code_;
-	std::string name_;
-	Color color_;
+	};
 
 };
+
+typedef colors::ColorEnum Color;
+typedef colors::Colors Colors;
 
 #endif /* COLOR_H_ */

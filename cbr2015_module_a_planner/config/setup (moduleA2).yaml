@@ -1,0 +1,31 @@
+area1_x: 0.659
+area1_y: 0.552
+area1_orientation: 0.051
+
+area2_x: 1.798
+area2_y: 1.663
+area2_orientation: 1.650
+
+area3_x: 2.168
+area3_y: 1.289
+area3_orientation: 0.057
+
+area4_x: 2.275
+area4_y: 0.358
+area4_orientation: 0.070
+
+area5_x: 1.979
+area5_y: -0.433
+area5_orientation: -1.470
+
+casa_x: -0.210
+casa_y: 0.580
+casa_orientation: 0.139
+
+deposito_x: 0.587
+deposito_y: -1.170
+deposito_orientation: -2.925
+
+pedido_x: 0.324
+pedido_y: 2.082
+pedido_orientation: 3.015

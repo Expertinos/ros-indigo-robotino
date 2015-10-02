@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-	<!--node name="robotino_motion_client_node" pkg="robotino_motion" type="robotino_motion_client_node"  output="screen">
-	</node-->
+
 	<node name="robotino_motion_server_node" pkg="robotino_motion" type="robotino_motion_server_node" output="screen">
 		<param name="min_linear_vel" value="0.05"/>
 		<param name="max_linear_vel" value="0.1"/>

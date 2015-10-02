@@ -11,20 +11,34 @@
 #ifndef GRAB_PUCK_STATES_H_
 #define GRAB_PUCK_STATES_H_
 
-namespace GrabPuckStates
+#include <string>
+
+namespace grabPuckStates
 {
+
 	typedef enum 
 	{
 		UNINITIALIZED,
 		IDLE, 
 		FINDING_PUCK,
-		GRABING_PUCK, 
+		GRABBING_PUCK, 
 		STOPPING,
 		FINISHED,
 		LOST
-	} GPS;
+	} GrabPuckStateEnum;
+
+	class GrabPuckStates
+	{
+
+		public: 
+	
+			static std::string toString(GrabPuckStateEnum state);
+			
+	};
+
 };
 
-typedef GrabPuckStates::GPS GrabPuckState;
+typedef grabPuckStates::GrabPuckStateEnum GrabPuckState;
+typedef grabPuckStates::GrabPuckStates GrabPuckStates;
 
 #endif /* GRAB_PUCK_STATES_H_ */

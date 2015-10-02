@@ -70,6 +70,7 @@ add_executable(server_node
 	src/Server.cpp
 	src/GrabPuckServer.cpp
 	src/Colors.cpp
+	src/GrabPuckStates.cpp
 	)
 
 target_link_libraries(server_node
