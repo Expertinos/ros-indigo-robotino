@@ -18,12 +18,12 @@
     <rosparam file="$(find robotino_navigation)/config/base_local_planner_params.yaml" command="load" />
     <param name="base_local_planner" value="robotino_local_planner/RobotinoLocalPlanner" />
     <param name="controller_frequency" value="10.0" />
-    <!--<remap from="cmd_vel" to="robotino_cmd_vel" />-->
+    <remap from="cmd_vel" to="robotino_cmd_vel" />
   </node>
   
   <!-- Run rviz -->
   <include file="$(find robotino_navigation)/launch/rviz.launch" />
   
   <!-- Run robotino_safety_node -->
-  <!--<include file="$(find robotino_safety)/launch/robotino_safety_node.launch"/>-->
+  <include file="$(find robotino_safety)/launch/robotino_safety_node.launch"/>
 </launch>

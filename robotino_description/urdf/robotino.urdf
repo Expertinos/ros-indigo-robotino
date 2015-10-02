@@ -136,7 +136,7 @@
     </visual>
   </link>
   <joint name="laser_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.224 0 0.232"/>
+    <origin rpy="0 0 0" xyz="0.224 0 0.1"/>
     <parent link="base_link"/>
     <child link="laser_link"/>
   </joint>

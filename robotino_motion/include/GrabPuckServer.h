@@ -53,8 +53,8 @@ private:
 	robotino_motion::GrabPuckResult result_;
 
 	void executeCallback(const robotino_motion::GrabPuckGoalConstPtr& goal);
-	void preemptCallback();
 	bool validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr& goal);
+	void publishFeedback();
 
 	/**  */
 	bool is_loaded_;
@@ -63,6 +63,7 @@ private:
 
 	/** Movement related Variables and Functions */
 	GrabPuckState state_;
+	double percentage_;
 
 	/** Image Processing Variable and Functions */
 	Color color_;

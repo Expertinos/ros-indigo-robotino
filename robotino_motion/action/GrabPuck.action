@@ -13,11 +13,13 @@ int8 color		# Object color code
 ## ----------------- result definition ----------------- ##
 
 bool goal_achieved 		
+string message
 # it is true if and only if the goal has been achieved
 
 ---
 
 ## ---------------- feedback definition ---------------- ##
 
-float32 percentage			
+float32 percentage	
+string state		
 # in range of 0% to 100%
