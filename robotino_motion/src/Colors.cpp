@@ -10,170 +10,13 @@
 
 #include "Colors.h"
 
-/**
- *
- */
-Colors::Colors(Color color) 
-{
-	setColor(color);
-}
 
 /**
  *
  */
-void Colors::setColor(int color_code)
+colors::ColorEnum colors::Colors::convertProductToColor(int product)
 {
-	code_ = color_code;
-	switch (color_code)
-	{
-		case 0:
-			color_ = ORANGE;
-			name_ = "ORANGE";
-			break;
-		case 1:
-			color_ = YELLOW;
-			name_ = "YELLOW";
-			break;
-		case 2:
-			color_ = BLUE;
-			name_ = "BLUE";
-			break;
-		case 3:
-			color_ = GREEN;
-			name_ = "GREEN";
-			break;
-		case 4:
-			color_ = RED;
-			name_ = "RED";
-			break;
-		case 5:
-			color_ = RED;
-			name_ = "BLACK";
-			break;
-		default:
-			code_ = -1;
-			name_ = "";
-			color_ = NONE;
-	}
-}
-
-/**
- *
- */
-void Colors::setColor(Color color)
-{
-	color_ = color;
-	switch (color)
-	{
-		case ORANGE:
-			code_ = 0;
-			name_ = "ORANGE";
-			break;
-		case YELLOW:
-			code_ = 1;
-			name_ = "YELLOW";
-			break;
-		case BLUE:
-			code_ = 2;
-			name_ = "BLUE";
-			break;
-		case GREEN:
-			code_ = 3;
-			name_ = "GREEN";
-			break;
-		case RED:
-			code_ = 4;
-			name_ = "RED";
-			break;
-		case BLACK:
-			code_ = 5;
-			name_ = "BLACK";
-			break;
-		default:
-			code_ = -1;
-			name_ = "";
-			color_ = NONE;
-	}
-}
-
-/**
- *
- */
-std::string Colors::toString()
-{
-	return name_;
-}
-
-/**
- *
- */
-int Colors::getProductCode()
-{
-	int product_code;
-	switch (color_)
-	{
-		case ORANGE:
-			product_code = 0;
-			break;
-		case YELLOW:
-			product_code = 1;
-			break;
-		case BLUE:
-			product_code = 2;
-			break;
-		case GREEN:
-			product_code = 3;
-			break;
-		case RED:
-			product_code = 4;
-			break;
-		case BLACK:
-			product_code = 5;
-			break;
-		default:
-			product_code = -1;
-	}
-	return product_code;
-}
-
-/**
- *
- */
-std::string Colors::getProductString()
-{
-	std::string product_name;
-	switch (color_)
-	{
-		case ORANGE:
-			product_name = "PUCK";
-			break;
-		case YELLOW:
-			product_name = "TV";
-			break;
-		case BLUE:
-			product_name = "DVD";
-			break;
-		case GREEN:
-			product_name = "CELULAR";
-			break;
-		case RED:
-			product_name = "TABLET";
-			break;
-		case BLACK:
-			product_name = "NOTEBOOK";
-			break;
-		default:
-			product_name = "";
-	}
-	return product_name;
-}
-
-/**
- *
- */
-Color Colors::convertProductToColor(int product)
-{
-	Color color;
+	colors::ColorEnum color;
 	switch (product)
 	{
 		case 0:
@@ -206,7 +49,7 @@ Color Colors::convertProductToColor(int product)
 /**
  *
  */
-int Colors::toProduct(Color color)
+int colors::Colors::toProduct(colors::ColorEnum color)
 {
 	int product;
 	switch (color)
@@ -238,7 +81,7 @@ int Colors::toProduct(Color color)
 /**
  *
  */
-std::string Colors::toString(Color color)
+std::string colors::Colors::toString(colors::ColorEnum color)
 {
 	std::string color_name;
 	switch (color)
@@ -270,7 +113,7 @@ std::string Colors::toString(Color color)
 /**
  *
  */
-std::string Colors::convertProductToString(int product)
+std::string colors::Colors::convertProductToString(int product)
 {
 	std::string product_name;
 	switch (product)
@@ -302,7 +145,7 @@ std::string Colors::convertProductToString(int product)
 /**
  *
  */
-std::string Colors::convertProductToString(Color color)
+std::string colors::Colors::convertProductToString(colors::ColorEnum color)
 {
 	std::string product_name;
 	switch (color)
