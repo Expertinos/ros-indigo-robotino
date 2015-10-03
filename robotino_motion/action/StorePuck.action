@@ -1,0 +1,31 @@
+## ------------------ goal definition ------------------ ##
+
+int8 color
+# 0: for ORANGE (considering BLACK color borders at the leaving area) (PUCK)
+# 1: for YELLOW (considering BLACK color borders at the leaving area) (TV)
+# 2: for BLUE (considering BLACK color borders at the leaving area) (DVD)
+# 3: for GREEN (considering BLACK color borders at the leaving area) (CELULAR)
+# 4: for RED (considering BLACK color borders at the leaving area) (TABLET)
+# 5: for BLACK (considering BLACK color borders at the leaving area) (NOTEBOOK)
+# 6: for PINK (considering BLACK color borders at the leaving area)
+
+---
+
+## ----------------- result definition ----------------- ##
+
+bool goal_achieved 		
+# it is true if and only if the goal has been achieved
+
+string message			
+# message about rhe result
+
+
+---
+
+## ---------------- feedback definition ---------------- ##
+
+float32 percentage		
+# in range of 0% to 100%
+
+string state			
+# a string that describes the current state

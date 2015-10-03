@@ -1,25 +1,31 @@
 ## ------------------ goal definition ------------------ ##
 
-int8 color		# Object color code
-			# 0 for ORANGE (PUCK)
-			# 1 for YELLOW (TV)
-			# 2 for BLUE (DVD)
-			# 3 for GREEN (CELULAR)
-			# 4 for RED (TABLET)
-			# 5 for BLACK (NOTEBOOK)
+int8 color							
+# 0: for ORANGE (PUCK)
+# 1: for YELLOW (TV)
+# 2: for BLUE (DVD)
+# 3: for GREEN (CELULAR)
+# 4: for RED (TABLET)
+# 5: for BLACK (NOTEBOOK)
+# 6: for PINK
 
 ---
 
 ## ----------------- result definition ----------------- ##
 
 bool goal_achieved 		
-string message
 # it is true if and only if the goal has been achieved
+
+string message			
+# message about rhe result
+
 
 ---
 
 ## ---------------- feedback definition ---------------- ##
 
-float32 percentage	
-string state		
+float32 percentage		
 # in range of 0% to 100%
+
+string state			
+# a string that describes the current state
