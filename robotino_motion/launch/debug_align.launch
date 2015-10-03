@@ -6,5 +6,4 @@
 	<include file="$(find robotino_node)/launch/robotino_node.launch">
 		<arg name="hostname" value="$(arg hostname)"/>
 	</include>	
-	<include file="$(find robotino_vision)/launch/robotino_vision.launch"/>
 </launch>
