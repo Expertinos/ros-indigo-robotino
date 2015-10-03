@@ -14,13 +14,11 @@
 #include <vector>
 
 #include "Server.h"
-
-#include "robotino_motion/GrabPuckAction.h"
 #include "GrabPuckStates.h"
 #include "Colors.h"
 
+#include "robotino_motion/GrabPuckAction.h"
 #include "robotino_msgs/DigitalReadings.h"
-
 #include "robotino_vision/FindObjects.h"
 	
 class GrabPuckServer : public Server
@@ -47,8 +45,7 @@ private:
 	void readParameters();
 
 	/** GrabPuck Action related Variables and Functions */ 	
-	actionlib::SimpleActionServer <robotino_motion::GrabPuckAction> server_;
-	robotino_motion::GrabPuckGoal goal_;
+	actionlib::SimpleActionServer<robotino_motion::GrabPuckAction> server_;
 	robotino_motion::GrabPuckFeedback feedback_;
 	robotino_motion::GrabPuckResult result_;
 

@@ -1,0 +1,37 @@
+## ------------------ goal definition ------------------ ##
+
+int8 alignment_mode
+# 0: FRONT mode (considering 1 and 8 infrareds)
+# 1: RIGHT mode (considering 2 and 3 infrareds)
+# 2: LEFT mode (considering 6 and 7 infrareds)
+# 3: BACK mode (considering 4 and 5 infrareds)
+# 4: FRONT_RIGHT mode (considering 1, 2, 3 and 8 infrareds)
+# 5: FRONT_LEFT mode (considering 1, 6, 7 and 8 infrareds)
+# 6: BACK_RIGHT mode (considering 2, 3, 4 and 7 infrareds)
+# 7: BACK_LEFT mode (considering 4, 5, 6 and 7 infrareds)
+
+int8 distance_mode
+# 0: CLOSE distance (considering 2 to 3 centimeters far away to the wall)
+# 1: NORMAL distance (considering 5 to 7 centimeters far away to the wall)
+# 2: FAR distance (considering 10 to 15 centimeters far away to the wall)
+
+---
+
+## ----------------- result definition ----------------- ##
+
+bool goal_achieved 		
+# it is true if and only if the goal has been achieved
+
+string message			
+# message about rhe result
+
+
+---
+
+## ---------------- feedback definition ---------------- ##
+
+float32 percentage		
+# in range of 0% to 100%
+
+string state			
+# a string that describes the current state

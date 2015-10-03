@@ -1,0 +1,46 @@
+## ------------------ goal definition ------------------ ##
+
+float32 delta_x
+# in meters
+
+float32 delta_y
+# in meters
+
+float32 delta_phi
+# in degrees
+
+int8 path_mode
+# 0: TRANSLATIONAL mode (delta_phi parameter is not considered)
+# 1: ROTATIONAL mode (delta_x and delta_y are not considered)
+# 2: TRANSLATIONAL_AND_ROTATIONAL mode (all components are considered)
+# 3: TANGENT mode (all components are considered)
+
+int8 velocity_mode
+# 0: CONSTANT mode (the velocity keeps constant at Vmax)
+# 1: TRAPEZOIDAL mode (the velocity varys linearly from Vmin to Vmax, then it keeps constant at Vmax and, finally, it varys linearly from Vmax to Vmin)
+# 2: TRAPEZOIDAL_ONLY_ACC mode (the velocity varys linearly from Vmin to Vmax, and then it keeps constant at Vmax)
+# 3: TRAPEZOIDAL_ONLY_DEACC mode (the velocity keeps constant at Vmax and, then it varys linearly from Vmax to Vmin)
+# 4: TRIANGULAR mode (the velocity varys linearly from Vmin to Vmax, and then it varys linearly from Vmax to Vmin)
+# 5: TRIANGULAR_ONLY_ACC mode (the velocity varys linearly from Vmin to Vmax)
+# 6: TRIANGULAR_ONLY_DEACC mode (the velocity varys linearly from Vmax to Vmin)
+
+---
+
+## ----------------- result definition ----------------- ##
+
+bool goal_achieved 		
+# it is true if and only if the goal has been achieved
+
+string message			
+# message about rhe result
+
+
+---
+
+## ---------------- feedback definition ---------------- ##
+
+float32 percentage		
+# in range of 0% to 100%
+
+string state			
+# a string that describes the current state
