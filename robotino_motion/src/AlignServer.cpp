@@ -164,6 +164,7 @@ void AlignServer::controlLoop()
 				vel_y = 0;
 				vel_phi = - K_PHY * error_phy;
 			}
+			break;
 		default:
 			ROS_ERROR("Alignment Mode not supported yet!!!");
 			return;
@@ -283,6 +284,7 @@ bool AlignServer::validateNewGoal(const robotino_motion::AlignGoalConstPtr& goal
 	switch (distance_mode_)
 	{
 		case distanceModes::NORMAL: 
+			break;
 		case distanceModes::CLOSE:
 		case distanceModes::FAR: 
 			result_.goal_achieved = false;

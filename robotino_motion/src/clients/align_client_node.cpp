@@ -18,8 +18,8 @@ int main (int argc, char **argv)
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
 	robotino_motion::AlignGoal goal;
-	goal.alignment_mode = 0;
-	goal.distance_mode = 1;
+	goal.alignment_mode = 1; // BACK mode
+	goal.distance_mode = 1; // NORMAL distance
 	ac.sendGoal(goal);
 
 	//wait for the action to return
