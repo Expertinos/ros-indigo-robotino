@@ -1,5 +1,5 @@
 /**
- *  GrabPuckStates.cpp
+ *  StorePuckStates.cpp
  *
  *  Version: 1.0.0.0
  *  Created on: 01/10/2015
@@ -8,18 +8,18 @@
  *  Maintainer: Expertinos UNIFEI (expertinos.unifei@gmail.com)
  */
 
-#include "GrabPuckStates.h"
+#include "StorePuckStates.h"
 
 /**
  *
  */
-std::string grabPuckStates::GrabPuckStates::toString(grabPuckStates::GrabPuckStateEnum state)
+std::string storePuckStates::StorePuckStates::toString(storePuckStates::StorePuckStateEnum state)
 {
 	std::string state_name;
 	switch (state)
 	{
 		case UNINITIALIZED:
-			state_name = "Grab Puck Server has not been initialized so far";
+			state_name = "Store Puck Server has not been initialized so far";
 			break;
 		case IDLE:
 			state_name = "Idle";
@@ -27,14 +27,14 @@ std::string grabPuckStates::GrabPuckStates::toString(grabPuckStates::GrabPuckSta
 		case FINDING_PUCK:
 			state_name = "Looking for the puck";
 			break;
-		case GRABBING_PUCK:
-			state_name = "Up to grab puck";
+		case STORING_PUCK:
+			state_name = "Up to store puck";
 			break;
 		case STOPPING:
 			state_name = "Stopping";
 			break;
 		case FINISHED:
-			state_name = "Puck grabbed";
+			state_name = "Puck stored";
 			break;
 		case LOST:
 			state_name = "Kind of lost";

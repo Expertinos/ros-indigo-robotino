@@ -1,15 +1,15 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <robotino_motion/GrabPuckAction.h>
+#include <robotino_motion/MoveAction.h>
 
 int main (int argc, char **argv)
 {
-	ros::init(argc, argv, "client_node");
+	ros::init(argc, argv, "move_client_node");
 
 	// create the action client
 	// true causes the client to spin its own thread
-	actionlib::SimpleActionClient<robotino_motion::GrabPuckAction> ac("grab_puck", true);
+	actionlib::SimpleActionClient<robotino_motion::MoveAction> ac("move", true);
 
 	ROS_INFO("Waiting for action server to start.");
 	// wait for the action server to start
@@ -17,14 +17,12 @@ int main (int argc, char **argv)
 
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
-	robotino_motion::GrabPuckGoal goal;
-	//goal.color = 0;  		//ORANGE
-	goal.color = 1;  		//YELLOW
-	//goal.color = 2;   		//BLUE
-	//goal.color = 3;   		//GREEN
-	//goal.color = 4;   		//RED
-	//goal.color = 5;   		//BLACK
-	//goal.color = -1;   		//NONE
+	robotino_motion::MoveGoal goal;
+	goal.delta_x = 0.5;
+	goal.delta_y = 0.5;
+	goal.delta_phi = 0;
+	goal.path_mode = 0;
+	goal.velocity_mode = 0;
 	ac.sendGoal(goal);
 
 	//wait for the action to return
