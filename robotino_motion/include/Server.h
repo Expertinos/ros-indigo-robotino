@@ -22,14 +22,19 @@
 
 #include <tf/transform_datatypes.h>
 
+#define MIN_LINEAR_VELOCITY -1.0
+#define MIN_ANGULAR_VELOCITY -0.5
+#define MAX_LINEAR_VELOCITY 1.0
+#define MAX_ANGULAR_VELOCITY 0.5
 #define PI 3.14159
 #define sign(a) (((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
+
 
 class Server {
 
 public:
 
-	Server(ros::NodeHandle nh, std::string name, std::string ns);
+	Server(ros::NodeHandle nh, std::string name);
 	~Server();
 
 	void spin();
@@ -59,9 +64,7 @@ private:
 	ros::Subscriber odom_sub_;
 
 	bool odom_setted_;
-
-	double min_linear_vel_, max_linear_vel_;
-	double min_angular_vel_, max_angular_vel_;
+	
 	double start_x_, start_y_, start_phi_;
 	double curr_x_, curr_y_, curr_phi_, prev_phi_;
 	double disp_x_, disp_y_, disp_phi_;

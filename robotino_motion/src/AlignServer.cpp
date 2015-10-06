@@ -13,8 +13,8 @@
 /**
  *
  */
-AlignServer::AlignServer(ros::NodeHandle nh, std::string ns) : 
-	Server(nh, "Align", ns),
+AlignServer::AlignServer(ros::NodeHandle nh) : 
+	Server(nh, "Align"),
 	server_(nh, "align", boost::bind(&AlignServer::executeCallback, this, _1), false)
 {
 	readParameters();
@@ -169,7 +169,7 @@ void AlignServer::controlLoop()
 			ROS_ERROR("Alignment Mode not supported yet!!!");
 			return;
 	}
-	if (vel_x == 0 && vel_y == 0 && vel_phi ==0)	
+	if (vel_x == 0 && vel_y == 0 && vel_phi == 0)	
 	{
 		percentage_ = 100;
 		state_ = alignStates::FINISHED;
@@ -300,6 +300,7 @@ bool AlignServer::validateNewGoal(const robotino_motion::AlignGoalConstPtr& goal
 			return false;
 	}
 	percentage_ = 0;
+	resetOdometry();
 	state_ = alignStates::ALIGNING;
 	ROS_INFO("Goal accepted, aligning in %s %s mode!!!", DistanceModes::toString(distance_mode_).c_str(), AlignmentModes::toString(alignment_mode_).c_str());
 	return true;
@@ -314,7 +315,6 @@ void AlignServer::publishFeedback()
 	feedback_.state = AlignStates::toString(state_);
 	server_.publishFeedback(feedback_);
 }
-
 
 /**
  *
