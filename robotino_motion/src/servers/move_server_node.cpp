@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "move_server_node");
 	ros::NodeHandle nh;
-	MoveServer node(nh, "") ;
+	MoveServer node(nh) ;
 	node.spin();
 
 	return 0;

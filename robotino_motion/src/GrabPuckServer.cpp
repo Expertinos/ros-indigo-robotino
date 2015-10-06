@@ -13,8 +13,8 @@
 /**
  *
  */
-GrabPuckServer::GrabPuckServer(ros::NodeHandle nh, std::string ns) : 
-	Server(nh, "Grab Puck", ns),
+GrabPuckServer::GrabPuckServer(ros::NodeHandle nh) : 
+	Server(nh, "Grab Puck"),
 	server_(nh, "grab_puck", boost::bind(&GrabPuckServer::executeCallback, this, _1), false)
 {
 	readParameters();
@@ -256,6 +256,7 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
 		return false;
 	}
 	percentage_ = 0;
+	resetOdometry();
 	state_ = grabPuckStates::FINDING_PUCK;
 	ROS_INFO("Goal accepted, grabbing %s puck!!!", Colors::toString(color_).c_str());
 	return true;

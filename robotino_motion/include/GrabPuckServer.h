@@ -26,7 +26,7 @@ class GrabPuckServer : public Server
 
 public:
 
-	GrabPuckServer(ros::NodeHandle nh, std::string ns);
+	GrabPuckServer(ros::NodeHandle nh);
 	~GrabPuckServer();
 
 	bool isActing();	

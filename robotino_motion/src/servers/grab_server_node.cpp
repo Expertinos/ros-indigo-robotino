@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "grab_server_node");
 	ros::NodeHandle nh;
-	GrabPuckServer node(nh, "") ;
+	GrabPuckServer node(nh) ;
 	node.spin();
 
 	return 0;

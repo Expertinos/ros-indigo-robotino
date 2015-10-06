@@ -34,7 +34,6 @@ bool goal_achieved
 string message			
 # message about rhe result
 
-
 ---
 
 ## ---------------- feedback definition ---------------- ##
