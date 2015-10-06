@@ -151,6 +151,26 @@ add_dependencies(move_client_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
+add_executable(move_server_node 
+	src/servers/move_server_node.cpp
+	src/Server.cpp
+	src/MoveServer.cpp
+	src/MoveStates.cpp
+	src/MovePathModes.cpp
+	src/MoveVelocityModes.cpp
+	src/PID.cpp
+	)
+
+target_link_libraries(move_server_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(move_server_node
+	robotino_motion_gen_cpp
+	robotino_msgs_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
 ###
 
 add_executable(store_client_node 

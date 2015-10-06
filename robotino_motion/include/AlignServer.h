@@ -26,7 +26,7 @@ class AlignServer : public Server
 
 public:
 
-	AlignServer(ros::NodeHandle nh, std::string ns);
+	AlignServer(ros::NodeHandle nh);
 	~AlignServer();
 
 	bool isActing();	
@@ -61,10 +61,8 @@ private:
 	// Back Alignment Variables
 	AlignmentMode alignment_mode_;
 	DistanceMode distance_mode_;
-	int left_index_;
-	int right_index_;
-	float left_ir_;
-	float right_ir_;
+	int left_index_, right_index_;
+	float left_ir_, right_ir_;
 	bool lateral_;
 
 };

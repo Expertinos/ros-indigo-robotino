@@ -18,9 +18,9 @@ int main (int argc, char **argv)
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
 	robotino_motion::MoveGoal goal;
-	goal.delta_x = 0.5;
-	goal.delta_y = 0.5;
-	goal.delta_phi = 0;
+	goal.delta_x = 10;
+	goal.delta_y = 0;
+	goal.delta_phi = 6.3;
 	goal.path_mode = 0;
 	goal.velocity_mode = 0;
 	ac.sendGoal(goal);

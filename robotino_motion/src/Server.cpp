@@ -13,14 +13,14 @@
 /**
  *
  */
-Server::Server(ros::NodeHandle nh, std::string name, std::string ns) 
+Server::Server(ros::NodeHandle nh, std::string name) 
 {
 	nh_ = nh;
 	name_ = name;
 	odom_setted_ = false;
 	readParameters();
-	cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/" + ns + "cmd_vel", 1);
-	odom_sub_ = nh_.subscribe("/" + ns + "odom", 1, &Server::odometryCallback, this);
+	cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+	odom_sub_ = nh_.subscribe("odom", 1, &Server::odometryCallback, this);
 }
 
 /**
@@ -69,17 +69,17 @@ void Server::executeEmergencyStop()
  */
 void Server::setVelocity(double vel_x, double vel_y, double vel_phi) 
 {
-	if (fabs(vel_x) > max_linear_vel_) 
+	if (fabs(vel_x) > MAX_LINEAR_VELOCITY) 
 	{
-		vel_x = sign(vel_x) * max_linear_vel_;
+		vel_x = sign(vel_x) * MAX_LINEAR_VELOCITY;
 	}
-	if (fabs(vel_y) > max_linear_vel_) 
+	if (fabs(vel_y) > MAX_LINEAR_VELOCITY) 
 	{
-		vel_y = sign(vel_y) * max_linear_vel_;
+		vel_y = sign(vel_y) * MAX_LINEAR_VELOCITY;
 	}
-	if (fabs(vel_phi) > max_angular_vel_) 
+	if (fabs(vel_phi) > MAX_ANGULAR_VELOCITY) 
 	{
-		vel_phi = sign(vel_phi) * max_angular_vel_;
+		vel_phi = sign(vel_phi) * MAX_ANGULAR_VELOCITY;
 	}
 	cmd_vel_msg_.linear.x = vel_x;
 	cmd_vel_msg_.linear.y = vel_y;
@@ -164,6 +164,5 @@ void Server::odometryCallback(const nav_msgs::OdometryConstPtr& msg)
  */
 void Server::readParameters() 
 {
-	max_linear_vel_ = 500;
-	max_angular_vel_ = 1000;	
+
 }

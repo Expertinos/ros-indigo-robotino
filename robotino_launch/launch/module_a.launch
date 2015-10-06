@@ -16,6 +16,10 @@
 
 	<include file="$(find robotino_navigation)/launch/navigation.launch">
 	</include>
+
+	<node name="grab_server_node" pkg="robotino_motion" type="grab_server_node" output="screen" />
+
+	<node name="align_server_node" pkg="robotino_motion" type="align_server_node" output="screen" />
 	
 	<!--include file="$(find cbr2015_module_a_planner)/launch/modulo_a.launch">
 		<arg name="hostname" value="$(arg hostname)"/>
