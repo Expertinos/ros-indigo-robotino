@@ -20,7 +20,7 @@ namespace moveStates
 	{
 		UNINITIALIZED,
 		IDLE, 
-		MOVEING, 
+		MOVING, 
 		STOPPING,
 		FINISHED
 	} MoveStateEnum;

@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "align_server_node");
 	ros::NodeHandle nh;
-	AlignServer node(nh, "") ;
+	AlignServer node(nh) ;
 	node.spin();
 
 	return 0;
