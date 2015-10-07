@@ -25,13 +25,13 @@ PID::PID(double set_point, double kp, double ki, double kd, double min, double m
 		max_ = max;
 	}
 	i_term_ = 0;
-	last_output_ = 0;
+	last_error_ = 0;
 	sample_time_ = 1 / sample_rate;
-	tolerance_ = tolerance;
+	tolerance_ = fabs(tolerance);
 	set_point_ = set_point;
 	kp_ = kp;
-	ki_ = ki * sample_time_;
-	kd_ = kd / sample_time_;
+	ki_ = ki;
+	kd_ = kd;
 }
 
 /**
@@ -40,7 +40,7 @@ PID::PID(double set_point, double kp, double ki, double kd, double min, double m
 void PID::compute(double output)
 {
 	error_ = set_point_ - output;
-	i_term_ += (ki_ * error_);
+	i_term_ += sample_time_ * error_;
 	if(i_term_ > max_)
 	{
 		i_term_ = max_;
@@ -49,7 +49,7 @@ void PID::compute(double output)
 	{
 		i_term_ = min_;
 	}
-	input_ = kp_ * error_ + i_term_ - kd_ * (output - last_output_);
+	input_ = kp_ * error_ + ki_ * i_term_ + kd_ * (error_ - last_error_) / sample_time_;
 	if(input_ > max_)
 	{
 		input_ = max_;
@@ -58,7 +58,7 @@ void PID::compute(double output)
 	{
 		input_ = min_;
 	}
-	last_output_ = output;
+	last_error_ = error_;
 }
 
 /**
@@ -90,5 +90,29 @@ double PID::getError()
  */
 bool PID::isInSteadyState()
 {
-	return fabs(error_) < tolerance_ * fabs(set_point_);
+	return fabs(error_) < tolerance_;
+}
+
+/**
+ *
+ */
+void PID::setKp(double kp)
+{
+	kp_ = kp;
+}
+
+/**
+ *
+ */
+void PID::setKi(double ki)
+{
+	ki_ = ki;
+}
+
+/**
+ *
+ */
+void PID::setKd(double kd)
+{
+	kd_ = kd;
 }

@@ -24,11 +24,14 @@ public:
 	double getInput();
 	double getError();
 	bool isInSteadyState();
+	void setKp(double kp);
+	void setKi(double ki);
+	void setKd(double kd);
 
 private:
 
 	double kp_, ki_, kd_;
-	double i_term_, last_output_;
+	double i_term_, last_error_;
 	double set_point_, error_, input_;
 	double min_, max_;
 	double sample_time_;

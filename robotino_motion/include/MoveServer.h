@@ -20,6 +20,8 @@
 #include "PID.h"
 
 #include "robotino_motion/MoveAction.h"
+
+static const std::string PID_WINDOW = "PID Window";
 	
 class MoveServer : public Server
 {
@@ -58,6 +60,9 @@ private:
 	PathMode path_mode_;
 	VelocityMode velocity_mode_;
 	PID pid_vel_x_, pid_vel_y_, pid_vel_phi_;
+	int kp_x_, kp_y_, kp_phi_;
+	int ki_x_, ki_y_, ki_phi_;
+	int kd_x_, kd_y_, kd_phi_;
 
 };
 
