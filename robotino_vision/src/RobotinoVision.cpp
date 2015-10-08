@@ -456,7 +456,7 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat input)
 		float area = cv::contourArea(contours[i]);
 		if (area < min_area_)
 		{
-			ROS_INFO("Removed Area: %f", area);
+			ROS_DEBUG("Removed Area: %f", area);
 			contours.erase(contours.begin() + i);
 		}
 	}

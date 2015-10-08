@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED COMPONENTS system)
 
+find_package(OpenCV REQUIRED)
+
 add_message_files(
 	FILES
 	RobotState.msg
@@ -51,7 +53,7 @@ catkin_package(
 	actionlib_msgs
 	)
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
 add_executable(robotino_motion_server_node 
 	src/robotino_motion_server_node.cpp
@@ -94,6 +96,7 @@ add_executable(align_server_node
 
 target_link_libraries(align_server_node
 	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
 	)
 
 add_dependencies(align_server_node
@@ -127,6 +130,7 @@ add_executable(grab_server_node
 
 target_link_libraries(grab_server_node
 	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
 	)
 
 add_dependencies(grab_server_node
@@ -163,6 +167,7 @@ add_executable(move_server_node
 
 target_link_libraries(move_server_node
 	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
 	)
 
 add_dependencies(move_server_node
