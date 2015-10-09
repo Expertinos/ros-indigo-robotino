@@ -55,36 +55,6 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
-add_executable(robotino_motion_server_node 
-	src/robotino_motion_server_node.cpp
-	src/RobotinoMotionServer.cpp
-	)
-
-target_link_libraries(robotino_motion_server_node
-	${catkin_LIBRARIES}
-	)
-
-add_dependencies(robotino_motion_server_node
-	robotino_vision_gen_cpp
-	robotino_motion_gen_cpp
-	${robotino_motion_EXPORTED_TARGETS}
-	)
-
-########### client nodes for tests ###########
-
-add_executable(align_client_node 
-	src/clients/align_client_node.cpp
-	)
-
-target_link_libraries(align_client_node
-	${catkin_LIBRARIES}
-	)
-
-add_dependencies(align_client_node
-	robotino_motion_gen_cpp
-	${robotino_motion_EXPORTED_TARGETS}
-	)
-
 add_executable(align_server_node 
 	src/servers/align_server_node.cpp
 	src/Server.cpp
@@ -105,21 +75,6 @@ add_dependencies(align_server_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
-###
-
-add_executable(grab_client_node 
-	src/clients/grab_client_node.cpp
-	)
-
-target_link_libraries(grab_client_node
-	${catkin_LIBRARIES}
-	)
-
-add_dependencies(grab_client_node
-	robotino_motion_gen_cpp
-	${robotino_motion_EXPORTED_TARGETS}
-	)
-
 add_executable(grab_server_node 
 	src/servers/grab_server_node.cpp
 	src/Server.cpp
@@ -137,21 +92,6 @@ add_dependencies(grab_server_node
 	robotino_vision_gen_cpp
 	robotino_motion_gen_cpp
 	robotino_msgs_gen_cpp
-	${robotino_motion_EXPORTED_TARGETS}
-	)
-
-###
-
-add_executable(move_client_node 
-	src/clients/move_client_node.cpp
-	)
-
-target_link_libraries(move_client_node
-	${catkin_LIBRARIES}
-	)
-
-add_dependencies(move_client_node
-	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
@@ -176,7 +116,46 @@ add_dependencies(move_server_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
-###
+############### Action Client Nodes for testing #####################
+
+add_executable(align_client_node 
+	src/clients/align_client_node.cpp
+	)
+
+target_link_libraries(align_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(align_client_node
+	robotino_motion_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(grab_client_node 
+	src/clients/grab_client_node.cpp
+	)
+
+target_link_libraries(grab_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(grab_client_node
+	robotino_motion_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(move_client_node 
+	src/clients/move_client_node.cpp
+	)
+
+target_link_libraries(move_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(move_client_node
+	robotino_motion_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
 
 add_executable(store_client_node 
 	src/clients/store_client_node.cpp
@@ -187,23 +166,6 @@ target_link_libraries(store_client_node
 	)
 
 add_dependencies(store_client_node
-	robotino_motion_gen_cpp
-	${robotino_motion_EXPORTED_TARGETS}
-	)
-
-##############################################
-
-add_executable(robotino_motion_client_node 
-	src/robotino_motion_client_node.cpp
-	src/RobotinoMotionClient.cpp
-	src/astar.cpp 
-	)
-
-target_link_libraries(robotino_motion_client_node
-	${catkin_LIBRARIES}
-	)
-
-add_dependencies(robotino_motion_client_node
 	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)

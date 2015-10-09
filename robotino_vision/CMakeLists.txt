@@ -21,7 +21,7 @@ find_package(RobotinoAPI2 REQUIRED)
 add_service_files(
   	FILES
 	FindObjects.srv
-	GetProductsList.srv
+	GetObjectsList.srv
 	ContainInList.srv
   	SaveImage.srv
 	SetCalibration.srv
@@ -51,6 +51,7 @@ catkin_package()
 add_executable(robotino_vision_node 
 	src/robotino_vision_node.cpp 
 	src/RobotinoVision.cpp 
+	src/Colors.cpp
 	)
 
 add_dependencies(robotino_vision_node

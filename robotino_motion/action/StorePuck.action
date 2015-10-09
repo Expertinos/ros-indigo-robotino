@@ -1,13 +1,15 @@
 ## ------------------ goal definition ------------------ ##
 
 int8 color
-# 0: for ORANGE (considering BLACK color borders at the leaving area) (PUCK)
-# 1: for YELLOW (considering BLACK color borders at the leaving area) (TV)
-# 2: for BLUE (considering BLACK color borders at the leaving area) (DVD)
-# 3: for GREEN (considering BLACK color borders at the leaving area) (CELULAR)
-# 4: for RED (considering BLACK color borders at the leaving area) (TABLET)
-# 5: for BLACK (considering BLACK color borders at the leaving area) (NOTEBOOK)
-# 6: for PINK (considering BLACK color borders at the leaving area)
+# Object color code
+# 0 for ORANGE colored objects (considering BLACK color borders at the leaving area)
+# 1 for YELLOW colored objects (considering BLACK color borders at the leaving area) 
+# 2 for BLUE colored objects (considering BLACK color borders at the leaving area)
+# 3 for GREEN colored objects (considering BLACK color borders at the leaving area)
+# 4 for RED colored objects (considering BLACK color borders at the leaving area)
+# 5 for BLACK colored objects (considering BLACK color borders at the leaving area)
+# 6 for PINK colored objects (considering BLACK color borders at the leaving area)
+# 7 for PURPLE colored objects (considering BLACK color borders at the leaving area)
 
 ---
 
