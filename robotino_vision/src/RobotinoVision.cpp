@@ -248,10 +248,12 @@ std::vector<Color> RobotinoVision::orderObjects(std::vector<Object> cluttered_ob
 			Object obj2 = cluttered_objects.at(j + 1);
 			if(obj1.y > obj2.y) 
 			{
-				cluttered_objects.erase(cluttered_objects.begin() + j + 1);
+				/*cluttered_objects.erase(cluttered_objects.begin() + j + 1);
 				cluttered_objects.erase(cluttered_objects.begin() + j);
 				cluttered_objects.insert(cluttered_objects.begin() + j, obj2);
-				cluttered_objects.insert(cluttered_objects.begin() + j + 1, obj1);
+				cluttered_objects.insert(cluttered_objects.begin() + j + 1, obj1);*/
+				cluttered_objects[j] = obj2;
+				cluttered_objects[j + 1] = obj1;
 			}
 		}
 	}	
