@@ -53,7 +53,7 @@ colors::ColorEnum colors::Colors::toColor(int color_code)
  */
 int colors::Colors::toCode(colors::ColorEnum color)
 {
-	int color_code = -1;
+	int color_code;
 	switch (color)
 	{
 		case ORANGE:
@@ -81,8 +81,7 @@ int colors::Colors::toCode(colors::ColorEnum color)
 			color_code = 7;
 			break;
 		default:			
-			ColorEnum default_color = getDefault();
-			color_code = toCode(default_color);
+			color_code = toCode(getDefault());
 	}
 	return color_code;
 }
@@ -92,7 +91,7 @@ int colors::Colors::toCode(colors::ColorEnum color)
  */
 std::string colors::Colors::toString(colors::ColorEnum color)
 {
-	std::string color_name = "";
+	std::string color_name;
 	switch (color)
 	{
 		case ORANGE:
@@ -120,8 +119,7 @@ std::string colors::Colors::toString(colors::ColorEnum color)
 			color_name = "PURPLE";
 			break;
 		default:
-			ColorEnum default_color = getDefault();
-			color_name = toString(default_color);
+			color_name = toString(getDefault());
 	}
 	return color_name;
 }
@@ -140,13 +138,13 @@ colors::ColorEnum colors::Colors::getDefault()
 std::vector<colors::ColorEnum> colors::Colors::getAll()
 {
 	std::vector<ColorEnum> colors;
-	colors.push_back(ORANGE);
+	//colors.push_back(ORANGE);
 	colors.push_back(YELLOW);
 	colors.push_back(BLUE);
 	colors.push_back(GREEN);
 	colors.push_back(RED);
-	colors.push_back(BLACK);
-	colors.push_back(PINK);
-	colors.push_back(PURPLE);
+	//colors.push_back(BLACK);
+	//colors.push_back(PINK);
+	//colors.push_back(PURPLE);
 	return colors;
 }

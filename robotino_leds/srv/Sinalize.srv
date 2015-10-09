@@ -1,0 +1,32 @@
+int8 mode
+# 0: BLINK sinalization mode
+# 1: ALTERNATE sinalization mode
+# 2: LIGHT sinalization mode
+
+int8[] colors
+# if colors vector is empty, it will be considered to all colors.
+#
+# Object color code
+# 0 for ORANGE colored objects 
+# 1 for YELLOW colored objects 
+# 2 for BLUE colored objects 
+# 3 for GREEN colored objects 
+# 4 for RED colored objects 
+# 5 for BLACK colored objects 
+# 6 for PINK colored objects 
+# 7 for PURPLE colored objects
+
+int8 times
+# times < 1: blinks while /stop_sinalization is not called. If sucess returns true, it means that the node is setted to do it.
+# times = n: blinks n times. n must be finite. /stop_sinalization service will not interrupt the service in this case, if called. In this case, if the service returns true, it means that the request is completed. So be careful, if n is too big, your request will take too long.
+
+float32 rate
+# in Hertz
+
+---
+
+bool success   
+# indicate successful run of triggered service
+
+string message 
+# informational, e.g. for error messages

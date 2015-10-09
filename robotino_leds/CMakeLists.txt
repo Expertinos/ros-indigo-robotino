@@ -8,8 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_service_files(
 	FILES
-	GoFromTo.srv
-	TransportProduct.srv
+	Sinalize.srv
 	Trigger.srv
 	)
 
@@ -24,14 +23,16 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 add_executable(robotino_leds_node 
 	src/robotino_leds_node.cpp
 	src/RobotinoLeds.cpp
+	src/Colors.cpp
+	src/SinalizationModes.cpp
+	)
+
+target_link_libraries(robotino_leds_node
+	${catkin_LIBRARIES}
 	)
 
 add_dependencies(robotino_leds_node 
 	robotino_msgs_gen_cpp
 	robotino_leds_gen_cpp
 	${robotino_leds_EXPORTED_TARGETS}
-	)
-
-target_link_libraries(robotino_leds_node
-	${catkin_LIBRARIES}
 	)
