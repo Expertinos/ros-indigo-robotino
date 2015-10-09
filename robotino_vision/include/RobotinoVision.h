@@ -21,15 +21,16 @@
 #include <opencv2/imgproc/imgproc.hpp>
 //#include <fl/Headers.h>
 
+#include "Colors.h"
 #include "robotino_vision/FindObjects.h"
-#include "robotino_vision/GetProductsList.h"
+#include "robotino_vision/GetObjectsList.h"
 #include "robotino_vision/ContainInList.h"
 #include "robotino_vision/SaveImage.h"
 #include "robotino_vision/SetCalibration.h"
 
+#define MAX_NUMBER_OF_PUCKS 2
 #define MIN_AREA 500 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
-
-typedef enum {ORANGE, YELLOW, BLUE, GREEN, RED, BLACK, NONE} Color;
+#define PI 3.14159
 
 static const std::string BLACK_MASK_WINDOW = "Black Mask Window";
 static const std::string PUCKS_MASK_WINDOW = "Pucks Mask Window";
@@ -53,6 +54,17 @@ struct ColorParameters {
 	int open_2;
 	int close_2;
 	int open_3;
+	// váriaveis usadas para o filtro de áreas aleatórias
+	int min_area;
+};
+
+struct Object {
+	// object position in Cartesian x axis
+	double x; 
+	// object position in Cartesian y axis
+	double y;
+	// object color
+	Color color;
 };
 
 class RobotinoVision
@@ -87,8 +99,6 @@ private:
 	int height_;
 	int width_;
 
-	int min_area_;
-
 	bool calibration_;
 	std::string contours_window_name_;
 	std::string color_name_;
@@ -112,29 +122,30 @@ private:
 
 	void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 	bool findObjects(robotino_vision::FindObjects::Request &req, robotino_vision::FindObjects::Response &res);
-	bool getList(robotino_vision::GetProductsList::Request &req, robotino_vision::GetProductsList::Response &res);
+	bool getList(robotino_vision::GetObjectsList::Request &req, robotino_vision::GetObjectsList::Response &res);
 	bool containInList(robotino_vision::ContainInList::Request &req, robotino_vision::ContainInList::Response &res);
 	bool saveImage(robotino_vision::SaveImage::Request &req, robotino_vision::SaveImage::Response &res);
 	bool setCalibration(robotino_vision::SetCalibration::Request &req, robotino_vision::SetCalibration::Response &res);
 
-	cv::Mat readImage(const char* imageName);
+	bool readImage(std::string image_name);
 	std::vector<cv::Point2f> processColor();
+	std::vector<cv::Point2f> processColor(Color color);
 	std::vector<cv::Point2f> getContours(cv::Mat input);
 	cv::Mat getBlackMask();
 	cv::Mat getPucksMask();
 	cv::Mat getColorMask();
 	cv::Mat getFinalMask(cv::Mat black_mask, cv::Mat pucks_mask, cv::Mat color_mask);
 	void showImageBGRwithMask(cv::Mat mask);
+	void setColor();
 	void setColor(Color color);
+	void setColorParameters();
 	std::vector<cv::Point2f> getPositions(std::vector<cv::Point2f> mass_center);
+	int getNumberOfObjects();
 	int getNumberOfObjects(Color color);
+	std::vector<Color> getObjectsInOrder();
+	std::vector<Color> getObjectsInOrder(bool from_left_to_right);
+	std::vector<Color> orderObjects(std::vector<Object> clutteredObjects, bool from_left_to_right);
 	float getClosestObjectDistance(Color color);
-
-	Color convertProductToColor(int product);
-	int convertColorToProduct(Color color);
-	std::string convertColorToString(Color color);
-	std::string convertProductToString(int product);
-	std::string convertProductToString(Color color);
 
 	void setImagesWindows();
 

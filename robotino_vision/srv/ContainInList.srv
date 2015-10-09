@@ -1,8 +1,17 @@
-int8[] products		# 1 for TV
-			# 2 for DVD
-			# 3 for CELULAR
-			# 4 for TABLET
-			# 5 for NOTEBOOK
+int8[] objects		
+# 0 for ORANGE colored objects 
+# 1 for YELLOW colored objects 
+# 2 for BLUE colored objects 
+# 3 for GREEN colored objects 
+# 4 for RED colored objects 
+# 5 for BLACK colored objects 
+# 6 for PINK colored objects 
+# 7 for PURPLE colored objects 
+
 ---
-int8 product		# the same as above
-bool contain		# false if there is no product from the products list
+
+int8 object		
+# the same as above
+
+bool contain		
+# false if there is no object from the objects list
