@@ -17,15 +17,17 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
+#include <opencv2/highgui/highgui.hpp> //apenas para a sintonia através de trackbars
+
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Twist.h>
 
 #include <tf/transform_datatypes.h>
 
-#define MIN_LINEAR_VELOCITY -1.0
-#define MIN_ANGULAR_VELOCITY -0.5
-#define MAX_LINEAR_VELOCITY 1.0
-#define MAX_ANGULAR_VELOCITY 0.5
+#define MIN_LINEAR_VELOCITY -0.25
+#define MIN_ANGULAR_VELOCITY -0.25
+#define MAX_LINEAR_VELOCITY 0.25
+#define MAX_ANGULAR_VELOCITY 0.25
 #define PI 3.14159
 #define sign(a) (((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
 

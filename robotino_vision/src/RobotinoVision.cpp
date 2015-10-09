@@ -7,13 +7,16 @@
 
 #include "RobotinoVision.h"
 
-RobotinoVision::RobotinoVision()
-	: it_(nh_)
+/**
+ *
+ */
+RobotinoVision::RobotinoVision():
+	it_(nh_)
 {
 	readParameters();
 
 	find_objects_srv_ = nh_.advertiseService("find_objects", &RobotinoVision::findObjects, this);
-	get_list_srv_ = nh_.advertiseService("get_products_list", &RobotinoVision::getList, this);
+	get_list_srv_ = nh_.advertiseService("get_objects_list", &RobotinoVision::getList, this);
 	contain_in_list_srv_ = nh_.advertiseService("contain_in_list", &RobotinoVision::containInList, this);
 	image_sub_ = it_.subscribe("image_raw", 1, &RobotinoVision::imageCallback, this);
 	save_srv_ = nh_.advertiseService("save_image", &RobotinoVision::saveImage, this);
@@ -21,18 +24,21 @@ RobotinoVision::RobotinoVision()
 
 	imgRGB_ = cv::Mat(width_, height_, CV_8UC3, cv::Scalar::all(0));
 
-	setColor(ORANGE);
-	contours_window_name_ = CONTOURS_WINDOW + ": " + color_name_;		
+	setColor();	
+	contours_window_name_ = CONTOURS_WINDOW + ": " + Colors::toString(color_);		
 
 	calibration_ = false;
+	
 	setImagesWindows();
 	cv::namedWindow(contours_window_name_);
-
-	min_area_ = MIN_AREA;
 }
 
+/**
+ *
+ */
 RobotinoVision::~RobotinoVision()
 {
+	imgRGB_.release();
 	find_objects_srv_.shutdown();
 	image_sub_.shutdown();
 	save_srv_.shutdown();
@@ -40,17 +46,15 @@ RobotinoVision::~RobotinoVision()
 	cv::destroyAllWindows();
 }
 
+/**
+ *
+ */
 bool RobotinoVision::spin()
 {
 	ROS_INFO("Robotino Vision Node up and running!!!");
 	ros::Rate loop_rate(30);
 	while(nh_.ok())
 	{
-		//const char* imageName = "/home/adriano/catkin_ws/src/robotino/robotino_vision/samples/pucks.jpg";
-		//const char* imageName ="/home/adriano/Pictures/black001.png";
-		/*const char* imageName ="/home/adriano/Pictures/possibilidade 4 1.png";
-		cv::Mat imgBGR = readImage(imageName);
-		cv::cvtColor(imgBGR, imgRGB_, CV_BGR2RGB);*/
 		std::vector<cv::Point2f> mass_center = processColor();
 		std::vector<cv::Point2f> positions = getPositions(mass_center);
 		for (int i = 0; i < positions.size(); i++)
@@ -63,9 +67,12 @@ bool RobotinoVision::spin()
 	return true;
 }
 
+/**
+ *
+ */
 bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, robotino_vision::FindObjects::Response &res)
 {
-	Color color = convertProductToColor(req.color);
+	Color color = Colors::toColor(req.color);
 	setColor(color);
 	std::vector<cv::Point2f> mass_center = processColor();
 	std::vector<cv::Point2f> positions = getPositions(mass_center);
@@ -81,108 +88,64 @@ bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, rob
 	return true;
 }
 
-bool RobotinoVision::getList(robotino_vision::GetProductsList::Request &req, robotino_vision::GetProductsList::Response &res)
+/**
+ *
+ */
+bool RobotinoVision::getList(robotino_vision::GetObjectsList::Request &req, robotino_vision::GetObjectsList::Response &res)
 {
-	bool succeed = false;
-	int numOfYellowObjects = getNumberOfObjects(YELLOW);
-	if (numOfYellowObjects > 2) 
+	res.succeed = false;
+	std::vector<Color> orderedColors = getObjectsInOrder();
+	for (int i = 0; i < orderedColors.size(); i++)
 	{
-		numOfYellowObjects = 2;
+		Color color = orderedColors.at(i);
+		res.objects.push_back(Colors::toCode(color));
 	}
-	int numOfBlueObjects = getNumberOfObjects(BLUE);
-	if (numOfBlueObjects > 2) 
+	if (!res.objects.empty())
 	{
-		numOfBlueObjects = 2;
+		res.succeed = true;
 	}
-	int numOfGreenObjects = getNumberOfObjects(GREEN);
-	if (numOfGreenObjects > 2) 
-	{
-		numOfGreenObjects = 2;
-	}
-	int numOfRedObjects = getNumberOfObjects(RED);
-	if (numOfRedObjects > 2)
-	{
-		numOfRedObjects = 2;
-	}
-	int numOfBlackObjects = 0;/*3 - (numOfYellowObjects + numOfBlueObjects + numOfGreenObjects + numOfRedObjects);
-	if (numOfBlackObjects > 2) 
-	{	
-		numOfBlackObjects = 2;
-	}*/
-	setColor(ORANGE);
-	int i = 0;
-	res.products.clear();
-	ROS_DEBUG("Y=%d, B=%d, G=%d, R=%d, K=%d", numOfYellowObjects, numOfBlueObjects, numOfGreenObjects, numOfRedObjects, numOfBlackObjects);
-	ROS_DEBUG("%d", i);
-	for (; i < numOfYellowObjects;)
-	{
-		res.products.push_back(1);
-		i++;
-	}
-	for (; i < (numOfYellowObjects + numOfBlueObjects);)
-	{
-		res.products.push_back(2);
-		i++;
-	}
-	for (; i < (numOfYellowObjects + numOfBlueObjects + numOfGreenObjects);)
-	{
-		res.products.push_back(3);
-		i++;
-	}
-	for (; i < (numOfYellowObjects + numOfBlueObjects + numOfGreenObjects + numOfRedObjects);)
-	{
-		res.products.push_back(4);
-		i++;
-	}
-	for (; i < (numOfYellowObjects + numOfBlueObjects + numOfGreenObjects + numOfRedObjects + numOfBlackObjects);)
-	{
-		res.products.push_back(5);
-		i++;
-	}
-	if (numOfBlackObjects >= 0)
-	{
-		succeed = true;
-	}
-	if (!res.products.empty())
-	{
-		succeed = true;
-	}
-	res.succeed = succeed;
+	setColor();
 	return true;
 }
 
+/**
+ *
+ */
 bool RobotinoVision::containInList(robotino_vision::ContainInList::Request &req, robotino_vision::ContainInList::Response &res)
 {
-	if (req.products.empty())
+	if (req.objects.empty())
 	{
 		return false;
 	}
 	bool contain = false;
-	Color closestProductColor = NONE;
-	float closestProductDistance = 100000;
-	for (int i = 0; i < req.products.size(); i++) 
+	Color closestObjectColor = colors::NONE;
+	float closestObjectDistance = 100000;
+	for (int i = 0; i < req.objects.size(); i++) 
 	{
-		Color productColor = convertProductToColor(req.products.at(i));
-		float productDistance = getClosestObjectDistance(productColor);
-		if (productDistance > 0)
+		Color objectColor = Colors::toColor(req.objects.at(i));
+		float objectDistance = getClosestObjectDistance(objectColor);
+		if (objectDistance > 0)
 		{
 			contain = true;
-			if (productDistance < closestProductDistance || closestProductColor == NONE) 
+			if (objectDistance < closestObjectDistance || closestObjectColor == colors::NONE) 
 			{
-				closestProductDistance = productDistance;
-				closestProductColor = productColor;
+				closestObjectDistance = objectDistance;
+				closestObjectColor = objectColor;
 			}
 		}		
 	}
-	res.product = -1;
-	if (closestProductColor != NONE)
+	res.object = -1;
+	if (closestObjectColor != colors::NONE)
 	{
-		res.product = convertColorToProduct(closestProductColor);
+		res.object = Colors::toCode(closestObjectColor);
 	}
 	res.contain = contain;
 	return true;
 }
 
+/**
+ *
+ */
 void RobotinoVision::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
 	cv_bridge::CvImagePtr cv_ptr;
@@ -198,13 +161,121 @@ void RobotinoVision::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 	imgRGB_ = cv_ptr->image;
 }
 
+/**
+ *
+ */
+bool RobotinoVision::readImage(std::string image_name)
+{
+	cv::Mat imgBGR = cv::imread(image_name.c_str(), 1);
+	if (!imgBGR.data)
+	{
+		imgRGB_ = cv::Mat(width_, height_, CV_8UC3, cv::Scalar::all(0));
+	}
+	cv::cvtColor(imgBGR, imgRGB_, CV_BGR2RGB);
+	return true;
+}
+
+/**
+ * returns the total number of objects considering all colors
+ */
+int RobotinoVision::getNumberOfObjects()
+{
+	int numberOfObjects = 0;
+	std::vector<Color> colors = Colors::getAll();
+	for (int i = 0; i < colors.size(); i++)
+	{	
+		Color color = colors.at(i);
+		numberOfObjects += getNumberOfObjects(color);
+	}
+	return numberOfObjects;
+}
+
+/**
+ * returns the total number of objects considering a specific
+ */
 int RobotinoVision::getNumberOfObjects(Color color)
 {
 	setColor(color);
 	std::vector<cv::Point2f> points = processColor();
-	return points.size();
+	int numberOfObjects = points.size();
+	return numberOfObjects;
 }
 
+/**
+ * This method get objetcs of all colors and order them from left to right
+ */
+std::vector<Color> RobotinoVision::getObjectsInOrder()
+{
+	return getObjectsInOrder(true);
+}
+
+/**
+ * This method get objetcs of all colors and order them from left to right, if the boolean input parameter, from_left_to_right, is true
+ * (otherwise, this method order them from right to left
+ */
+std::vector<Color> RobotinoVision::getObjectsInOrder(bool from_left_to_right)
+{
+	std::vector<Object> objects;
+	std::vector<Color> colors = Colors::getAll();
+	for (int i = 0; i < colors.size(); i++)
+	{	
+		Color color = colors.at(i);
+		std::vector<cv::Point2f> objects_mass_center = processColor(color);
+		std::vector<cv::Point2f> objects_position = getPositions(objects_mass_center);
+		for (int j = 0; j < objects_position.size(); j++)
+		{
+			cv::Point2f object_position = objects_position.at(j);
+			Object object;
+			object.x = object_position.x;
+			object.y = object_position.y;
+			object.color = color;
+			objects.push_back(object);
+		}
+	}
+	return orderObjects(objects, from_left_to_right);
+}
+
+/**
+ * order using bubble sort method
+ */
+std::vector<Color> RobotinoVision::orderObjects(std::vector<Object> cluttered_objects, bool from_left_to_right)
+{
+	for(int i = cluttered_objects.size() - 1; i > 0; i--) 
+	{  
+		for(int j = 0; j < i ; j++) 
+		{
+			Object obj1 = cluttered_objects.at(j);
+			Object obj2 = cluttered_objects.at(j + 1);
+			if(obj1.y > obj2.y) 
+			{
+				cluttered_objects.erase(cluttered_objects.begin() + j + 1);
+				cluttered_objects.erase(cluttered_objects.begin() + j);
+				cluttered_objects.insert(cluttered_objects.begin() + j, obj2);
+				cluttered_objects.insert(cluttered_objects.begin() + j + 1, obj1);
+			}
+		}
+	}	
+	std::vector<Color> ordered_objects;
+	if (from_left_to_right)
+	{
+		for (int i = 0; i < cluttered_objects.size(); i++)
+		{
+			ordered_objects.push_back(cluttered_objects.at(i).color);
+		}
+	}
+	else
+	{
+		for (int i = cluttered_objects.size() - 1; i >= 0; i++)
+		{
+			ordered_objects.push_back(cluttered_objects.at(i).color);
+		}
+	}
+	return ordered_objects;
+}
+
+/**
+ *
+ */
 float RobotinoVision::getClosestObjectDistance(Color color)
 {
 	setColor(color);
@@ -226,21 +297,25 @@ float RobotinoVision::getClosestObjectDistance(Color color)
 	return closestDistance;
 }
 
-cv::Mat RobotinoVision::readImage(const char* imageName)
+/**
+ *
+ */
+std::vector<cv::Point2f> RobotinoVision::processColor(Color color) 
 {
-	cv::Mat image;
-	image = cv::imread(imageName, 1);
-	
-	if (!image.data)
-	{
-		return cv::Mat(width_, height_, CV_8UC3, cv::Scalar::all(0));
-	}
-	
-	return image;
+	setColor(color);
+	return processColor();
 }
 
+/**
+ *
+ */
 std::vector<cv::Point2f> RobotinoVision::processColor()
 {
+	std::vector<cv::Point2f> points;
+	if (color_ != colors::YELLOW && color_ != colors::BLUE && color_ != colors::GREEN && color_ != colors::RED)
+	{
+		return points;
+	}
 	ROS_DEBUG("Getting Black Mask!!!");
 	cv::Mat black_mask = getBlackMask();
 	ROS_DEBUG("Getting Pucks Mask!!!");
@@ -271,7 +346,15 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		cv::createTrackbar("Open size parameter (after): ", FINAL_MASK_WINDOW, &color_params_.open_3, 20);
 		cv::imshow(FINAL_MASK_WINDOW, final_mask);
 
-		cv::createTrackbar("Min Contour Area Size: ", CONTOURS_WINDOW, &min_area_, 10 * MIN_AREA);
+		/// Show in a window
+		std::string contours_window_name = CONTOURS_WINDOW + ": " + Colors::toString(color_);
+		if (contours_window_name != contours_window_name_) 
+		{
+			cv::destroyWindow(contours_window_name_);
+			contours_window_name_ = contours_window_name;
+			cv::namedWindow(contours_window_name_);
+		}
+		cv::createTrackbar("Min Contour Area Size: ", contours_window_name_, &color_params_.min_area, 10 * MIN_AREA);
 	
 		showImageBGRwithMask(final_mask);
 	}
@@ -280,15 +363,18 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	pucks_mask.release();
 	color_mask.release();
 
-	std::vector<cv::Point2f> point = getContours(final_mask);
+	points = getContours(final_mask);
 
 	final_mask.release();
 	
 	cv::waitKey(30);
 
-	return point;
+	return points;
 }
 
+/**
+ *
+ */
 cv::Mat RobotinoVision::getBlackMask()
 {
 	cv::Mat black_mask;
@@ -318,6 +404,9 @@ cv::Mat RobotinoVision::getBlackMask()
 	return black_mask;
 }
 
+/**
+ *
+ */
 cv::Mat RobotinoVision::getPucksMask()
 {
 	cv::Mat pucks_mask;
@@ -352,6 +441,9 @@ cv::Mat RobotinoVision::getPucksMask()
 	return pucks_mask;
 }
 
+/**
+ *
+ */
 cv::Mat RobotinoVision::getColorMask()
 {
 	cv::Mat color_mask;
@@ -393,6 +485,9 @@ cv::Mat RobotinoVision::getColorMask()
 	return color_mask;
 }
 
+/**
+ *
+ */
 cv::Mat RobotinoVision::getFinalMask(cv::Mat black_mask, cv::Mat pucks_mask, cv::Mat color_mask)
 {
 	// juntando todas as máscaras
@@ -417,6 +512,9 @@ cv::Mat RobotinoVision::getFinalMask(cv::Mat black_mask, cv::Mat pucks_mask, cv:
 	return final_mask;
 }
 
+/**
+ *
+ */
 void RobotinoVision::showImageBGRwithMask(cv::Mat mask)
 {
 	cv::Mat imgBGR;
@@ -443,6 +541,9 @@ void RobotinoVision::showImageBGRwithMask(cv::Mat mask)
 	imgBGR.release();
 }
 
+/**
+ *
+ */
 std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat input)
 {
 	std::vector<std::vector<cv::Point> > contours;
@@ -454,9 +555,9 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat input)
 	for (int i = 0; i < contours.size(); i++)
 	{
 		float area = cv::contourArea(contours[i]);
-		if (area < min_area_)
+		if (area < color_params_.min_area)
 		{
-			ROS_INFO("Removed Area: %f", area);
+			ROS_DEBUG("Removed Area: %f", area);
 			contours.erase(contours.begin() + i);
 		}
 	}
@@ -469,10 +570,10 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat input)
 	}
 
 	///  Get the mass centers:
-	std::vector<cv::Point2f> mass_center(contours.size());
+	std::vector<cv::Point2f> mass_centers(contours.size());
 	for(int i = 0; i < contours.size(); i++)
 	{
-		mass_center[i] = cv::Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00); 
+		mass_centers[i] = cv::Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00); 
 	}
 		
 	cv::RNG rng(12345);
@@ -482,23 +583,31 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat input)
 	{
 		cv::Scalar color = cv::Scalar(rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255));
 		cv::drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, cv::Point());
-		cv::circle(drawing, mass_center[i], 4, color, -1, 8, 0);
-		ROS_DEBUG("P%d = (xc, yc) = (%f, %f)", i, mass_center[i].x, mass_center[i].y);
+		cv::circle(drawing, mass_centers[i], 4, color, -1, 8, 0);
+		ROS_DEBUG("P%d = (xc, yc) = (%f, %f)", i, mass_centers[i].x, mass_centers[i].y);
 	}
 
 	/// Show in a window
-	std::string contours_window_name = CONTOURS_WINDOW + ": " + color_name_;
+	std::string contours_window_name = CONTOURS_WINDOW + ": " + Colors::toString(color_);
 	if (contours_window_name != contours_window_name_) 
 	{
-		cv::destroyWindow(contours_window_name_.c_str());
+		cv::destroyWindow(contours_window_name_);
 		contours_window_name_ = contours_window_name;
 		cv::namedWindow(contours_window_name_);
 	}
 	cv::imshow(contours_window_name_.c_str(), drawing);
 
-	return mass_center;
+	int numberOfObjects = mass_centers.size();
+	if (numberOfObjects > MAX_NUMBER_OF_PUCKS) 
+	{
+		ROS_ERROR("You must recalibrate the %s color parameters, there are too much noise!!!", Colors::toString(color_).c_str());
+	}
+	return mass_centers;
 }
 
+/**
+ *
+ */
 std::vector<cv::Point2f> RobotinoVision::getPositions(std::vector<cv::Point2f> mass_center)
 {
 	double alpha = atan(camera_close_distance_ / camera_height_);
@@ -516,49 +625,75 @@ std::vector<cv::Point2f> RobotinoVision::getPositions(std::vector<cv::Point2f> m
 		positions[k] = cv::Point2f(distance, direction);
 		if (calibration_)
 		{
-			ROS_DEBUG("(%d): Distance = %f, Direction = %f", k, distance, direction * 180 / 3.14159);
+			ROS_DEBUG("(%d): Distance = %f, Direction = %f", k, distance, direction * 180 / PI);
 		}
 	}
 	return positions;
 }
 
-void RobotinoVision::setColor(Color color)
+/**
+ * Sets to default color (defined in Colors.cpp)
+ */
+void RobotinoVision::setColor()
 {
-	switch (color)
-	{
-		case ORANGE: //OK
-			color_params_ = orange_params_;
-			color_name_ = "ORANGE";
-			break;
-		case RED: //OK
-			color_params_ = red_params_;
-			color_name_ = "RED";
-			break;
-		case GREEN: //OK
-			color_params_ = green_params_;
-			color_name_ = "GREEN";
-			break;
-		case BLUE: //OK
-			color_params_ = blue_params_;
-			color_name_ = "BLUE";
-			break;
-		case YELLOW: //OK
-			color_params_ = yellow_params_;
-			color_name_ = "YELLOW";
-			break;
-		case BLACK:
-			//color_params_ = black_params_;
-			color_name_ = "BLACK";
-	}
-	color_ = color;
+	Color color = Colors::getDefault();
+	setColor(color);
 }
 
+/**
+ *
+ */
+void RobotinoVision::setColor(Color color)
+{
+	color_ = color;
+	setColorParameters();
+}
+
+/**
+ *
+ */
+void RobotinoVision::setColorParameters()
+{
+	switch (color_)
+	{
+		/*case colors::ORANGE:
+			color_params_ = orange_params_;
+			break;*/
+		case colors::YELLOW:
+			color_params_ = yellow_params_;
+			break;
+		case colors::BLUE:
+			color_params_ = blue_params_;
+			break;
+		case colors::GREEN:
+			color_params_ = green_params_;
+			break;
+		case colors::RED:
+			color_params_ = red_params_;
+			break;
+		case colors::ORANGE:
+		case colors::BLACK:
+		case colors::PINK:
+		case colors::PURPLE:
+			//ROS_ERROR("%s color is not working yet!!!", Colors::toString(color_).c_str());
+			break;
+		default:
+			setColor();
+	}
+}
+
+/**
+ *
+ */
 bool RobotinoVision::saveImage(robotino_vision::SaveImage::Request &req, robotino_vision::SaveImage::Response &res)
 {
 	cv::imwrite(req.image_name.c_str(), imgRGB_);
 	return true;
 }
 
+/**
+ *
+ */
 void RobotinoVision::setImagesWindows() 
 {
 	if (calibration_) 
@@ -584,6 +719,9 @@ void RobotinoVision::setImagesWindows()
 	}
 }
 
+/**
+ *
+ */
 bool RobotinoVision::setCalibration(robotino_vision::SetCalibration::Request &req, robotino_vision::SetCalibration::Response &res)
 {
 	calibration_ = req.calibration;
@@ -591,157 +729,9 @@ bool RobotinoVision::setCalibration(robotino_vision::SetCalibration::Request &re
 	return true;
 }
 
-Color RobotinoVision::convertProductToColor(int product)
-{
-	Color color;
-	switch (product)
-	{
-		case 0:
-			color = ORANGE; // PUCK
-			break;
-		case 1:
-			color = YELLOW; // TV
-			break;
-		case 2:
-			color = BLUE; // DVD
-			break;
-		case 3:
-			color = GREEN; // CELULAR
-			break;
-		case 4:
-			color = RED; // TABLET
-			break;
-		case 5:
-			color = BLACK; // NOTEBOOK
-			break;
-		case 6: 
-			color = NONE;
-			break;
-		default:
-			color = ORANGE; // PUCK
-	}
-	return color;
-}
-
-int RobotinoVision::convertColorToProduct(Color color)
-{
-	int product;
-	switch (color)
-	{
-		case ORANGE: // PUCK
-			product = 0;
-			break;
-		case YELLOW: // TV
-			product = 1;
-			break;
-		case BLUE: // DVD
-			product = 2;
-			break;
-		case GREEN: // CELULAR
-			product = 3;
-			break;
-		case RED: // TABLET
-			product = 4;
-			break;
-		case BLACK: // NOTEBOOK
-			product = 5;
-			break;
-		case NONE: 
-			product = 6;
-			break;
-		default:
-			product = 0;
-	}
-	return product;
-}
-
-std::string RobotinoVision::convertColorToString(Color color)
-{
-	std::string color_name;
-	switch (color)
-	{
-		case ORANGE: // PUCK
-			color_name = "ORANGE";
-			break;
-		case YELLOW: // TV
-			color_name = "YELLOW";
-			break;
-		case BLUE: // DVD
-			color_name = "BLUE";
-			break;
-		case GREEN: // CELULAR
-			color_name = "GREEN";
-			break;
-		case RED: // TABLET
-			color_name = "RED";
-			break;
-		case BLACK: // NOTEBOOK
-			color_name = "BLACK";
-			break;
-		default:
-			color_name = "";
-	}
-	return color_name;
-}
-
-std::string RobotinoVision::convertProductToString(Color color)
-{
-	std::string product_name;
-	switch (color)
-	{
-		case ORANGE: // PUCK
-			product_name = "PUCK";
-			break;
-		case YELLOW: // TV
-			product_name = "TV";
-			break;
-		case BLUE: // DVD
-			product_name = "DVD";
-			break;
-		case GREEN: // CELULAR
-			product_name = "CELULAR";
-			break;
-		case RED: // TABLET
-			product_name = "TABLET";
-			break;
-		case BLACK: // NOTEBOOK
-			product_name = "NOTEBOOK";
-			break;
-		default:
-			product_name = "";
-	}
-	return product_name;
-}
-
-std::string RobotinoVision::convertProductToString(int product)
-{
-	std::string product_name;
-	switch (product)
-	{
-		case 0:
-			product_name = "PUCK";
-			break;
-		case 1:
-			product_name = "TV";
-			break;
-		case 2:
-			product_name = "DVD";
-			break;
-		case 3:
-			product_name = "CELULAR";
-			break;
-		case 4:
-			product_name = "TABLET";
-			break;
-		case 5:
-			product_name = "NOTEBOOK";
-			break;
-		default:
-			product_name = "";
-	}
-	return product_name;
-}
-
+/**
+ *
+ */
 void RobotinoVision::readParameters()
 {	
 	//which were defined in config/camera_params.yaml file
@@ -774,6 +764,7 @@ void RobotinoVision::readParameters()
 	nh_.param<int>("/robotino_vision_node/color/orange/open_2", orange_params_.open_2, 0);
 	nh_.param<int>("/robotino_vision_node/color/orange/close_2", orange_params_.close_2, 20);
 	nh_.param<int>("/robotino_vision_node/color/orange/open_3", orange_params_.open_3, 5);
+	nh_.param<int>("/robotino_vision_node/color/orange/min_area", orange_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Orange Color Parameters **********");
 	ROS_DEBUG("~/orange/thresh_0: %d", orange_params_.thresh_0);
@@ -786,6 +777,7 @@ void RobotinoVision::readParameters()
 	ROS_DEBUG("~/orange/open_2: %d", orange_params_.open_2);
 	ROS_DEBUG("~/orange/close_2: %d", orange_params_.close_2);
 	ROS_DEBUG("~/orange/open_3: %d", orange_params_.open_3);
+	ROS_DEBUG("~/orange/min_area: %d", orange_params_.min_area);
 
 	nh_.param<int>("/robotino_vision_node/color/red/thresh_0", red_params_.thresh_0, 52);
 	nh_.param<int>("/robotino_vision_node/color/red/erosion_0", red_params_.erosion_0, 2);
@@ -797,6 +789,7 @@ void RobotinoVision::readParameters()
 	nh_.param<int>("/robotino_vision_node/color/red/open_2", red_params_.open_2, 3);
 	nh_.param<int>("/robotino_vision_node/color/red/close_2", red_params_.close_2, 4);
 	nh_.param<int>("/robotino_vision_node/color/red/open_3", red_params_.open_3, 2);
+	nh_.param<int>("/robotino_vision_node/color/red/min_area", red_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Red Color Parameters **********");
 	ROS_DEBUG("~/red/thresh_0: %d", red_params_.thresh_0);
@@ -809,6 +802,7 @@ void RobotinoVision::readParameters()
 	ROS_DEBUG("~/red/open_2: %d", red_params_.open_2);
 	ROS_DEBUG("~/red/close_2: %d", red_params_.close_2);
 	ROS_DEBUG("~/red/open_3: %d", red_params_.open_3);
+	ROS_DEBUG("~/red/min_area: %d", red_params_.min_area);
 
 	nh_.param<int>("/robotino_vision_node/color/green/thresh_0", green_params_.thresh_0, 36);
 	nh_.param<int>("/robotino_vision_node/color/green/erosion_0", green_params_.erosion_0, 1);
@@ -820,6 +814,7 @@ void RobotinoVision::readParameters()
 	nh_.param<int>("/robotino_vision_node/color/green/open_2", green_params_.open_2, 5);
 	nh_.param<int>("/robotino_vision_node/color/green/close_2", green_params_.close_2, 0);
 	nh_.param<int>("/robotino_vision_node/color/green/open_3", green_params_.open_3, 2);
+	nh_.param<int>("/robotino_vision_node/color/green/min_area", green_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Green Color Parameters **********");
 	ROS_DEBUG("~/green/thresh_0: %d", green_params_.thresh_0);
@@ -832,6 +827,7 @@ void RobotinoVision::readParameters()
 	ROS_DEBUG("~/green/open_2: %d", green_params_.open_2);
 	ROS_DEBUG("~/green/close_2: %d", green_params_.close_2);
 	ROS_DEBUG("~/green/open_3: %d", green_params_.open_3);
+	ROS_DEBUG("~/green/min_area: %d", green_params_.min_area);
 
 	nh_.param<int>("/robotino_vision_node/color/blue/thresh_0", blue_params_.thresh_0, 36);
 	nh_.param<int>("/robotino_vision_node/color/blue/erosion_0", blue_params_.erosion_0, 1);
@@ -843,6 +839,7 @@ void RobotinoVision::readParameters()
 	nh_.param<int>("/robotino_vision_node/color/blue/open_2", blue_params_.open_2, 1);
 	nh_.param<int>("/robotino_vision_node/color/blue/close_2", blue_params_.close_2, 11);
 	nh_.param<int>("/robotino_vision_node/color/blue/open_3", blue_params_.open_3, 2);
+	nh_.param<int>("/robotino_vision_node/color/blue/min_area", blue_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Blue Color Parameters **********");
 	ROS_DEBUG("~/blue/thresh_0: %d", blue_params_.thresh_0);
@@ -855,6 +852,7 @@ void RobotinoVision::readParameters()
 	ROS_DEBUG("~/blue/open_2: %d", blue_params_.open_2);
 	ROS_DEBUG("~/blue/close_2: %d", blue_params_.close_2);
 	ROS_DEBUG("~/blue/open_3: %d", blue_params_.open_3);
+	ROS_DEBUG("~/blue/min_area: %d", blue_params_.min_area);
 
 	nh_.param<int>("/robotino_vision_node/color/yellow/thresh_0", yellow_params_.thresh_0, 76);
 	nh_.param<int>("/robotino_vision_node/color/yellow/erosion_0", yellow_params_.erosion_0, 1);
@@ -866,6 +864,7 @@ void RobotinoVision::readParameters()
 	nh_.param<int>("/robotino_vision_node/color/yellow/open_2", yellow_params_.open_2, 3);
 	nh_.param<int>("/robotino_vision_node/color/yellow/close_2", yellow_params_.close_2, 8);
 	nh_.param<int>("/robotino_vision_node/color/yellow/open_3", yellow_params_.open_3, 0);
+	nh_.param<int>("/robotino_vision_node/color/yellow/min_area", yellow_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Yellow Color Parameters **********");
 	ROS_DEBUG("~/yellow/thresh_0: %d", yellow_params_.thresh_0);
@@ -878,7 +877,7 @@ void RobotinoVision::readParameters()
 	ROS_DEBUG("~/yellow/open_2: %d", yellow_params_.open_2);
 	ROS_DEBUG("~/yellow/close_2: %d", yellow_params_.close_2);
 	ROS_DEBUG("~/yellow/open_3: %d", yellow_params_.open_3);
-
+	ROS_DEBUG("~/yellow/min_area: %d", yellow_params_.min_area);
 }
 /*
 
