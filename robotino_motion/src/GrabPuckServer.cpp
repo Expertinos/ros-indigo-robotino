@@ -81,7 +81,7 @@ void GrabPuckServer::controlLoop()
 	if (!is_loaded_ || nframes_no_puck_ > 50)
 	{
 		robotino_vision::FindObjects srv;
-		srv.request.color = Colors::toProduct(color_);
+		srv.request.color = Colors::toCode(color_);
 		if (!find_objects_cli_.call(srv))
 		{	
 			/*ROS_ERROR("Puck not found!!!");
@@ -235,7 +235,7 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
 		ROS_ERROR("%s", result_.message.c_str());
 		return false;
 	}
-	color_ = Colors::convertProductToColor(goal->color);
+	color_ = Colors::toColor(goal->color);
 	if (color_ == colors::NONE)
 	{	
 		result_.goal_achieved = false;
@@ -244,8 +244,16 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
 		ROS_ERROR("Invalid color code: %d!!!", goal->color);
 		return false;
 	}
+	if (color_ != colors::YELLOW && color_ != colors::BLUE && color_ != colors::GREEN && color_ != colors::RED)
+	{
+		result_.goal_achieved = false;
+		result_.message = Colors::toString(color_) + " color is not working because it was not calibrated yet in robotino_vision package!!!";
+		server_.setAborted(result_, result_.message);
+		ROS_ERROR("%s", result_.message.c_str());
+		return false;
+	}
 	robotino_vision::FindObjects srv;
-	srv.request.color = Colors::toProduct(color_);
+	srv.request.color = Colors::toCode(color_);
 	if (!find_objects_cli_.call(srv))
 	{	
 		result_.goal_achieved = false;
