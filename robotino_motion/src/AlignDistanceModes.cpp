@@ -13,7 +13,7 @@
 /**
  *
  */
-std::string distanceModes::DistanceModes::toString(distanceModes::DistanceModeEnum mode)
+std::string distance_modes::DistanceModes::toString(distance_modes::DistanceModeEnum mode)
 {
 	std::string mode_name;
 	switch (mode)
@@ -36,22 +36,22 @@ std::string distanceModes::DistanceModes::toString(distanceModes::DistanceModeEn
 /**
  *
  */
-distanceModes::DistanceModeEnum distanceModes::DistanceModes::newInstance(int mode_code)
+distance_modes::DistanceModeEnum distance_modes::DistanceModes::newInstance(int mode_code)
 {
-	distanceModes::DistanceModeEnum mode;
+	distance_modes::DistanceModeEnum mode;
 	switch (mode_code)
 	{
 		case 0:
-			mode = distanceModes::CLOSE;
+			mode = distance_modes::CLOSE;
 			break;
 		case 1:
-			mode = distanceModes::NORMAL;
+			mode = distance_modes::NORMAL;
 			break;
 		case 2:
-			mode = distanceModes::FAR;
+			mode = distance_modes::FAR;
 			break;
 		default:
-			mode = distanceModes::NONE;
+			mode = distance_modes::NONE;
 	}
 	return mode;
 }

@@ -24,10 +24,10 @@
 
 #include <tf/transform_datatypes.h>
 
-#define MIN_LINEAR_VELOCITY -0.25
-#define MIN_ANGULAR_VELOCITY -0.25
-#define MAX_LINEAR_VELOCITY 0.25
-#define MAX_ANGULAR_VELOCITY 0.25
+#define MIN_LINEAR_VELOCITY -0.20
+#define MIN_ANGULAR_VELOCITY -1.20
+#define MAX_LINEAR_VELOCITY 0.20
+#define MAX_ANGULAR_VELOCITY 1.20
 #define PI 3.14159
 #define sign(a) (((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
 
