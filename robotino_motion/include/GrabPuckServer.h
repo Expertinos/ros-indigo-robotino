@@ -20,6 +20,8 @@
 #include "robotino_motion/GrabPuckAction.h"
 #include "robotino_msgs/DigitalReadings.h"
 #include "robotino_vision/FindObjects.h"
+
+#define GRABBING_DEADLINE 5 // seconds
 	
 class GrabPuckServer : public Server
 {
@@ -54,17 +56,18 @@ private:
 	void publishFeedback();
 
 	/**  */
-	bool is_loaded_;
+	bool loaded_;
 
 	void digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg);
 
 	/** Movement related Variables and Functions */
 	GrabPuckState state_;
 	double percentage_;
+	ros::Time grabbing_start_;
+	double delta_x_;
 
 	/** Image Processing Variable and Functions */
 	Color color_;
-	int nframes_no_puck_; 
 
 };
 

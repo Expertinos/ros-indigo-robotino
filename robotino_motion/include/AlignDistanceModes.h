@@ -13,7 +13,7 @@
 
 #include <string>
 
-namespace distanceModes
+namespace distance_modes
 {
 
 	typedef enum 
@@ -36,7 +36,7 @@ namespace distanceModes
 
 };
 
-typedef distanceModes::DistanceModeEnum DistanceMode;
-typedef distanceModes::DistanceModes DistanceModes;
+typedef distance_modes::DistanceModeEnum DistanceMode;
+typedef distance_modes::DistanceModes DistanceModes;
 
 #endif /* ALIGN_DISTANCE_MODE_H_ */

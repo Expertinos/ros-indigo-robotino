@@ -13,15 +13,18 @@
 
 #include <string>
 
-namespace grabPuckStates
+namespace grab_puck_states
 {
 
 	typedef enum 
 	{
 		UNINITIALIZED,
 		IDLE, 
-		FINDING_PUCK,
+		ALIGNING_LATERAL,
+		HEADING_TOWARD_PUCK,
 		GRABBING_PUCK, 
+		ROTATING,
+		GOING_BACK_TO_ORIGIN,
 		STOPPING,
 		FINISHED,
 		LOST
@@ -38,7 +41,7 @@ namespace grabPuckStates
 
 };
 
-typedef grabPuckStates::GrabPuckStateEnum GrabPuckState;
-typedef grabPuckStates::GrabPuckStates GrabPuckStates;
+typedef grab_puck_states::GrabPuckStateEnum GrabPuckState;
+typedef grab_puck_states::GrabPuckStates GrabPuckStates;
 
 #endif /* GRAB_PUCK_STATES_H_ */

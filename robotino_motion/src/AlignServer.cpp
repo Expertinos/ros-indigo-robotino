@@ -77,7 +77,25 @@ void AlignServer::controlLoop()
 {	
 	double vel_x = 0, vel_y = 0, vel_phi = 0;
 	float K = .9, K_PHY = 10;
-	float min_tolerance = 0.25, max_tolerance = 0.30, phy_tolerance = 0.005;
+	float min_tolerance, max_tolerance, phy_tolerance = 0.005;
+	switch (distance_mode_)
+	{
+		case distance_modes::CLOSE:
+			min_tolerance = CLOSE_TOLERANCE;
+			max_tolerance = CLOSE_TOLERANCE + 0.5;
+			break;
+		case distance_modes::NORMAL:
+			min_tolerance = NORMAL_TOLERANCE;
+			max_tolerance = NORMAL_TOLERANCE + 0.2;
+			break;
+		case distance_modes::FAR:
+			min_tolerance = FAR_TOLERANCE;
+			max_tolerance = FAR_TOLERANCE + 0.1;
+			break;
+		default:
+			ROS_ERROR("Distance Mode not supported yet!!!");
+			return;
+	}
 	float mean_value = (fabs(left_ir_) + fabs(right_ir_)) / 2;
 	float error_min = mean_value - min_tolerance;
 	float error_max = mean_value - max_tolerance;
@@ -85,7 +103,7 @@ void AlignServer::controlLoop()
 	ROS_DEBUG("Align %s", AlignmentModes::toString(alignment_mode_).c_str());
 	switch (alignment_mode_)
 	{
-		case alignmentModes::FRONT:
+		case alignment_modes::FRONT:
 			if (error_max > 0)
 			{
 				vel_x = K * error_max;
@@ -105,7 +123,7 @@ void AlignServer::controlLoop()
 				vel_phi = -K_PHY * error_phy;
 			}
 			break;
-		case alignmentModes::RIGHT:
+		case alignment_modes::RIGHT:
 			if (error_max > 0)
 			{
 				vel_x = 0;
@@ -125,7 +143,7 @@ void AlignServer::controlLoop()
 				vel_phi = -K_PHY * error_phy;
 			}
 			break;
-		case alignmentModes::LEFT:
+		case alignment_modes::LEFT:
 			if (error_max > 0)
 			{
 				vel_x = 0;
@@ -145,7 +163,7 @@ void AlignServer::controlLoop()
 				vel_phi = K_PHY * error_phy;
 			}
 			break;
-		case alignmentModes::BACK:
+		case alignment_modes::BACK:
 			if (error_max > 0)
 			{
 				vel_x = -K * error_max;
@@ -215,6 +233,7 @@ void AlignServer::executeCallback(const robotino_motion::AlignGoalConstPtr& goal
 			result_.goal_achieved = true;
 			result_.message = "Goal achieved with success!!!";
 			server_.setSucceeded(result_);
+			ROS_INFO("%s goal reached!!!", name_.c_str());
 			return;
 		}
 		ros::spinOnce();
@@ -244,30 +263,30 @@ bool AlignServer::validateNewGoal(const robotino_motion::AlignGoalConstPtr& goal
 	alignment_mode_ = AlignmentModes::newInstance(goal->alignment_mode);
 	switch (alignment_mode_)
 	{
-		case alignmentModes::FRONT: 
+		case alignment_modes::FRONT: 
 			left_index_ = 8;
 			right_index_ = 1;
 			lateral_ = false;
 			break;
-		case alignmentModes::RIGHT: 
+		case alignment_modes::RIGHT: 
 			left_index_ = 6;
 			right_index_ = 7;
 			lateral_ = true;
 			break;
-		case alignmentModes::LEFT: 
+		case alignment_modes::LEFT: 
 			left_index_ = 2;
 			right_index_ = 3;
 			lateral_ = true;
 			break;
-		case alignmentModes::BACK: 
+		case alignment_modes::BACK: 
 			left_index_ = 4;
 			right_index_ = 5;
 			lateral_ = false;
 			break;
-		case alignmentModes::FRONT_RIGHT: 
-		case alignmentModes::FRONT_LEFT: 
-		case alignmentModes::BACK_RIGHT: 
-		case alignmentModes::BACK_LEFT:
+		case alignment_modes::FRONT_RIGHT: 
+		case alignment_modes::FRONT_LEFT: 
+		case alignment_modes::BACK_RIGHT: 
+		case alignment_modes::BACK_LEFT:
 			result_.goal_achieved = false;
 			result_.message = "Alignment mode not supported yet: " + AlignmentModes::toString(alignment_mode_) + "!!!";
 			server_.setAborted(result_, result_.message);
@@ -283,15 +302,10 @@ bool AlignServer::validateNewGoal(const robotino_motion::AlignGoalConstPtr& goal
 	distance_mode_ = DistanceModes::newInstance(goal->distance_mode);
 	switch (distance_mode_)
 	{
-		case distanceModes::NORMAL: 
+		case distance_modes::NORMAL: 
+		case distance_modes::CLOSE:
+		case distance_modes::FAR: 
 			break;
-		case distanceModes::CLOSE:
-		case distanceModes::FAR: 
-			result_.goal_achieved = false;
-			result_.message = "Distance mode not supported yet: " + DistanceModes::toString(distance_mode_) + "!!!";
-			server_.setAborted(result_, result_.message);
-			ROS_ERROR("%s", result_.message.c_str());
-			return false;
 		default:
 			result_.goal_achieved = false;
 			result_.message = "Invalid distance mode code!!!";
