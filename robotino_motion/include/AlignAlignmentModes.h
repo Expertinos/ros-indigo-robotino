@@ -13,7 +13,7 @@
 
 #include <string>
 
-namespace alignmentModes
+namespace alignment_modes
 {
 
 	typedef enum 
@@ -41,7 +41,7 @@ namespace alignmentModes
 
 };
 
-typedef alignmentModes::AlignmentModeEnum AlignmentMode;
-typedef alignmentModes::AlignmentModes AlignmentModes;
+typedef alignment_modes::AlignmentModeEnum AlignmentMode;
+typedef alignment_modes::AlignmentModes AlignmentModes;
 
 #endif /* ALIGN_ALIGNMENT_MODE_H_ */

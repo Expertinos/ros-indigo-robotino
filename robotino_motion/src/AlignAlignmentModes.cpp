@@ -13,7 +13,7 @@
 /**
  *
  */
-std::string alignmentModes::AlignmentModes::toString(alignmentModes::AlignmentModeEnum mode)
+std::string alignment_modes::AlignmentModes::toString(alignment_modes::AlignmentModeEnum mode)
 {
 	std::string mode_name;
 	switch (mode)
@@ -51,37 +51,37 @@ std::string alignmentModes::AlignmentModes::toString(alignmentModes::AlignmentMo
 /**
  *
  */
-alignmentModes::AlignmentModeEnum alignmentModes::AlignmentModes::newInstance(int mode_code)
+alignment_modes::AlignmentModeEnum alignment_modes::AlignmentModes::newInstance(int mode_code)
 {
-	alignmentModes::AlignmentModeEnum mode;
+	alignment_modes::AlignmentModeEnum mode;
 	switch (mode_code)
 	{
 		case 0:
-			mode = alignmentModes::FRONT;
+			mode = alignment_modes::FRONT;
 			break;
 		case 1:
-			mode = alignmentModes::RIGHT;
+			mode = alignment_modes::RIGHT;
 			break;
 		case 2:
-			mode = alignmentModes::LEFT;
+			mode = alignment_modes::LEFT;
 			break;
 		case 3:
-			mode = alignmentModes::BACK;
+			mode = alignment_modes::BACK;
 			break;
 		case 4:
-			mode = alignmentModes::FRONT_RIGHT;
+			mode = alignment_modes::FRONT_RIGHT;
 			break;
 		case 5:
-			mode = alignmentModes::FRONT_LEFT;
+			mode = alignment_modes::FRONT_LEFT;
 			break;
 		case 6:
-			mode = alignmentModes::BACK_RIGHT;
+			mode = alignment_modes::BACK_RIGHT;
 			break;
 		case 7:
-			mode = alignmentModes::BACK_LEFT;
+			mode = alignment_modes::BACK_LEFT;
 			break;
 		default:
-			mode = alignmentModes::NONE;
+			mode = alignment_modes::NONE;
 	}
 	return mode;
 }
