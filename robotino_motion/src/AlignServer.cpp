@@ -233,6 +233,7 @@ void AlignServer::executeCallback(const robotino_motion::AlignGoalConstPtr& goal
 			result_.goal_achieved = true;
 			result_.message = "Goal achieved with success!!!";
 			server_.setSucceeded(result_);
+			ROS_INFO("%s goal reached!!!", name_.c_str());
 			return;
 		}
 		ros::spinOnce();

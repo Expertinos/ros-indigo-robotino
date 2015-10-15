@@ -56,7 +56,7 @@ private:
 	void publishFeedback();
 
 	/**  */
-	bool is_loaded_;
+	bool loaded_;
 
 	void digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg);
 

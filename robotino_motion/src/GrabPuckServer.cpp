@@ -24,7 +24,7 @@ GrabPuckServer::GrabPuckServer(ros::NodeHandle nh) :
 	state_ = grab_puck_states::UNINITIALIZED;
 	percentage_ = 0;
 
-	is_loaded_ = false;
+	loaded_ = false;
 }
 
 /**
@@ -50,6 +50,12 @@ bool GrabPuckServer::isActing()
  */
 void GrabPuckServer::start()
 {
+	if (!find_objects_cli_.exists())
+	{
+		ROS_WARN("Waiting for robotino_vision_node!!!");
+		find_objects_cli_.waitForExistence();
+	}
+	ROS_INFO("/find_objects service server is running!!!");
 	if (state_ == grab_puck_states::UNINITIALIZED)
 	{
 		server_.start();
@@ -77,7 +83,8 @@ void GrabPuckServer::controlLoop()
 {
 	double vel_x = 0, vel_y = 0, vel_phi = 0;
 	ROS_DEBUG("%s", GrabPuckStates::toString(state_).c_str());
-	if (!is_loaded_)
+	double percentage = 0;
+	if (!loaded_)
 	{
 		robotino_vision::FindObjects srv;
 		srv.request.color = Colors::toCode(color_);
@@ -115,7 +122,7 @@ void GrabPuckServer::controlLoop()
 			}
 
 			float tolerance_lateral = 0.1, tolerance_frontal = 35;
-			double K_error_lateral = 0.3, K_error_frontal = 0.002;
+			double K_error_lateral = 0.3, K_error_frontal = 0.005;
 			double percentage_f, percentage_0, tolerance, max_error, error;
 			if (fabs(error_lateral) > tolerance_lateral) // 0% a 49%
 			{
@@ -139,16 +146,16 @@ void GrabPuckServer::controlLoop()
 			}
 			else 
 			{
-				vel_x = .05;
+				vel_x = .14;
 				state_ = grab_puck_states::GRABBING_PUCK;
 				grabbing_start_ = ros::Time::now();
 			}
-			percentage_ = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
+			percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
 		}
 		else if (state_ == grab_puck_states::GRABBING_PUCK) // 70% a 79%
 		{
 			state_ = grab_puck_states::GRABBING_PUCK;
-			vel_x = .05;
+			vel_x = .14;
 			double percentage_0 = 70, percentage_f = 79;
 			double elapsed_time = (ros::Time::now() - grabbing_start_).toSec();
 			if (elapsed_time > GRABBING_DEADLINE)
@@ -156,31 +163,32 @@ void GrabPuckServer::controlLoop()
 				state_ = grab_puck_states::LOST;
 				ROS_ERROR("Grabbing state deadline expired!!!");
 			}
-			percentage_ = percentage_0 + (percentage_f - percentage_0) * elapsed_time / GRABBING_DEADLINE;
+			percentage = percentage_0 + (percentage_f - percentage_0) * elapsed_time / GRABBING_DEADLINE;
 		}		
 	}
-	else // 100%
+	else 
 	{		
 		if (state_ == grab_puck_states::GRABBING_PUCK)
 		{
-			delta_x_ = getOdometry_X();
+			delta_x_ = -getOdometry_X();
 			resetOdometry();
 			state_ = grab_puck_states::ROTATING;
+			percentage_ = 79;
 		}
-		double max_error_linear = 0.5;
-		double error_linear = delta_x_ - getOdometry_X();
+		double max_error_linear = 1.25;
+		double error_linear = getOdometry_X() - delta_x_;
 		if (error_linear > max_error_linear)
 		{
 			 error_linear = max_error_linear;
 		}
-		double max_error_angular = 2 * PI;
+		double max_error_angular = PI;
 		double error_angular = PI - getOdometry_PHI();
 		if (error_angular > max_error_angular)
 		{
 			 error_angular = max_error_angular;
 		}
 		float tolerance_linear = 0.1, tolerance_angular = 0.1;
-		double K_error_linear = 0.02, K_error_angular = 0.2;
+		double K_error_linear = 1.2, K_error_angular = 1.2;
 		double percentage_f, percentage_0, tolerance, max_error, error;
 		if (fabs(error_angular) > tolerance_angular) // 80% a 89%
 		{
@@ -203,12 +211,16 @@ void GrabPuckServer::controlLoop()
 			max_error = max_error_linear;
 			error = fabs(error_linear);			
 		}
-		percentage_ = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
+		percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
 	}
 	if (vel_x == 0 && vel_y == 0 && vel_phi == 0) // 100%
 	{
 		state_ = grab_puck_states::FINISHED;
 		percentage_ = 100;
+	}
+	if (percentage > percentage_)
+	{
+		percentage_ = percentage;
 	}
 	setVelocity(vel_x, vel_y, vel_phi);
 	publishVelocity();
@@ -251,6 +263,7 @@ void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr
 			result_.goal_achieved = true;
 			result_.message = "Goal achieved with success!!!";
 			server_.setSucceeded(result_);
+			ROS_INFO("%s goal reached!!!", name_.c_str());
 			return;
 		}
 		else if (state_ == grab_puck_states::LOST)
@@ -284,6 +297,14 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
 	{
 		result_.goal_achieved = false;
 		result_.message = "Odometry not initialized yet!!!";
+		server_.setAborted(result_, result_.message);
+		ROS_ERROR("%s", result_.message.c_str());
+		return false;
+	}
+	if(loaded_)
+	{
+		result_.goal_achieved = false;
+		result_.message = "Robotino is already loaded!!!";
 		server_.setAborted(result_, result_.message);
 		ROS_ERROR("%s", result_.message.c_str());
 		return false;
@@ -327,6 +348,7 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
  */
 void GrabPuckServer::publishFeedback()
 {
+	ROS_DEBUG("%s (%f)", GrabPuckStates::toString(state_).c_str(), percentage_);
 	feedback_.percentage = percentage_;
 	feedback_.state = GrabPuckStates::toString(state_);
 	server_.publishFeedback(feedback_);
@@ -338,7 +360,7 @@ void GrabPuckServer::publishFeedback()
  */
 void GrabPuckServer::digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg)
 {
-	is_loaded_ = !msg.values.at(0);
+	loaded_ = !msg.values.at(0);
 }
 
 /**
@@ -348,3 +370,4 @@ void GrabPuckServer::readParameters()
 {
 	
 }
+			//ROS_WARN("ex: %f, dx: %f", error_linear, delta_x_);
