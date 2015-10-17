@@ -1,4 +1,4 @@
-uint8 product		# 1 for TV
+int8 product		# 1 for TV
 			# 2 for DVD
 			# 3 for CELULAR
 			# 4 for TABLET

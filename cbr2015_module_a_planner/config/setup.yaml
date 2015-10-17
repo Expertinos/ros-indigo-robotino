@@ -1,0 +1,43 @@
+area1_x: -1.106
+area1_y: -1.058
+area1_orientation: -2.858
+
+area2_x: -1.003
+area2_y: -1.030
+area2_orientation: 0.461
+
+area3_x: -0.855
+area3_y: -1.692
+area3_orientation: -2.684
+
+area4_x: -0.757
+area4_y: -1.603
+area4_orientation: 0.296
+
+area5_x: -0.576
+area5_y: -2.228
+area5_orientation: -2.672
+
+area6_x: -0.551
+area6_y: -2.166
+area6_orientation: 0.332
+
+casa_x: 0.978
+casa_y: -1.265
+casa_orientation: 0.494
+
+deposito_x: 0.741
+deposito_y: -1.051
+deposito_orientation: 1.997
+
+deposito2_x: 1.406
+deposito2_y: -0.728
+deposito2_orientation: 2.054
+
+deposito3_x: 1.629
+deposito3_y: -0.496
+deposito3_orientation: 1.740
+
+pedido_x: 1.734 #0.655
+pedido_y: -1.210 #-1.155
+pedido_orientation: 0.403 #0.194

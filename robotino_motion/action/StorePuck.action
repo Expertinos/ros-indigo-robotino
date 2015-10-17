@@ -1,0 +1,33 @@
+## ------------------ goal definition ------------------ ##
+
+int8 color
+# Object color code
+# 0 for ORANGE colored objects (considering BLACK color borders at the leaving area)
+# 1 for YELLOW colored objects (considering BLACK color borders at the leaving area) 
+# 2 for BLUE colored objects (considering BLACK color borders at the leaving area)
+# 3 for GREEN colored objects (considering BLACK color borders at the leaving area)
+# 4 for RED colored objects (considering BLACK color borders at the leaving area)
+# 5 for BLACK colored objects (considering BLACK color borders at the leaving area)
+# 6 for PINK colored objects (considering BLACK color borders at the leaving area)
+# 7 for PURPLE colored objects (considering BLACK color borders at the leaving area)
+
+---
+
+## ----------------- result definition ----------------- ##
+
+bool goal_achieved 		
+# it is true if and only if the goal has been achieved
+
+string message			
+# message about rhe result
+
+
+---
+
+## ---------------- feedback definition ---------------- ##
+
+float32 percentage		
+# in range of 0% to 100%
+
+string state			
+# a string that describes the current state

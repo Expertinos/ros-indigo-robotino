@@ -61,6 +61,7 @@ void KeyboardTeleop::spin()
 
 	while( ros::ok() )
 	{
+		bool key_pressed = false;
 		vel_x = 0.0;
 		vel_y = 0.0;
 		vel_omega = 0.0;
@@ -76,28 +77,33 @@ void KeyboardTeleop::spin()
 		{
 		// Walking
 		case KEYCODE_W:
-			vel_x = 0.05;
+			vel_x = 0.17;
+			key_pressed = true;
 			break;
 		case KEYCODE_S:
-			vel_x = -0.05;
+			vel_x = -0.17;
+			key_pressed = true;
 			break;
 		case KEYCODE_A:
-			vel_y = 0.05;
+			vel_y = 0.17;
+			key_pressed = true;
 			break;
 		case KEYCODE_D:
-			vel_y = -0.05;
+			vel_y = -0.17;
+			key_pressed = true;
 			break;
 		case KEYCODE_Q:
-			vel_omega = 0.5;
+			vel_omega = 0.6;
+			key_pressed = true;
 			break;
 		case KEYCODE_E:
-			vel_omega = -0.5;
+			vel_omega = -0.6;
+			key_pressed = true;
 			break;
-
 		case KEYCODE_SPACE:
 			vel_x = vel_y = vel_omega = 0.0;
+			key_pressed = true;
 			break;
-
 		default:
 			break;
 		}
@@ -108,7 +114,10 @@ void KeyboardTeleop::spin()
 			first_publish_ = ros::Time::now();
 		}
 		last_publish_ = ros::Time::now();
-		publish( vel_x, vel_y, vel_omega );
+		if (key_pressed)
+		{
+			publish( vel_x, vel_y, vel_omega );
+		}
 	}
 	return;
 }
@@ -116,7 +125,7 @@ void KeyboardTeleop::spin()
 void KeyboardTeleop::watchdog()
 {
 	boost::mutex::scoped_lock lock( publish_mutex_ );
-	if ((ros::Time::now() > last_publish_ + ros::Duration(0.15)) &&
+	/*if ((ros::Time::now() > last_publish_ + ros::Duration(0.15)) &&
 			(ros::Time::now() > first_publish_ + ros::Duration(0.50)))
-		publish(0.0, 0.0, 0.0);
+		publish(0.0, 0.0, 0.0);*/
 }

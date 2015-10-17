@@ -1,10 +1,18 @@
-uint8 color		# Object color code
-			# 0 for ORANGE (PUCK)
-			# 1 for YELLOW (TV)
-			# 2 for BLUE (DVD)
-			# 3 for GREEN (CELULAR)
-			# 4 for RED (TABLET)
-			# 5 for BLACK (NOTEBOOK)
+int8 color		
+# Object color code
+# 0 for ORANGE colored objects 
+# 1 for YELLOW colored objects 
+# 2 for BLUE colored objects 
+# 3 for GREEN colored objects 
+# 4 for RED colored objects 
+# 5 for BLACK colored objects 
+# 6 for PINK colored objects 
+# 7 for PURPLE colored objects
+
 ---
-float32[] distances	# Object distance
-float32[] directions	# Object direction
+
+float32[] distances	
+# Object distance
+
+float32[] directions	
+# Object direction

@@ -21,14 +21,13 @@ RobotinoSafety::RobotinoSafety():
 	e1_minor_radius_(0.25),
 	e2_major_radius_(0.70),
 	e2_minor_radius_(0.30),
-	node_loop_rate_ (20)
+	node_loop_rate_(20)
 {
 	cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 	e1_viz_pub_ = nh_.advertise<visualization_msgs::Marker>("inner_ellipse_marker", 10);
 	e2_viz_pub_ = nh_.advertise<visualization_msgs::Marker>("outer_ellipse_marker", 10);
 
-	robotino_cmd_vel_sub_ = nh_.subscribe("/robotino_cmd_vel", 1,
-			&RobotinoSafety::robotinoCmdVelCallback, this);
+	robotino_cmd_vel_sub_ = nh_.subscribe("/robotino_cmd_vel", 1, &RobotinoSafety::robotinoCmdVelCallback, this);
 	bumper_sub_ = nh_.subscribe("/bumper", 1, &RobotinoSafety::bumperCallback, this);
 	scan_sub_ = nh_.subscribe("/scan", 1, &RobotinoSafety::scanCallback, this);
 
@@ -123,8 +122,8 @@ void RobotinoSafety::bumperCallback(const std_msgs::BoolConstPtr& msg)
 {
 	if( msg->data )
 	{
-		ROS_ERROR("Bumper hit! Shutting down node!");
-		ros::shutdown();
+		//ROS_ERROR("Bumper hit! Shutting down node!");
+		//ros::shutdown();
 		return;
 	}
 }
@@ -207,17 +206,17 @@ void RobotinoSafety::visualizeEllipses(bool show )
 
 	if(stop_laser_)
 	{
-		// Color the ellipse e1 red
-		e1_viz_msg_.color.r = 1.0;
+		// Color the ellipse e1 blue
+		e1_viz_msg_.color.r = 0.0;
 		e1_viz_msg_.color.g = 0.0;
-		e1_viz_msg_.color.b = 0.0;
+		e1_viz_msg_.color.b = 1.0;
 	}
 	if (slow_laser_)
 	{
-		// Color the ellipse e2 red
-		e2_viz_msg_.color.r = 1.0;
+		// Color the ellipse e2 blue
+		e2_viz_msg_.color.r = 0.0;
 		e2_viz_msg_.color.g = 0.0;
-		e2_viz_msg_.color.b = 0.0;
+		e2_viz_msg_.color.b = 1.0;
 	}
 
 	e1_viz_pub_.publish(e1_viz_msg_);

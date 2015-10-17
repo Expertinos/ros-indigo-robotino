@@ -1,0 +1,16 @@
+
+---
+
+int8[] objects		
+# Object color code
+# 0 for ORANGE colored objects 
+# 1 for YELLOW colored objects 
+# 2 for BLUE colored objects 
+# 3 for GREEN colored objects 
+# 4 for RED colored objects 
+# 5 for BLACK colored objects 
+# 6 for PINK colored objects 
+# 7 for PURPLE colored objects
+
+bool succeed		
+# false if no object is found

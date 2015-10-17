@@ -1,0 +1,17 @@
+int8[] objects		
+# 0 for ORANGE colored objects 
+# 1 for YELLOW colored objects 
+# 2 for BLUE colored objects 
+# 3 for GREEN colored objects 
+# 4 for RED colored objects 
+# 5 for BLACK colored objects 
+# 6 for PINK colored objects 
+# 7 for PURPLE colored objects 
+
+---
+
+int8 object		
+# the same as above
+
+bool contain		
+# false if there is no object from the objects list
