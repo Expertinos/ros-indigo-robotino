@@ -18,7 +18,7 @@ Panels:
         - /LaserScan1
         - /Map2
       Splitter Ratio: 0.5
-    Tree Height: 434
+    Tree Height: 437
   - Class: rviz/Tool Properties
     Expanded:
       - /2D Nav Goal1
@@ -106,13 +106,7 @@ Visualization Manager:
       Class: rviz/Path
       Color: 25; 255; 0
       Enabled: true
-      Line Style: Lines
-      Line Width: 0.03
       Name: Path
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
       Topic: /move_base/NavfnROS/plan
       Value: true
     - Alpha: 1
@@ -223,32 +217,32 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 7.32565
+      Distance: 7.22016
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.493511
-        Y: -1.39515
-        Z: -2.85717
+        X: -0.140235
+        Y: 0.0113259
+        Z: -2.85563
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.5698
+      Pitch: 1.5548
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.23361
+      Yaw: 3.86861
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: true
-  Height: 985
+  Height: 744
   Hide Left Dock: true
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000010f000003a5fc0200000002fb000000100044006900730070006c00610079007300000000280000030a000000e200fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000338000000950000006600ffffff000004cf0000039000000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000010f000003a5fc0200000002fb000000100044006900730070006c00610079007300000000280000030a000000dd00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000338000000950000006400ffffff00000515000002a200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Tool Properties:
     collapsed: true
-  Width: 1231
-  X: 41
-  Y: 10
+  Width: 1301
+  X: 65
+  Y: 24
