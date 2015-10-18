@@ -8,20 +8,20 @@ from enum import *
 from enum import areaOrganizada
 global buffer_empty
 global success
-global cont
 global prat_des
 global prat_aux
 global obj_des
 global obj_aux
 global objeto
+global terminou
 from pegando_objeto import *
 from deixando_objeto import *
 from indo_para_area import *
 
 buffer_empty = True
 success = False
-cont = 0
-objeto = []
+terminou = False
+objeto = Objetos.NONE
 
 seq = 0
 
@@ -29,37 +29,39 @@ seq = 0
 class IndoParaArea(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['chegou'],
-				input_keys=['area'],
-				output_keys=['indo_area'])
+				input_keys=['area'])
 
     def execute(self, userdata):
 	global seq
 	seq += 1
-	indoParaArea(userdata.area, seq)	
-	userdata.indo_area = userdata.area
+	#indoParaArea(userdata.area, seq)
 	rospy.logwarn('Cheguei')
 	return 'chegou'
 
 # define state EstouNaArea
 class EstouNaArea(smach.State):   
     def __init__(self):
-        smach.State.__init__(self, outcomes=['pegar_obj', 'deixar_obj'],
+        smach.State.__init__(self, outcomes=['pegar_obj', 'deixar_obj', 'fim_org'],
 				input_keys=['area_atual', 'area_des', 'area_aux'],
 				output_keys=['prox_area', 'area_parc'])
 
     def execute(self, userdata):
 	global objeto
+	global terminou
 	rospy.logwarn("Area Atual: %s, Area Desejada: %s, Area Auxiliar: %s", userdata.area_atual, userdata.area_des, userdata.area_aux)
+	if userdata.area_atual[0] == Areas.CASA[0] and terminou:
+		rospy.logwarn('Finalizei e estou em casa')
+		return 'fim_org'
 	if userdata.area_atual[0] == userdata.area_des[0]:
 		rospy.logwarn('Estou na Area Desejada')
 		if areaOrganizada(userdata.area_atual, objeto) and buffer_empty:			
 			rospy.logwarn('Estou na Prateleira Desejada com Objeto DESEJADO na primeira passada')
 			success = True
+			terminou = True
 			userdata.area_parc = userdata.area_atual			
 			userdata.prox_area = Areas.CASA
 			return 'deixar_obj'
 		if not areaOrganizada(userdata.area_atual, objeto) and buffer_empty:
-			#userdata.prox_objeto = ObjetosSMORG.OBJAUX
 			rospy.logwarn('Estou na Prateleira Desejada com Objeto AUXILIAR')
 			userdata.area_parc = userdata.area_atual			
 			userdata.prox_area = Areas.BUFFER
@@ -72,7 +74,6 @@ class EstouNaArea(smach.State):
 	elif userdata.area_atual[0] == Areas.BUFFER[0]:
 		rospy.logwarn('Estou no Buffer')
 		if buffer_empty == True:
-			#userdata.prox_objeto = ObjetosSMORG.OBJAUX
 			rospy.logwarn('Estou no Buffer e vou deixar o Objeto AUXILIAR')
 			userdata.area_parc = userdata.area_atual			
 			userdata.prox_area = userdata.area_aux
@@ -93,12 +94,14 @@ class EstouNaArea(smach.State):
 		if not areaComObjDesejado(userdata.area_des, userdata.area_atual) and buffer_empty:
 			rospy.logwarn('Estou na Prateleira Auxiliar e vou deixar o Objeto AUXILIAR e ir pra casa')
 			success = True
+			terminou = True			
 			userdata.area_parc = userdata.area_atual			
 			userdata.prox_area = Areas.CASA
 			return 'deixar_obj'
 	rospy.logerr('Deu algum erro, vou deixar o Objeto e ir pra casa')
 	success = False
-	userdata.prox_area = AreasSMORG.CASA
+	terminou = True
+	userdata.prox_area = Areas.CASA
 	return 'deixar_obj'
 
 # define state PegandoObjeto
@@ -121,7 +124,7 @@ class PegandoObjeto(smach.State):
 # define state DeixandoObjeto
 class DeixandoObjeto(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['deixou', 'finaliza'],
+        smach.State.__init__(self, outcomes=['deixou'],
 				input_keys=['area_atual', 'area_aux'])
 
     def execute(self, userdata):
@@ -129,8 +132,8 @@ class DeixandoObjeto(smach.State):
 	global objeto
 	deixandoObjeto(userdata.area_atual, objeto)
 	if userdata.area_atual[0] == userdata.area_aux[0]:
-		rospy.logwarn('Deixei e vou finalizar a prova')
-		return 'finaliza'
+		rospy.logwarn('Deixei e vou voltar para casa')
+		return 'deixou'
 	buffer_empty = False
 	rospy.logwarn('Deixei e vou para a proxima area')
 	return 'deixou'

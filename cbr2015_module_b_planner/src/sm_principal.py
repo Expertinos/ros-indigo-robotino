@@ -16,7 +16,7 @@ class Inicio(smach.State):
     def execute(self, userdata):
 
 	readParameters() 
-	#BAGUNCA PROVISORIA
+	'''#BAGUNCA PROVISORIA
 	Areas.A1[4] = Objetos.AZUL_UM
 	Areas.A2[4] = Objetos.AZUL_TRES
 	Areas.A3[4] = Objetos.AZUL_CINCO
@@ -26,8 +26,9 @@ class Inicio(smach.State):
 	Areas.B3[4] = Objetos.VERMELHO_TRES
 	Areas.B4[4] = Objetos.AZUL_CINCO
 	#######################################
+	'''
 
-	rospy.logdebug('INICIO')
+	rospy.logwarn('INICIO')
 	return 'inicio'
 
 # define state Inicio
@@ -45,5 +46,5 @@ class Fim(smach.State):
         smach.State.__init__(self, outcomes=['fim'])
 
     def execute(self, userdata):
-	rospy.logdebug('FIM')	
+	rospy.logwarn('FIM')	
 	return 'fim'
