@@ -1,39 +1,39 @@
-area_a1_x: -1.106
-area_a1_y: -1.058
-area_a1_orientation: -2.858
+area_a1_x: -1.644
+area_a1_y: 2.090
+area_a1_orientation: 0.776
 
-area_a2_x: -1.003
-area_a2_y: -1.030
-area_a2_orientation: 0.461
+area_a2_x: -1.524
+area_a2_y: 1.752
+area_a2_orientation: -2.434
 
-area_a3_x: -0.855
-area_a3_y: -1.692
-area_a3_orientation: -2.684
+area_a3_x: -1.268
+area_a3_y: 1.643
+area_a3_orientation: 0.548
 
-area_a4_x: -0.757
-area_a4_y: -1.603
-area_a4_orientation: 0.296
+area_a4_x: -1.210
+area_a4_y: 1.212
+area_a4_orientation: -2.397
 
-area_b1_x: -0.576
-area_b1_y: -2.228
-area_b1_orientation: -2.672
+area_b1_x: -0.141
+area_b1_y: 0.457
+area_b1_orientation: 0.686
 
-area_b2_x: -0.551
-area_b2_y: -2.166
-area_b2_orientation: 0.332
+area_b2_x: -0.253
+area_b2_y: 0.469
+area_b2_orientation: -2.435
 
-area_b3_x: 1.406
-area_b3_y: -0.728
-area_b3_orientation: 2.054
+area_b3_x: 0.420
+area_b3_y: -0.279
+area_b3_orientation: 0.768
 
-area_b4_x: 1.629
-area_b4_y: -0.496
-area_b4_orientation: 1.740
+area_b4_x: 0.303
+area_b4_y: -0.361
+area_b4_orientation: -2.603
 
-casa_x: 0.978
-casa_y: -1.265
-casa_orientation: 0.494
+casa_x: -0.384
+casa_y: 0.787
+casa_orientation: 0.768
 
-buffer_x: 0.741
-buffer_y: -1.051
-buffer_orientation: 1.997
+buffer_x: -0.863
+buffer_y: 0.852
+buffer_orientation: -2.241

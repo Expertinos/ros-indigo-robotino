@@ -1,15 +1,15 @@
-<?xml version="1.0"?>
 <launch>
-  	<arg name="hostname" default="192.168.1.107:12080"/>
-	<arg name="robot" default="robotino"/>
-  	<group ns="$(arg robot)">
-    		<include file="$(find robotino_node)/launch/robotino_node.launch">
-			<arg name="hostname" value="$(arg hostname)"/>
-		</include>
-		<include file="$(find robotino_motion)/launch/robotino_motion.launch"/>
-		<include file="$(find robotino_vision)/launch/robotino_vision.launch"/>		
-		<include file="$(find robotino_leds)/launch/robotino_leds.launch"/>
-		<node name="robotino_planner_client_node" pkg="robotino_planner" type="robotino_planner_client_node"  output="screen">
-		</node>
-	</group>
+  	<arg name="hostname" default="192.168.0.171:12080" />
+	<include file="$(find robotino_node)/launch/robotino_node.launch">
+		<arg name="hostname" value="$(arg hostname)" />
+	</include>	
+	<include file="$(find robotino_vision)/launch/robotino_vision.launch" />
+	<include file="$(find robotino_leds)/launch/robotino_leds.launch" />
+	<include file="$(find robotino_navigation)/launch/navigation.launch" >
+		<arg name="map_file" value="$(find robotino_navigation)/maps/moduloB.yaml" />
+	</include>	
+	<node name="align_server_node" pkg="robotino_motion" type="align_server_node" output="screen" />
+	<node name="grab_server_node" pkg="robotino_motion" type="grab_server_node" output="screen" />
+	<node name="move_puck_server" pkg="robotino_motion" type="move_server_node" output="screen" />
+	<!--<include file="$(find cbr2015_module_a_planner)/launch/modulo_a.launch" />-->
 </launch>

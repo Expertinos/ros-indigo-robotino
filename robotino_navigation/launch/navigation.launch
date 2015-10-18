@@ -3,7 +3,7 @@
 
   <!--- Run mapserver -->
   <include file="$(find robotino_navigation)/launch/map_server.launch">
-    <!--arg name="map_file" value="$(arg map_file)" /-->
+    <arg name="map_file" value="$(arg map_file)" />
   </include>
   
   <!--- Run AMCL -->
