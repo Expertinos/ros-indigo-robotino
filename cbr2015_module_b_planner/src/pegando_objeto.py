@@ -6,36 +6,8 @@ from robotino_motion.msg import GrabPuckAction
 import actionlib
 from actionlib import SimpleActionClient
 
-def atualizaArea(area):
-	if area[0] == Areas.A1[0]:
-		Areas.A1[4] = Objetos.NONE
-		return
-	elif area[0] == Areas.A2[0]:
-		Areas.A2[4] = Objetos.NONE
-		return	
-	elif area[0] == Areas.A3[0]:
-		Areas.A3[4] = Objetos.NONE
-		return
-	elif area[0] == Areas.A4[0]:
-		Areas.A4[4] = Objetos.NONE
-		return
-	elif area[0] == Areas.B1[0]:
-		Areas.B1[4] = Objetos.NONE
-		return
-	elif area[0] == Areas.B2[0]:
-		Areas.B2[4] = Objetos.NONE
-		return
-	elif area[0] == Areas.B3[0]:
-		Areas.B3[4] = Objetos.NONE
-		return
-	elif area[0] == Areas.B4[0]:
-		Areas.B4[4] = Objetos.NONE
-		return
-	elif area[0] == Areas.BUFFER[0]:
-		Areas.BUFFER[4] = Objetos.NONE
-		return
-
 def pegandoObjeto(area):
+	'''	
 	#send_goal
 	client = actionlib.SimpleActionClient('grab_puck', GrabPuckAction)
 
@@ -55,5 +27,5 @@ def pegandoObjeto(area):
         client.wait_for_result()
 
 	rospy.logwarn("Peguei objeto %s na Area %s", area[4][0], area[0])
-
-	atualizaArea(area)
+	'''
+	atualizaArea(area, Objetos.NONE)

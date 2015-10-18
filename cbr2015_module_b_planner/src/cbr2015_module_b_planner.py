@@ -6,6 +6,7 @@ import smach
 import smach_ros
 from sm_principal import *
 from sm_org import *
+from sm_scan import *
 from enum import *
 
 global areas_desorganizadas
@@ -22,10 +23,31 @@ def main():
 
 	# Open the container
 	with sm:
-		# Add states to the container
 		smach.StateMachine.add('INICIO', Inicio(), 
-				       transitions={'inicio':'SUB'})
-		# Create a SMACH state machine ORGANIZA
+				       transitions={'inicio':'SCAN'})
+		
+		# Create the sub SMACH state machine SCAN
+		sm_scan = smach.StateMachine(outcomes=['areas_verificadas'])
+		sm_scan.userdata.sm_scan_area = Areas.CASA
+				
+		# Open sm_org
+		with sm_scan:
+			# Add states to the sm_org
+			smach.StateMachine.add('INDOPARAAREASCAN', IndoParaArea(), 
+					       transitions={'chegou':'ESTOUNAAREASCAN'},
+					       remapping={'area':'sm_scan_area'})
+			smach.StateMachine.add('ESTOUNAAREASCAN', EstouNaAreaScan(), 
+					       transitions={'verificar_obj':'VERIFICANDOOBJETO', 'finaliza_scan':'areas_verificadas', 									'comeca_scan':'INDOPARAAREASCAN'},
+					       remapping={'area':'sm_scan_area',
+								'prox_area':'sm_scan_area'})
+			smach.StateMachine.add('VERIFICANDOOBJETO', VerificandoObjeto(), 
+					       transitions={'verificou':'INDOPARAAREASCAN'},
+					       remapping={'area':'sm_scan_area',
+								'prox_area':'sm_scan_area'})
+		smach.StateMachine.add('SCAN', sm_scan,
+				transitions={'areas_verificadas':'ORG'})
+
+		# Create the sub SMACH state machine ORGANIZA
 		sm_org = smach.StateMachine(outcomes=['fim'])
 		sm_org.userdata.sm_org_area_des = Areas.A1
 		sm_org.userdata.sm_org_area_aux = Areas.A2
@@ -37,19 +59,18 @@ def main():
 			# Add states to the sm_org
 			smach.StateMachine.add('INDOPARAAREA', IndoParaArea(), 
 					       transitions={'chegou':'ESTOUNAAREA'},
-					       remapping={'area':'sm_org_area_atual',
-							  'indo_area':'sm_org_area_atual'})
+					       remapping={'area':'sm_org_area_atual'})
 			smach.StateMachine.add('ESTOUNAAREA', EstouNaArea(), 
-					       transitions={'pegar_obj':'PEGANDOOBJETO', 'deixar_obj':'DEIXANDOOBJETO'},
+					       transitions={'pegar_obj':'PEGANDOOBJETO', 'deixar_obj':'DEIXANDOOBJETO', 'fim_org':'fim'},
 					       remapping={'area_des':'sm_org_area_des', 'area_aux':'sm_org_area_aux', 									'area_atual':'sm_org_area_atual',
 							  'prox_area':'sm_org_area_atual', 'area_parc':'sm_org_area_parc'})
 			smach.StateMachine.add('PEGANDOOBJETO', PegandoObjeto(), 
 					       transitions={'pegou':'INDOPARAAREA'},
 					       remapping={'area_atual':'sm_org_area_parc'})
 			smach.StateMachine.add('DEIXANDOOBJETO', DeixandoObjeto(), 
-					       transitions={'deixou':'INDOPARAAREA', 'finaliza':'fim'},
+					       transitions={'deixou':'INDOPARAAREA'},
 					       remapping={'area_atual':'sm_org_area_parc', 'area_aux':'sm_org_area_aux'})
-		smach.StateMachine.add('SUB', sm_org,
+		smach.StateMachine.add('ORG', sm_org,
 				transitions={'fim':'FIM'})	
 		smach.StateMachine.add('FIM',Fim(), 
 				transitions={'fim':'end'})
@@ -129,5 +150,5 @@ def readParameters():
 
 if __name__ == '__main__':
 	rospy.init_node('cbr2015_module_b_node')# log_level = rospy.DEBUG)
-    	rospy.logwarn("cbr2015_modula_a node is up and running!!!")
+    	rospy.logwarn("cbr2015_modula_b node is up and running!!!")
 	main()
