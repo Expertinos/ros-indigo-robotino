@@ -1,9 +1,6 @@
-import rospy
-#from robotino_leds.srv import *
 from enum import *
-
 #def indoParaArea(objeto):	
-	import rospy
+import rospy
 import time
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Point
@@ -15,7 +12,7 @@ import tf
 import actionlib
 from actionlib import SimpleActionClient
 
-def ligarNavigation(area, seq):
+def indoParaArea(area, seq):
 	#send_goal
 	client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 

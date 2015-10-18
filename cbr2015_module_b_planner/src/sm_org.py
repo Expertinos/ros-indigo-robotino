@@ -16,11 +16,14 @@ global obj_aux
 global objeto
 from pegando_objeto import *
 from deixando_objeto import *
+from indo_para_area import *
 
 buffer_empty = True
 success = False
 cont = 0
 objeto = []
+
+seq = 0
 
 # define state IndoParaArea
 class IndoParaArea(smach.State):
@@ -30,6 +33,9 @@ class IndoParaArea(smach.State):
 				output_keys=['indo_area'])
 
     def execute(self, userdata):
+	global seq
+	seq += 1
+	indoParaArea(userdata.area, seq)	
 	userdata.indo_area = userdata.area
 	rospy.logwarn('Cheguei')
 	return 'chegou'
@@ -43,11 +49,10 @@ class EstouNaArea(smach.State):
 
     def execute(self, userdata):
 	global objeto
-	rospy.logwarn("%s, %s, %s, %s", userdata.area_atual, userdata.area_des, buffer_empty, areaOrganizada(userdata.area_atual, objeto))
+	rospy.logwarn("Area Atual: %s, Area Desejada: %s, Area Auxiliar: %s", userdata.area_atual, userdata.area_des, userdata.area_aux)
 	if userdata.area_atual[0] == userdata.area_des[0]:
 		rospy.logwarn('Estou na Area Desejada')
-		if areaOrganizada(userdata.area_atual, objeto) and buffer_empty:
-			rospy.logwarn('1')			
+		if areaOrganizada(userdata.area_atual, objeto) and buffer_empty:			
 			rospy.logwarn('Estou na Prateleira Desejada com Objeto DESEJADO na primeira passada')
 			success = True
 			userdata.area_parc = userdata.area_atual			
@@ -55,13 +60,11 @@ class EstouNaArea(smach.State):
 			return 'deixar_obj'
 		if not areaOrganizada(userdata.area_atual, objeto) and buffer_empty:
 			#userdata.prox_objeto = ObjetosSMORG.OBJAUX
-			rospy.logwarn('2')
 			rospy.logwarn('Estou na Prateleira Desejada com Objeto AUXILIAR')
 			userdata.area_parc = userdata.area_atual			
 			userdata.prox_area = Areas.BUFFER
 			return 'pegar_obj'
 		if areaOrganizada(userdata.area_atual, objeto) and not buffer_empty:	
-			rospy.logwarn('3')	
 			rospy.logwarn('Estou na Prateleira Desejada com Objeto DESEJADO')
 			userdata.area_parc = userdata.area_atual			
 			userdata.prox_area = Areas.BUFFER

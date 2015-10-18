@@ -9,12 +9,12 @@ class ObjetosSMORG():
 	OBJAUX = 1
 
 class Objetos():
-	AZUL_UM = ['AZUL_UM', 1, 1] #primeiro campo : COR : 1-Azul; 2-Vermelho #segundo campo : numero seringas
-	AZUL_TRES = ['AZUL_TRES', 1, 3]	
-	AZUL_CINCO = ['AZUL_CINCO', 1, 5]	
-	VERMELHO_UM = ['VERMELHO_UM', 2, 1]
-	VERMELHO_TRES = ['VERMELHO_TRES', 2, 3]	
-	VERMELHO_CINCO = ['VERMELHO_CINCO', 2, 5]
+	AZUL_UM = ['AZUL_UM', 2, 1] #primeiro campo : COR : 1-Azul; 2-Vermelho #segundo campo : numero seringas
+	AZUL_TRES = ['AZUL_TRES', 2, 3]	
+	AZUL_CINCO = ['AZUL_CINCO',2, 5]	
+	VERMELHO_UM = ['VERMELHO_UM', 4, 1]
+	VERMELHO_TRES = ['VERMELHO_TRES', 4, 3]	
+	VERMELHO_CINCO = ['VERMELHO_CINCO', 4, 5]
 	NONE = ['NONE', 0, 0]
 
 
@@ -39,24 +39,6 @@ class AreasOrganizadas():
 	B2 = ['B2', Objetos.VERMELHO_TRES]
 	B3 = ['B3', Objetos.VERMELHO_TRES]
 	B4 = ['B4', Objetos.AZUL_TRES]
-
-#def areaOrganizada(area):
-#	if area[0] == Areas.A1[0]:
-#		return area[4] == AreasOrganizadas.A1[1]
-#	elif area[0] == Areas.A2[0]:
-#		return area[4] == AreasOrganizadas.A2[1]
-#	elif area[0] == Areas.A3[0]:
-#		return area[4] == AreasOrganizadas.A3[1]
-#	elif area[0] == Areas.A4[0]:
-#		return area[4] == AreasOrganizadas.A4[1]
-#	elif area[0] == Areas.B1[0]:
-#		return area[4] == AreasOrganizadas.B1[1]
-#	elif area[0] == Areas.B2[0]:
-#		return area[4] == AreasOrganizadas.B2[1]
-#	elif area[0] == Areas.B3[0]:
-#		return area[4] == AreasOrganizadas.B3[1]
-#	elif area[0] == Areas.B4[0]:
-#		return area[4] == AreasOrganizadas.B4[1]
 
 def areaOrganizada(area, objeto):
 	if area[0] == Areas.A1[0]:
