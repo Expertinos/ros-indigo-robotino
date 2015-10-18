@@ -1,0 +1,5 @@
+<launch>
+	<node name="cbr2015_module_b_node" pkg="cbr2015_module_b_planner" type="cbr2015_module_b_planner.py" >
+		<rosparam command="load" file="$(find cbr2015_module_b_planner)/config/setup.yaml" />
+	</node>
+</launch>

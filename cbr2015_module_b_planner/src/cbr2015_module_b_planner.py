@@ -6,8 +6,8 @@ import smach
 import smach_ros
 from sm_principal import *
 from sm_org import *
+from enum import *
 
-global areas
 global areas_desorganizadas
 global areas_organizadas
 global casa
@@ -27,28 +27,28 @@ def main():
 				       transitions={'inicio':'SUB'})
 		# Create a SMACH state machine ORGANIZA
 		sm_org = smach.StateMachine(outcomes=['fim'])
-		sm_org.userdata.sm_org_area = AreasSMORG.PRATDES
-		sm_org.userdata.sm_org_objeto = ObjetosSMORG.OBJAUX 
+		sm_org.userdata.sm_org_area_des = Areas.A1
+		sm_org.userdata.sm_org_area_aux = Areas.A2
+		sm_org.userdata.sm_org_area_atual = Areas.A1
+		sm_org.userdata.sm_org_area_parc = Areas.A1
 
 		# Open sm_org
 		with sm_org:
 			# Add states to the sm_org
 			smach.StateMachine.add('INDOPARAAREA', IndoParaArea(), 
 					       transitions={'chegou':'ESTOUNAAREA'},
-					       remapping={'area':'sm_org_area', 'objeto':'sm_org_objeto',
-							  'indo_area':'sm_org_area'})
+					       remapping={'area':'sm_org_area_atual',
+							  'indo_area':'sm_org_area_atual'})
 			smach.StateMachine.add('ESTOUNAAREA', EstouNaArea(), 
 					       transitions={'pegar_obj':'PEGANDOOBJETO', 'deixar_obj':'DEIXANDOOBJETO'},
-					       remapping={'area':'sm_org_area', 'objeto':'sm_org_objeto',
-							  'prox_area':'sm_org_area'})
+					       remapping={'area_des':'sm_org_area_des', 'area_aux':'sm_org_area_aux', 									'area_atual':'sm_org_area_atual',
+							  'prox_area':'sm_org_area_atual', 'area_parc':'sm_org_area_parc'})
 			smach.StateMachine.add('PEGANDOOBJETO', PegandoObjeto(), 
 					       transitions={'pegou':'INDOPARAAREA'},
-					       remapping={'area':'sm_org_area', 'objeto':'sm_org_objeto',
-							  'prox_area':'sm_org_area'})
+					       remapping={'area_atual':'sm_org_area_parc'})
 			smach.StateMachine.add('DEIXANDOOBJETO', DeixandoObjeto(), 
 					       transitions={'deixou':'INDOPARAAREA', 'finaliza':'fim'},
-					       remapping={'area':'sm_org_area',
-							  'prox_area':'sm_org_area', 'prox_objeto':'sm_org_objeto'})
+					       remapping={'area_atual':'sm_org_area_parc', 'area_aux':'sm_org_area_aux'})
 		smach.StateMachine.add('SUB', sm_org,
 				transitions={'fim':'FIM'})	
 		smach.StateMachine.add('FIM',Fim(), 
@@ -56,6 +56,10 @@ def main():
 
 	# Execute SMACH plan
 	outcome = sm.execute()
+
+def printAreas():
+	for area in areas_desorganizadas:
+		rospy.logwarn('%s:%s', area[0], area[4])
 
 def readParameters():
 	if not rospy.has_param("/cbr2015_module_b_node/area_a1_x"):
@@ -124,6 +128,6 @@ def readParameters():
 
 
 if __name__ == '__main__':
-	rospy.init_node('cbr2015_module_b_node', log_level = rospy.DEBUG)
-    	rospy.loginfo("cbr2015_modula_a node is up and running!!!")
+	rospy.init_node('cbr2015_module_b_node')# log_level = rospy.DEBUG)
+    	rospy.logwarn("cbr2015_modula_a node is up and running!!!")
 	main()
