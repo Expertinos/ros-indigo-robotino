@@ -37,7 +37,7 @@ green/min_area: 200
 blue/thresh_0: 36
 blue/erosion_0: 1
 blue/thresh_1: 120
-blue/close_1: 1
+blue/close_1: 6 #1
 blue/open_1: 4
 blue/initial_range_value: 150
 blue/range_width: 28
