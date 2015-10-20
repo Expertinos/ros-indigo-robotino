@@ -12,7 +12,7 @@ import tf
 import actionlib
 from actionlib import SimpleActionClient
 
-def indoParaArea(area, seq):
+def indoParaArea(area, seq):	
 	#send_goal
 	client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
