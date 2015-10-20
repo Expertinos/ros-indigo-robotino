@@ -26,18 +26,30 @@ casa_x: 0.978
 casa_y: -1.265
 casa_orientation: 0.494
 
-deposito_x: 0.741
-deposito_y: -1.051
-deposito_orientation: 1.997
+deposito1_x: 0.664
+deposito1_y: -0.870
+deposito1_orientation: 2.069
 
-deposito2_x: 1.406
-deposito2_y: -0.728
-deposito2_orientation: 2.054
+deposito2_x: 1.199
+deposito2_y: -0.488
+deposito2_orientation: 2.072
 
-deposito3_x: 1.629
-deposito3_y: -0.496
-deposito3_orientation: 1.740
+deposito3_x: 1.777
+deposito3_y: -0.168
+deposito3_orientation: 2.054
 
-pedido_x: 1.734 #0.655
-pedido_y: -1.210 #-1.155
-pedido_orientation: 0.403 #0.194
+store_deposito1_x: 0.664
+store_deposito1_y: -0.870
+store_deposito1_orientation: 2.069
+
+store_deposito2_x: 1.199
+store_deposito2_y: -0.488
+store_deposito2_orientation: 2.072
+
+store_deposito3_x: 1.777
+store_deposito3_y: -0.168
+store_deposito3_orientation: 2.054
+
+pedido_x: 1.481
+pedido_y: -1.327
+pedido_orientation: 0.511
