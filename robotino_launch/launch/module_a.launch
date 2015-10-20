@@ -5,7 +5,9 @@
 	</include>	
 	<include file="$(find robotino_vision)/launch/robotino_vision.launch" />
 	<include file="$(find robotino_leds)/launch/robotino_leds.launch" />
-	<include file="$(find robotino_navigation)/launch/navigation.launch" />
+	<include file="$(find robotino_navigation)/launch/navigation.launch" >
+		<arg name="map_file" value="$(find robotino_navigation)/maps/moduloA.yaml" />
+	</include>
 	<node name="align_server_node" pkg="robotino_motion" type="align_server_node" output="screen" />
 	<node name="grab_server_node" pkg="robotino_motion" type="grab_server_node" output="screen" />
 	<node name="move_puck_server" pkg="robotino_motion" type="move_server_node" output="screen" />
