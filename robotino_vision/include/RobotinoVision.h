@@ -35,7 +35,9 @@
 static const std::string BLACK_MASK_WINDOW = "Black Mask Window";
 static const std::string PUCKS_MASK_WINDOW = "Pucks Mask Window";
 static const std::string COLOR_MASK_WINDOW = "Color Mask Window";
-static const std::string FINAL_MASK_WINDOW = "Final Mask Window";
+static const std::string FINAL_MASK_WINDOW = "Final Puck Mask Window";
+static const std::string PUCK_MARKERS_WINDOW = "Puck Markers Window";
+static const std::string PUCK_WITHOUT_MARKERS_WINDOW = "Pucks without Markers Window";
 static const std::string BGR_WINDOW = "BGR Model Window";
 static const std::string CONTOURS_WINDOW = "Contours Window";
 
@@ -91,6 +93,9 @@ private:
 	cv::Mat imgRGB_;
 
 	Color color_;
+	bool verify_markers_;
+	int specific_number_of_markers_; // in all objects
+	std::vector<int> number_of_markers_; // in each object
 
 	double camera_height_;
 	double camera_close_distance_;
@@ -99,8 +104,11 @@ private:
 	int height_;
 	int width_;
 
+	int close_aux_, open_aux_, max_area_, dilate_aux_;
+
 	bool calibration_;
 	std::string contours_window_name_;
+	std::string without_markers_window_name_;
 	std::string color_name_;
 
 	ColorParameters color_params_, orange_params_, red_params_, green_params_, blue_params_, yellow_params_;
@@ -130,12 +138,15 @@ private:
 	bool readImage(std::string image_name);
 	std::vector<cv::Point2f> processColor();
 	std::vector<cv::Point2f> processColor(Color color);
-	std::vector<cv::Point2f> getContours(cv::Mat input);
+	std::vector<cv::Point2f> getContours(cv::Mat &input);
 	cv::Mat getBlackMask();
 	cv::Mat getPucksMask();
 	cv::Mat getColorMask();
-	cv::Mat getFinalMask(cv::Mat black_mask, cv::Mat pucks_mask, cv::Mat color_mask);
-	void showImageBGRwithMask(cv::Mat mask);
+	cv::Mat getPuckMarkers(cv::Mat &black_mask, cv::Mat &pucks_mask);
+	cv::Mat getFinalMask(cv::Mat &pucks_mask, cv::Mat &color_mask);
+	cv::Mat getFinalMask(cv::Mat &black_mask, cv::Mat &pucks_mask, cv::Mat &color_mask);
+	cv::Mat getPuckWithoutMarkers(cv::Mat &final_mask, cv::Mat &puck_markers);
+	void showImageBGRwithMask(cv::Mat &mask);
 	void setColor();
 	void setColor(Color color);
 	void setColorParameters();
