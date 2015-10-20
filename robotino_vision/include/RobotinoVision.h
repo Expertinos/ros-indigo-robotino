@@ -93,6 +93,9 @@ private:
 	cv::Mat imgRGB_;
 
 	Color color_;
+	bool verify_markers_;
+	int specific_number_of_markers_; // in all objects
+	std::vector<int> number_of_markers_; // in each object
 
 	double camera_height_;
 	double camera_close_distance_;

@@ -28,10 +28,13 @@ RobotinoVision::RobotinoVision():
 	contours_window_name_ = CONTOURS_WINDOW + ": " + Colors::toString(color_);		
 
 	calibration_ = true;
-	close_aux_ = 0;
+	close_aux_ = 5;
 	open_aux_ = 2;
-	dilate_aux_ = 0;
+	dilate_aux_ = 10;
 	max_area_ = 10;
+
+	verify_markers_ = true;
+	specific_number_of_markers_ = -1;
 	
 	setImagesWindows();
 }
@@ -77,17 +80,17 @@ bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, rob
 {
 	Color color = Colors::toColor(req.color);
 	setColor(color);
+	verify_markers_ = req.verify_markers;
+	specific_number_of_markers_ = req.specific_number_of_markers;
 	std::vector<cv::Point2f> mass_center = processColor();
 	std::vector<cv::Point2f> positions = getPositions(mass_center);
-	std::vector<float> distances(positions.size());
-	std::vector<float> directions(positions.size());
-	for (int k = 0; k < positions.size(); k++)
+	int number_of_objects = positions.size();
+	for (int k = 0; k < number_of_objects; k++)
 	{
-		distances[k] = positions[k].x;
-		directions[k] = positions[k].y;
+		res.distances.push_back(positions[k].x);
+		res.directions.push_back(positions[k].y);
+		res.number_of_markers.push_back(number_of_markers_[k]);
 	}
-	res.distances = distances;
-	res.directions = directions;
 	return true;
 }
 
@@ -341,9 +344,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 			setImagesWindows();
 		}	
 		cv::createTrackbar("Threshold: ", BLACK_MASK_WINDOW, &color_params_.thresh_0, 255);
-		cv::createTrackbar("Close: ", BLACK_MASK_WINDOW, &close_aux_, 20);
 		cv::createTrackbar("Open: ", BLACK_MASK_WINDOW, &open_aux_, 20);
-		cv::createTrackbar("Dilate: ", BLACK_MASK_WINDOW, &dilate_aux_, 20);
 		//cv::imshow(BLACK_MASK_WINDOW, black_mask);
 
 		cv::createTrackbar("Threshold: ", PUCKS_MASK_WINDOW, &color_params_.thresh_1, 255);
@@ -353,11 +354,13 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	
 		cv::createTrackbar("Initial range value: ", COLOR_MASK_WINDOW, &color_params_.initial_range_value, 255);
 		cv::createTrackbar("Range width: ", COLOR_MASK_WINDOW, &color_params_.range_width, 255);
+		cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &close_aux_, 20);
 		//cv::imshow(COLOR_MASK_WINDOW, color_mask);
 	
 		cv::createTrackbar("Open(before): ", FINAL_MASK_WINDOW, &color_params_.open_2, 20);
 		cv::createTrackbar("Close: ", FINAL_MASK_WINDOW, &color_params_.close_2, 20);
 		cv::createTrackbar("Open(after): ", FINAL_MASK_WINDOW, &color_params_.open_3, 20);
+		cv::createTrackbar("Dilate: ", FINAL_MASK_WINDOW, &dilate_aux_, 20);
 		//cv::imshow(FINAL_MASK_WINDOW, final_mask);
 	
 		cv::createTrackbar("Max Marker Area Size: ", contours_window_name_, &max_area_, MIN_AREA);
@@ -373,7 +376,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	color_mask.release();
 	puck_markers.release();
 
-	points = getContours(final_mask);
+	points = getContours(puck_without_markers);///////////////////////final_mask);
 
 	final_mask.release();
 	
@@ -401,17 +404,19 @@ cv::Mat RobotinoVision::getBlackMask()
 	// fazendo threshold da imagem V
 	cv::threshold(black_mask, black_mask, color_params_.thresh_0, 255, cv::THRESH_BINARY);
 
+	////////////////////
+	cv::Mat element;
 	// fechando buracos
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * close_aux_ + 1, 2 * close_aux_ + 1), cv::Point(close_aux_, close_aux_));
+	/*element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * close_aux_ + 1, 2 * close_aux_ + 1), cv::Point(close_aux_, close_aux_));
 	cv::morphologyEx(black_mask, black_mask, 3, element);
-
+*/
 	// filtro de partícula pequenas
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * open_aux_ + 1, 2 * open_aux_ + 1), cv::Point(open_aux_, open_aux_));
 	cv::morphologyEx(black_mask, black_mask, 2, element);
 
-	// fazendo erosão na imagem acima
+	// fazendo dilatação na imagem acima
 	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * dilate_aux_ + 1, 2 * dilate_aux_ + 1), cv::Point(dilate_aux_, dilate_aux_));
-	cv::dilate(black_mask, black_mask, element);
+	/////////////////////cv::dilate(black_mask, black_mask, element);
 	
 	if (calibration_)
 	{
@@ -493,15 +498,18 @@ cv::Mat RobotinoVision::getColorMask()
 	cv::bitwise_and(saturated, aux, saturated);
 	color_mask = unsaturated + saturated;
 
-	if (calibration_)
-	{
-		cv::imshow("Rotated HSL Model Window", color_mask);
-	}
-
 	// define o intervalo da cor
 	cv::threshold(color_mask, color_mask, color_params_.range_width, 255, cv::THRESH_BINARY);
 	color_mask = 255 - color_mask;
+////////////////////////////
+	// fechando buracos
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * close_aux_ + 1, 2 * close_aux_ + 1), cv::Point(close_aux_, close_aux_));
+	cv::morphologyEx(color_mask, color_mask, 3, element);
 
+	// filtro de partícula pequenas
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * open_aux_ + 1, 2 * open_aux_ + 1), cv::Point(open_aux_, open_aux_));
+	cv::morphologyEx(color_mask, color_mask, 2, element);
+//////////////////////
 	if (calibration_)
 	{
 		cv::imshow(COLOR_MASK_WINDOW, color_mask);
@@ -514,6 +522,7 @@ cv::Mat RobotinoVision::getColorMask()
 	unsaturated.release();
 	saturated.release();
 	aux.release();
+	element.release();
 
 	return color_mask;
 }
@@ -565,6 +574,10 @@ cv::Mat RobotinoVision::getFinalMask(cv::Mat &pucks_mask, cv::Mat &color_mask)
 	// removendo particulas pequenas
 	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_params_.open_3 + 1, 2 * color_params_.open_3 + 1), cv::Point(color_params_.open_3, color_params_.open_3));
 	cv::morphologyEx(final_mask, final_mask, 2, element);
+
+	// fazendo dilatação na imagem acima
+	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * dilate_aux_ + 1, 2 * dilate_aux_ + 1), cv::Point(dilate_aux_, dilate_aux_));
+	cv::dilate(final_mask, final_mask, element);
 
 	if (calibration_)
 	{
@@ -637,19 +650,58 @@ void RobotinoVision::showImageBGRwithMask(cv::Mat &mask)
  */
 std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 {
-	std::vector<std::vector<cv::Point> > contours;
+	std::vector<std::vector<cv::Point> > initial_contours;
 	std::vector<cv::Vec4i> hierarchy;
 
 	/// Find contours
-	cv::findContours(input, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-
-	for (int i = 0; i < contours.size(); i++)
+	cv::findContours(input, initial_contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+	
+	std::vector<std::vector<cv::Point> > contours;
+	number_of_markers_.clear();
+	int parent = 0;
+	for (int i = 0; i < initial_contours.size(); i++)
 	{
-		float area = cv::contourArea(contours[i]);
-		if (area < color_params_.min_area)
+		float area = cv::contourArea(initial_contours[i]);
+		//ROS_WARN("Contour %d: (next: %d|previous: %d|1st_child: %d|parent: %d): %f", i, hierarchy[i][0], hierarchy[i][1], hierarchy[i][2], hierarchy[i][3], area);
+		if (!verify_markers_ && area > color_params_.min_area)
 		{
-			ROS_DEBUG("Removed Area: %f", area);
-			contours.erase(contours.begin() + i);
+			contours.push_back(initial_contours[i]);
+		} 
+		else if (verify_markers_ && area > 25)
+		{
+			bool has_parent = hierarchy[i][3] != -1;
+			if (!has_parent)
+			{
+				contours.push_back(initial_contours[i]);
+				number_of_markers_.push_back(0);
+				int child = hierarchy[i][2];
+				while (child != -1)
+				{	
+					area = cv::contourArea(initial_contours[child]);
+					if (area > 25)
+					{
+						number_of_markers_[parent]++;
+					}
+					child = hierarchy[child][0];
+				}
+				parent++;
+			}
+		}
+	}
+	std::vector<cv::Point2f> mass_centers;
+	if (contours.empty())
+	{
+		return mass_centers;
+	}
+	if (verify_markers_ && specific_number_of_markers_ > 0)
+	{
+		for (int i = contours.size() - 1; i >= 0; i--)
+		{
+			if (number_of_markers_[i] != specific_number_of_markers_)
+			{
+				number_of_markers_.erase(number_of_markers_.begin() + i);
+				contours.erase(contours.begin() + i);
+			}
 		}
 	}
 
@@ -657,11 +709,14 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 	std::vector<cv::Moments> mu(contours.size());
 	for(int i = 0; i < contours.size(); i++)
 	{
+		if (verify_markers_)
+		{
+			ROS_INFO("Contour %d has %d markers", i, number_of_markers_[i]);
+		}
 		mu[i] = moments(contours[i], false); 
 	}
-
 	///  Get the mass centers:
-	std::vector<cv::Point2f> mass_centers(contours.size());
+	mass_centers.resize(contours.size());
 	for(int i = 0; i < contours.size(); i++)
 	{
 		mass_centers[i] = cv::Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00); 

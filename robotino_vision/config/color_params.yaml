@@ -10,40 +10,40 @@ orange/close_2: 20
 orange/open_3: 5
 orange/min_area: 1000
 
-red/thresh_0: 52
+red/thresh_0: 200
 red/erosion_0: 2
-red/thresh_1: 0
-red/close_1: 0
-red/open_1: 0
+red/thresh_1: 80
+red/close_1: 9
+red/open_1: 4
 red/initial_range_value: 245
 red/range_width: 14
-red/open_2: 3
-red/close_2: 4
+red/open_2: 0
+red/close_2: 6
 red/open_3: 2
 red/min_area: 1000
 
-green/thresh_0: 29
+green/thresh_0: 200
 green/erosion_0: 1
-green/thresh_1: 99
-green/close_1: 1
-green/open_1: 1
-green/initial_range_value: 68
-green/range_width: 81
-green/open_2: 5
-green/close_2: 2
-green/open_3: 5
+green/thresh_1: 90
+green/close_1: 5
+green/open_1: 3
+green/initial_range_value: 50
+green/range_width: 93
+green/open_2: 6
+green/close_2: 5
+green/open_3: 7
 green/min_area: 200
 
-blue/thresh_0: 36
+blue/thresh_0: 183
 blue/erosion_0: 1
 blue/thresh_1: 120
-blue/close_1: 6 #1
-blue/open_1: 4
+blue/close_1: 6
+blue/open_1: 2
 blue/initial_range_value: 150
 blue/range_width: 28
-blue/open_2: 1
+blue/open_2: 0
 blue/close_2: 11
-blue/open_3: 2
+blue/open_3: 3
 blue/min_area: 1000
 
 yellow/thresh_0: 76
