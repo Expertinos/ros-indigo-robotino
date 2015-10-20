@@ -51,7 +51,7 @@ def main():
 		sm_org = smach.StateMachine(outcomes=['fim'])
 		sm_org.userdata.sm_org_area_des = Areas.A1
 		sm_org.userdata.sm_org_area_aux = Areas.A2
-		sm_org.userdata.sm_org_area_atual = Areas.A1
+		sm_org.userdata.sm_org_area_atual = Areas.CASA
 		sm_org.userdata.sm_org_area_parc = Areas.A1
 
 		# Open sm_org
@@ -61,9 +61,9 @@ def main():
 					       transitions={'chegou':'ESTOUNAAREA'},
 					       remapping={'area':'sm_org_area_atual'})
 			smach.StateMachine.add('ESTOUNAAREA', EstouNaArea(), 
-					       transitions={'pegar_obj':'PEGANDOOBJETO', 'deixar_obj':'DEIXANDOOBJETO', 'fim_org':'fim'},
+					       transitions={'pegar_obj':'PEGANDOOBJETO', 'deixar_obj':'DEIXANDOOBJETO', 'fim_org':'fim', 									'comeca_org':'INDOPARAAREA'},
 					       remapping={'area_des':'sm_org_area_des', 'area_aux':'sm_org_area_aux', 									'area_atual':'sm_org_area_atual',
-							  'prox_area':'sm_org_area_atual', 'area_parc':'sm_org_area_parc'})
+							  'prox_area':'sm_org_area_atual', 'area_parc':'sm_org_area_parc', 									'nova_area_des':'sm_org_area_des', 'nova_area_aux':'sm_org_area_aux'})
 			smach.StateMachine.add('PEGANDOOBJETO', PegandoObjeto(), 
 					       transitions={'pegou':'INDOPARAAREA'},
 					       remapping={'area_atual':'sm_org_area_parc'})
