@@ -9,6 +9,13 @@ int8 color
 # 6 for PINK colored objects 
 # 7 for PURPLE colored objects
 
+bool verify_markers
+# If this is true, this service will consider that the object has at least one marker
+
+int8 specific_number_of_markers
+# If verify_markers is true, the following condition will be processed: 
+# If specify_number_of_markers > 0 this service will consider only the specific number of markers; else it will consider any number of markers on object
+
 ---
 
 float32[] distances	
@@ -16,3 +23,6 @@ float32[] distances
 
 float32[] directions	
 # Object direction
+
+int8[] number_of_markers
+# Number of markers on object
