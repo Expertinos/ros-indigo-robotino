@@ -1,55 +1,55 @@
-area1_x: -1.106
-area1_y: -1.058
-area1_orientation: -2.858
+area1_x: 1.539
+area1_y: 1.887
+area1_orientation: -1.582
 
-area2_x: -1.003
-area2_y: -1.030
-area2_orientation: 0.461
+area2_x: 0.891
+area2_y: 1.893
+area2_orientation: -1.600
 
-area3_x: -0.855
-area3_y: -1.692
-area3_orientation: -2.684
+area3_x: 0.282
+area3_y: 2.004
+area3_orientation: -1.574
 
-area4_x: -0.757
-area4_y: -1.603
-area4_orientation: 0.296
+area4_x: 1.561
+area4_y: 1.911
+area4_orientation: 1.520
 
-area5_x: -0.576
-area5_y: -2.228
-area5_orientation: -2.672
+area5_x: 0.940
+area5_y: 1.921
+area5_orientation: 1.583
 
-area6_x: -0.551
-area6_y: -2.166
-area6_orientation: 0.332
+area6_x: 0.346
+area6_y: 2.025
+area6_orientation: 1.485
 
-casa_x: 0.978
-casa_y: -1.265
-casa_orientation: 0.494
+casa_x: 0.307
+casa_y: 0.350
+casa_orientation: -1.573
 
-deposito1_x: 0.664
-deposito1_y: -0.870
-deposito1_orientation: 2.069
+deposito1_x: 0.746
+deposito1_y: 0.362
+deposito1_orientation: 0.005
 
-deposito2_x: 1.199
-deposito2_y: -0.488
-deposito2_orientation: 2.072
+deposito2_x: 0.654
+deposito2_y: -0.336
+deposito2_orientation: -0.030
 
-deposito3_x: 1.777
-deposito3_y: -0.168
-deposito3_orientation: 2.054
+deposito3_x: 0.675
+deposito3_y: -0.869
+deposito3_orientation: -0.233
 
-store_deposito1_x: 0.664
-store_deposito1_y: -0.870
-store_deposito1_orientation: 2.069
+store_deposito1_x: 0.774
+store_deposito1_y: 0.440
+store_deposito1_orientation: -1.591
 
-store_deposito2_x: 1.199
-store_deposito2_y: -0.488
-store_deposito2_orientation: 2.072
+store_deposito2_x: 0.837
+store_deposito2_y: -0.344
+store_deposito2_orientation: -1.580
 
-store_deposito3_x: 1.777
-store_deposito3_y: -0.168
-store_deposito3_orientation: 2.054
+store_deposito3_x: 0.701
+store_deposito3_y: -1.130
+store_deposito3_orientation: -1.546
 
-pedido_x: 1.481
-pedido_y: -1.327
-pedido_orientation: 0.511
+pedido_x: 0.200
+pedido_y: -0.316
+pedido_orientation: -1.701
