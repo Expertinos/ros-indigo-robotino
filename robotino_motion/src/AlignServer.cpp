@@ -76,13 +76,13 @@ void AlignServer::stop()
 void AlignServer::controlLoop()
 {	
 	double vel_x = 0, vel_y = 0, vel_phi = 0;
-	float K = .9, K_PHY = 10;
-	float min_tolerance, max_tolerance, phy_tolerance = 0.005;
+	float K = 5, K_PHY = 6;
+	float min_tolerance, max_tolerance, phy_tolerance = 0.05;
 	switch (distance_mode_)
 	{
 		case distance_modes::CLOSE:
 			min_tolerance = CLOSE_TOLERANCE;
-			max_tolerance = CLOSE_TOLERANCE + 0.5;
+			max_tolerance = CLOSE_TOLERANCE + 0.2;
 			break;
 		case distance_modes::NORMAL:
 			min_tolerance = NORMAL_TOLERANCE;
@@ -90,7 +90,7 @@ void AlignServer::controlLoop()
 			break;
 		case distance_modes::FAR:
 			min_tolerance = FAR_TOLERANCE;
-			max_tolerance = FAR_TOLERANCE + 0.1;
+			max_tolerance = FAR_TOLERANCE + 0.2;
 			break;
 		default:
 			ROS_ERROR("Distance Mode not supported yet!!!");
@@ -100,7 +100,8 @@ void AlignServer::controlLoop()
 	float error_min = mean_value - min_tolerance;
 	float error_max = mean_value - max_tolerance;
 	float error_phy = left_ir_ - right_ir_;
-	ROS_DEBUG("Align %s", AlignmentModes::toString(alignment_mode_).c_str());
+	//ROS_DEBUG("Aligning in %s mode", AlignmentModes::toString(alignment_mode_).c_str());
+	ROS_WARN("mv: %f; e_min: %f; e_max: %f; e_phy: %f", mean_value, error_min, error_max, error_phy);
 	switch (alignment_mode_)
 	{
 		case alignment_modes::FRONT:
@@ -194,7 +195,7 @@ void AlignServer::controlLoop()
 	}
 	setVelocity(vel_x, vel_y, vel_phi);
 	publishVelocity();
-	publishFeedback();
+	//publishFeedback();
 }
 
 /**

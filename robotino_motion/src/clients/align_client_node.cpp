@@ -10,7 +10,7 @@ int main (int argc, char **argv)
 	// create the action client
 	// true causes the client to spin its own thread
 	actionlib::SimpleActionClient<robotino_motion::AlignAction> ac("align", true);
-
+	ROS_INFO("%d", argc);
 	ROS_INFO("Waiting for action server to start.");
 	// wait for the action server to start
 	ac.waitForServer(); //will wait for infinite time
@@ -18,8 +18,16 @@ int main (int argc, char **argv)
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
 	robotino_motion::AlignGoal goal;
-	goal.alignment_mode = 1; // BACK mode
+	goal.alignment_mode = 3; // BACK mode
+	if (argc > 1)
+	{
+		goal.alignment_mode = atoi(argv[1]);
+	}
 	goal.distance_mode = 1; // NORMAL distance
+	if (argc > 2)
+	{
+		goal.distance_mode = atoi(argv[2]);
+	}
 	ac.sendGoal(goal);
 
 	//wait for the action to return

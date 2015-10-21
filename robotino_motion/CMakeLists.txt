@@ -36,7 +36,6 @@ add_action_files(
 	DIRECTORY action
 	FILES Align.action
 	      GrabPuck.action	
-	      Motion.action
 	      Move.action	
 	      StorePuck.action	
 	)
