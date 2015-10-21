@@ -27,7 +27,7 @@ RobotinoVision::RobotinoVision():
 	setColor();	
 	contours_window_name_ = CONTOURS_WINDOW + ": " + Colors::toString(color_);		
 
-	calibration_ = true;
+	calibration_ = false;
 	close_aux_ = 5;
 	open_aux_ = 2;
 	dilate_aux_ = 10;
@@ -711,7 +711,7 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 	{
 		if (verify_markers_)
 		{
-			ROS_INFO("Contour %d has %d markers", i, number_of_markers_[i]);
+			ROS_DEBUG("Contour %d has %d markers", i, number_of_markers_[i]);
 		}
 		mu[i] = moments(contours[i], false); 
 	}
