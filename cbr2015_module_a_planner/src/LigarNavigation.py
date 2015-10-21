@@ -11,6 +11,19 @@ from tf import transformations
 import tf
 import actionlib
 from actionlib import SimpleActionClient
+from geometry_msgs.msg import Twist
+
+def atualizaCmdVel(vel):
+	global vel_x
+	global vel_y
+	global ang_x
+	global ang_y
+
+	vel_x = vel.linear.x
+	vel_y = vel.linear.y
+	ang_x = vel.angular.x
+	ang_y = vel.angular.y
+
 
 def ligarNavigation(area, seq, nome):
 	#send_goal
@@ -40,27 +53,33 @@ def ligarNavigation(area, seq, nome):
         # Sends the goal to the action server.
         client.send_goal(goal)
 
+	global vel_x
+	global vel_y
+	global ang_x
+	global ang_y
+
+	while(client.getState().toString().c_str() == "ACTIVE"):
+		tempo1 = rospy.get_time()
+		tempo2 = rospy.get_time()
+		while(tempo2-tempo1 < 4 or (vel_x == 0 and vel_y == 0 and ang_x == 0 and ang_y == 0)):
+			tempo2 = rospy.get_time()
+
+		if(tempo2 - tempo1 >= 4):
+			twist = Twist()
+			twist.linear.x = 0.05
+			pub = rospy.Publisher('cmd_vel', Twist)
+			pub.publish()
+
+			time.sleep(1)
+
+			twist.linear.x = 0
+			pub.publish()
+
         # Waits for the server to finish performing the action.
         client.wait_for_result()
 
 	rospy.logwarn("Cheguei no pose "+ str(area[0]) +" "+ str(area[1]) +"Area = "+nome)
 
-	if nome == "Pedidos":
-		rospy.logwarn("Vou alinhar a direita")
-		client = actionlib.SimpleActionClient('align', AlignAction)
-		client.wait_for_server()
-
-		goal = AlignGoal()
-
-		goal.alignment_mode = 1
-		goal.distance_mode = 1
-
-		# Sends the goal to the action server.
-		client.send_goal(goal)
-
-		# Waits for the server to finish performing the action.
-		client.wait_for_result()
-		
 	if nome == "Casa":
 		rospy.logwarn("Vou alinhar a direita")
 		client = actionlib.SimpleActionClient('align', AlignAction)

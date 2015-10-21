@@ -7,6 +7,7 @@ import smach_ros
 import sys
 from Casa import casa
 from LigarNavigation import ligarNavigation
+from LigarNavigation import atualizaCmdVel
 from BuscarPedido import buscarPedido
 from BuscarProduto import buscarProduto
 from VerificarProduto import verificarProduto
@@ -18,6 +19,8 @@ from PiscarLed import piscarLed
 from std_msgs.msg import String
 from enum import *
 from std_srvs.srv import Empty
+from geometry_msgs.msg import Twist
+import time
 
 global area_casa
 global areas_depositos
@@ -125,7 +128,7 @@ class BuscarPedido(smach.State):
 
 class VerificaDepositos(smach.State):
     def __init__(self):
-	smach.State.__init__(self, outcomes=['verificado', 'piscar_led'])
+	smach.State.__init__(self, outcomes=['verificado'])
 
     def execute(self, userdata):
 	global areas_depositos
@@ -138,7 +141,6 @@ class VerificaDepositos(smach.State):
 		areas_depositos[pos][3] = buscarPedido(pub)
 		rospy.logwarn("deposito "+str(pos)+" = "+str(areas_depositos[pos][3]))
 		pos -= 1
-		return 'piscar_led'
 
         return 'verificado'
 
@@ -178,7 +180,8 @@ class LigarLed(smach.State):
 
     def execute(self, userdata):
 	global deposito_flag
-	ligarLed()
+	global pedidos
+	ligarLed(pedidos)
         return 'led_ligado'
 
 class PegarProduto(smach.State):
@@ -263,11 +266,11 @@ def main():
 			       'voltar_casa':'indo_casa', 'indo_deposito':'cheguei_deposito'})
 	
         smach.StateMachine.add('indo_pedido', BuscarPedido(),
-			       transitions={'peguei_pedido':'verificar_depositos', 'voltar_casa':'indo_casa'},
+			       transitions={'peguei_pedido':'ligar_led', 'voltar_casa':'indo_casa'},
 			       remapping={'produto':'produto'})
 
         smach.StateMachine.add('verificar_depositos', VerificaDepositos(),
-			       transitions={'verificado':'ligar_navigation', 'piscar_led':'ligar_led'})
+			       transitions={'verificado':'ligar_navigation'})
 
         smach.StateMachine.add('indo_produto', BuscarProduto(),
 			       transitions={'area_produto':'ligar_vision'})
@@ -309,6 +312,9 @@ def seta_parametros():
 
     global areas_depositos
     areas_depositos = []
+
+    global store_areas_depositos
+    store_areas_depositos = []
 
     Areas.AREA1[0] = rospy.get_param("/cbr2015_modulo_a_node/area1_x")
     Areas.AREA1[1] = rospy.get_param("/cbr2015_modulo_a_node/area1_y")
@@ -405,6 +411,7 @@ if __name__ == '__main__':
     s = rospy.Service('voltar_para_casa', Empty, voltar)
     s = rospy.Service('new_order', Empty, seta_order)
     s = rospy.Service('finaliza_prova', Empty, finaliza_prova)
+    rospy.Subscriber("cmd_vel", Twist, atualizaCmdVel)
     #s = rospy.Service('get_started', Empty, main)    
     seta_parametros()
     main()
