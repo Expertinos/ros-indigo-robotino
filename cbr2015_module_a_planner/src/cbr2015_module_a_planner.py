@@ -310,6 +310,9 @@ def seta_parametros():
     global areas_depositos
     areas_depositos = []
 
+    global store_areas_depositos
+    store_areas_depositos = []
+
     Areas.AREA1[0] = rospy.get_param("/cbr2015_modulo_a_node/area1_x")
     Areas.AREA1[1] = rospy.get_param("/cbr2015_modulo_a_node/area1_y")
     Areas.AREA1[2] = rospy.get_param("/cbr2015_modulo_a_node/area1_orientation")
