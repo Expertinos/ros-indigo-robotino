@@ -28,5 +28,7 @@
 
 	<node pkg="invert_laser" type="invert_laser_node" name="invert_laser_node" />
 
+	<node pkg="laser_to_pcl" type="laser_to_pcl" name="laser_to_pcl" />
+
 	<param name="robot_description" textfile="$(find robotino_description)/urdf/robotino.urdf" />
 </launch>

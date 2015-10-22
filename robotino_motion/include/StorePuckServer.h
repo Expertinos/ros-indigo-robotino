@@ -18,6 +18,7 @@
 #include "Server.h"
 #include "StorePuckStates.h"
 #include "StoreModes.h"
+#include "AlignStates.h"
 #include "AlignAlignmentModes.h"
 #include "AlignDistanceModes.h"
 

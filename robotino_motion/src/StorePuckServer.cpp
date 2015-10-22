@@ -67,7 +67,7 @@ void StorePuckServer::start()
 	{
 		ROS_WARN("Waiting for robotino_vision_node!!!");
 	}
-	find_areas_cli_.waitForExistence();
+	//find_areas_cli_.waitForExistence();
 	ROS_INFO("/find_areas service server is running!!!");
 	if(!align_client_.isServerConnected())
 	{
@@ -111,6 +111,7 @@ void StorePuckServer::controlLoop()
 			goal.alignment_mode = 8; //alignment_modes::LASER_FRONT; //front align
 			goal.distance_mode = 1;
 			align_client_.sendGoal(goal);
+			ROS_INFO("1 Alinhar a frente!!!");
 			align_client_.waitForResult();
 
 			resetOdometry();
@@ -118,24 +119,27 @@ void StorePuckServer::controlLoop()
 			{
 				setVelocity(0, 0, 0.5);
 				publishVelocity();
+				//std::cout<<"getOdometry_PHI: "<<getOdometry_PHI()<<std::endl;
 			}
-			std::cout<<"getOdometry_PHI: "<<getOdometry_PHI()<<std::endl;
 			setVelocity(0, 0, 0);
 			publishVelocity();
 
 			goal.alignment_mode = 9; //AlignmentModes::toCode(alignment_modes::LASER_RIGHT_LEFT)); //lateral align
 			goal.distance_mode = 1;
 			align_client_.sendGoal(goal);
+			ROS_INFO("2 Alinhar a lateral!!!");
 			align_client_.waitForResult();
 
 			goal.alignment_mode = 8;
 			goal.distance_mode = 1;
 			align_client_.sendGoal(goal);
+			ROS_INFO("3 Alinhar a frente!!!");
 			align_client_.waitForResult();
 
 			goal.alignment_mode = 9; //lateral align
 			goal.distance_mode = 1;
 			align_client_.sendGoal(goal);
+			ROS_INFO("4 Alinhar a lateral!!!");
 			align_client_.waitForResult();
 
 			while(laser_front_ > 0.33)
