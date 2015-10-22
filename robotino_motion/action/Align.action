@@ -9,6 +9,8 @@ int8 alignment_mode
 # 5: FRONT_LEFT mode (considering 1, 6, 7 and 8 infrareds)
 # 6: BACK_RIGHT mode (considering 2, 3, 4 and 7 infrareds)
 # 7: BACK_LEFT mode (considering 4, 5, 6 and 7 infrareds)
+# 8: LASER_FRONT mode (considering front laserscan data)
+# 9: LASER_RIGHT_LEFT mode (considering right and left laserscan data)
 
 int8 distance_mode
 # 0: CLOSE distance (considering 2 to 3 centimeters far away to the wall)

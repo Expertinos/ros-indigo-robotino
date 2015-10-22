@@ -115,6 +115,26 @@ add_dependencies(move_server_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
+add_executable(store_server_node 
+	src/servers/store_server_node.cpp
+	src/Server.cpp
+	src/StorePuckServer.cpp
+	src/StorePuckStates.cpp
+	src/StoreModes.cpp
+	)
+
+target_link_libraries(store_server_node
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
+	)
+
+add_dependencies(store_server_node
+	robotino_motion_gen_cpp
+	robotino_vision_gen_cpp
+	robotino_msgs_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
 ############### Action Client Nodes for testing #####################
 
 add_executable(align_client_node 

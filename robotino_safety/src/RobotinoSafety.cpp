@@ -122,7 +122,7 @@ void RobotinoSafety::robotinoCmdVelCallback(const geometry_msgs::TwistConstPtr& 
 		number_of_times_idle_++;
 		if (number_of_times_idle_ > 10)
 		{
-			//ROS_WARN("Corrigindo no safety, pra não ficar parado");
+			ROS_DEBUG("Corrigindo no safety, pra não ficar parado");
 			cmd_vel_msg_.linear.x = 0.1;
 			cmd_vel_msg_.angular.z = 0.2;
 		} 
