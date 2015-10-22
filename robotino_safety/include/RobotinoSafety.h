@@ -46,6 +46,7 @@ private:
 	bool stop_bumper_, stop_laser_, slow_laser_;
 
 	double scale_, dist_;
+	int number_of_times_idle_;
 
 	// params
 	double e1_major_radius_, e1_minor_radius_;

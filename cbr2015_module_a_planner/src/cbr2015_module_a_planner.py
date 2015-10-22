@@ -70,7 +70,7 @@ class LigarNavigation(smach.State):
 	if(len(areas_produtos) == area_numero):
 		rospy.logwarn("dentro do if - area_numero = "+str(area_numero))
 		area_numero = 0
-		pedidos.pop(0)
+		del pedidos[0]
 		userdata.produto = pedidos[0]
 
 	if deposito_flag == True:
@@ -78,6 +78,7 @@ class LigarNavigation(smach.State):
 		rospy.logwarn("deposito 1 "+str(Areas.STORE_DEPOSITO1[3]))
 		rospy.logwarn("deposito 2 "+str(Areas.STORE_DEPOSITO2[3]))
 		rospy.logwarn("deposito 3 "+str(Areas.STORE_DEPOSITO3[3]))
+
 		if(userdata.produto in Areas.STORE_DEPOSITO1[3]):
 			rospy.logwarn("deposito1")
 			ligarNavigation(Areas.STORE_DEPOSITO1, seq, "Deposito1")
@@ -128,7 +129,7 @@ class BuscarPedido(smach.State):
 
 class VerificaDepositos(smach.State):
     def __init__(self):
-	smach.State.__init__(self, outcomes=['verificado'])
+	smach.State.__init__(self, outcomes=['verificado', 'verificar'])
 
     def execute(self, userdata):
 	global areas_depositos
@@ -138,9 +139,12 @@ class VerificaDepositos(smach.State):
 
 	if pos != -1:
 		ligarNavigation(areas_depositos[pos], seq, "Deposito")
-		areas_depositos[pos][3] = buscarPedido(pub)
+		cor = buscarPedido(pub)
+		areas_depositos[pos][3] = cor
+		store_areas_depositos[pos][3] = cor
 		rospy.logwarn("deposito "+str(pos)+" = "+str(areas_depositos[pos][3]))
 		pos -= 1
+		return 'verificar'
 
         return 'verificado'
 
@@ -270,7 +274,7 @@ def main():
 			       remapping={'produto':'produto'})
 
         smach.StateMachine.add('verificar_depositos', VerificaDepositos(),
-			       transitions={'verificado':'ligar_navigation'})
+			       transitions={'verificado':'ligar_navigation', 'verificar':'verificar_depositos'})
 
         smach.StateMachine.add('indo_produto', BuscarProduto(),
 			       transitions={'area_produto':'ligar_vision'})
