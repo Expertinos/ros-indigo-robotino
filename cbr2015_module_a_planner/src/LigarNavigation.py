@@ -11,6 +11,19 @@ from tf import transformations
 import tf
 import actionlib
 from actionlib import SimpleActionClient
+from geometry_msgs.msg import Twist
+
+def atualizaCmdVel(vel):
+	global vel_x
+	global vel_y
+	global ang_x
+	global ang_y
+
+	vel_x = vel.linear.x
+	vel_y = vel.linear.y
+	ang_x = vel.angular.x
+	ang_y = vel.angular.y
+
 
 def ligarNavigation(area, seq, nome):
 	#send_goal
@@ -40,6 +53,30 @@ def ligarNavigation(area, seq, nome):
         # Sends the goal to the action server.
         client.send_goal(goal)
 
+	'''global vel_x
+	global vel_y
+	global ang_x
+	global ang_y
+
+	rospy.logwarn(client.get_state())
+	while(client.get_state() == 0 or client.get_state() == 1):
+		rospy.logwarn(client.get_state())
+		rospy.logwarn("dentro do while")
+		tempo1 = rospy.get_time()
+		tempo2 = rospy.get_time()
+		while(tempo2-tempo1 < 4 or vel_x != 0 or vel_y != 0 or ang_x != 0 or ang_y != 0):
+			tempo2 = rospy.get_time()
+
+		if(tempo2 - tempo1 >= 4):
+			twist = Twist()
+			twist.linear.x = 0.5
+			pub = rospy.Publisher('cmd_vel', Twist)
+			for i in range(0, 30):
+				pub.publish(twist)
+
+			twist.linear.x = 0
+			pub.publish(twist)
+	rospy.logwarn("passou o while")'''
         # Waits for the server to finish performing the action.
         client.wait_for_result()
 
@@ -60,7 +97,7 @@ def ligarNavigation(area, seq, nome):
 
 		# Waits for the server to finish performing the action.
 		client.wait_for_result()
-		
+
 	if nome == "Casa":
 		rospy.logwarn("Vou alinhar a direita")
 		client = actionlib.SimpleActionClient('align', AlignAction)

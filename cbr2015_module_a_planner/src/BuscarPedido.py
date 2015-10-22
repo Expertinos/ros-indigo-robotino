@@ -10,37 +10,41 @@ from actionlib import SimpleActionClient
 
 def buscarPedido(pub):
 
-	'''client = actionlib.SimpleActionClient('align', AlignAction)
-        client.wait_for_server()
+	'''rospy.logwarn("Vou alinhar a direita")
+	client = actionlib.SimpleActionClient('align', AlignAction)
+	client.wait_for_server()
 
 	goal = AlignGoal()
+
 	goal.alignment_mode = 1
 	goal.distance_mode = 1
 
-        # Sends the goal to the action server.
-        client.send_goal(goal)
+	# Sends the goal to the action server.
+	client.send_goal(goal)
 
-        # Waits for the server to finish performing the action.
-        client.wait_for_result()'''
+	# Waits for the server to finish performing the action.
+	client.wait_for_result()'''
+		
 
 	rospy.logwarn('buscando pedido')
 
-	valores = []
+	'''valores = []
 	for i in range(0, 5):
 		valores.append(0)
 
-	for i in range (0, 10):
-		get_products_list = rospy.ServiceProxy('get_objects_list', GetObjectsList)
-		resp = get_products_list()
-	
-		rospy.logwarn("\n\n Leitura "+str(i))
-		for p in resp.objects:
-			rospy.logwarn(p)
+	for i in range (0, 10):'''
 
-		for r in resp.objects:
-			valores[r] += 1
+	get_products_list = rospy.ServiceProxy('get_objects_list', GetObjectsList)
+	resp = get_products_list()
 	
-		time.sleep(0.2)
+	'''rospy.logwarn("\n\n Leitura "+str(i))
+	for p in resp.objects:
+		rospy.logwarn(p)
+
+	for r in resp.objects:
+		valores[r] += 1
+
+	time.sleep(0.2)
 
 	resposta = []
 	for i in range(0, len(valores)):
@@ -49,9 +53,9 @@ def buscarPedido(pub):
 	
 	
 	for i in resposta:
-		rospy.logwarn(i)
+		rospy.logwarn(i)'''
 		
-	return resposta
+	return resp.objects
 
 	'''string = String()
 	string.data = 'buscar_pedido|x|y'

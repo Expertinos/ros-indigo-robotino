@@ -18,7 +18,7 @@ Panels:
         - /LaserScan1
         - /Map2
       Splitter Ratio: 0.5
-    Tree Height: 437
+    Tree Height: 454
   - Class: rviz/Tool Properties
     Expanded:
       - /2D Nav Goal1
@@ -136,7 +136,7 @@ Visualization Manager:
       Marker Topic: /robotino_safety_node/inner_ellipse_marker
       Name: Marker
       Namespaces:
-        inner_ellipse: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Axes
@@ -224,25 +224,25 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.140235
-        Y: 0.0113259
-        Z: -2.85563
+        X: 0.819632
+        Y: 0.414193
+        Z: -2.83987
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.5548
+      Pitch: 1.5698
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.86861
+      Yaw: 3.14862
     Saved: ~
 Window Geometry:
   Displays:
-    collapsed: true
+    collapsed: false
   Height: 744
-  Hide Left Dock: true
+  Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000010f000003a5fc0200000002fb000000100044006900730070006c00610079007300000000280000030a000000dd00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000338000000950000006400ffffff00000515000002a200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000010f000002a2fc0200000002fb000000100044006900730070006c006100790073010000002800000207000000dd00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000235000000950000006400ffffff00000400000002a200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Tool Properties:
-    collapsed: true
+    collapsed: false
   Width: 1301
-  X: 65
+  X: 58
   Y: 24

@@ -7,6 +7,7 @@ import smach_ros
 import sys
 from Casa import casa
 from LigarNavigation import ligarNavigation
+from LigarNavigation import atualizaCmdVel
 from BuscarPedido import buscarPedido
 from BuscarProduto import buscarProduto
 from VerificarProduto import verificarProduto
@@ -18,6 +19,8 @@ from PiscarLed import piscarLed
 from std_msgs.msg import String
 from enum import *
 from std_srvs.srv import Empty
+from geometry_msgs.msg import Twist
+import time
 
 global area_casa
 global areas_depositos
@@ -67,7 +70,7 @@ class LigarNavigation(smach.State):
 	if(len(areas_produtos) == area_numero):
 		rospy.logwarn("dentro do if - area_numero = "+str(area_numero))
 		area_numero = 0
-		pedidos.pop(0)
+		del pedidos[0]
 		userdata.produto = pedidos[0]
 
 	if deposito_flag == True:
@@ -75,6 +78,7 @@ class LigarNavigation(smach.State):
 		rospy.logwarn("deposito 1 "+str(Areas.STORE_DEPOSITO1[3]))
 		rospy.logwarn("deposito 2 "+str(Areas.STORE_DEPOSITO2[3]))
 		rospy.logwarn("deposito 3 "+str(Areas.STORE_DEPOSITO3[3]))
+
 		if(userdata.produto in Areas.STORE_DEPOSITO1[3]):
 			rospy.logwarn("deposito1")
 			ligarNavigation(Areas.STORE_DEPOSITO1, seq, "Deposito1")
@@ -125,7 +129,7 @@ class BuscarPedido(smach.State):
 
 class VerificaDepositos(smach.State):
     def __init__(self):
-	smach.State.__init__(self, outcomes=['verificado', 'piscar_led'])
+	smach.State.__init__(self, outcomes=['verificado', 'verificar'])
 
     def execute(self, userdata):
 	global areas_depositos
@@ -135,10 +139,12 @@ class VerificaDepositos(smach.State):
 
 	if pos != -1:
 		ligarNavigation(areas_depositos[pos], seq, "Deposito")
-		areas_depositos[pos][3] = buscarPedido(pub)
+		cor = buscarPedido(pub)
+		areas_depositos[pos][3] = cor
+		store_areas_depositos[pos][3] = cor
 		rospy.logwarn("deposito "+str(pos)+" = "+str(areas_depositos[pos][3]))
 		pos -= 1
-		return 'piscar_led'
+		return 'verificar'
 
         return 'verificado'
 
@@ -178,7 +184,8 @@ class LigarLed(smach.State):
 
     def execute(self, userdata):
 	global deposito_flag
-	ligarLed()
+	global pedidos
+	ligarLed(pedidos)
         return 'led_ligado'
 
 class PegarProduto(smach.State):
@@ -263,11 +270,11 @@ def main():
 			       'voltar_casa':'indo_casa', 'indo_deposito':'cheguei_deposito'})
 	
         smach.StateMachine.add('indo_pedido', BuscarPedido(),
-			       transitions={'peguei_pedido':'verificar_depositos', 'voltar_casa':'indo_casa'},
+			       transitions={'peguei_pedido':'ligar_led', 'voltar_casa':'indo_casa'},
 			       remapping={'produto':'produto'})
 
         smach.StateMachine.add('verificar_depositos', VerificaDepositos(),
-			       transitions={'verificado':'ligar_navigation', 'piscar_led':'ligar_led'})
+			       transitions={'verificado':'ligar_navigation', 'verificar':'verificar_depositos'})
 
         smach.StateMachine.add('indo_produto', BuscarProduto(),
 			       transitions={'area_produto':'ligar_vision'})
@@ -408,6 +415,7 @@ if __name__ == '__main__':
     s = rospy.Service('voltar_para_casa', Empty, voltar)
     s = rospy.Service('new_order', Empty, seta_order)
     s = rospy.Service('finaliza_prova', Empty, finaliza_prova)
+    rospy.Subscriber("cmd_vel", Twist, atualizaCmdVel)
     #s = rospy.Service('get_started', Empty, main)    
     seta_parametros()
     main()

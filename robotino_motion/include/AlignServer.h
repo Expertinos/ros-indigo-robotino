@@ -21,8 +21,8 @@
 #include <sensor_msgs/PointCloud.h>
 #include "robotino_motion/AlignAction.h"
 
-#define CLOSE_TOLERANCE 0.25
-#define NORMAL_TOLERANCE 0.35
+#define CLOSE_TOLERANCE 0.20
+#define NORMAL_TOLERANCE 0.30
 #define FAR_TOLERANCE 0.45
 	
 class AlignServer : public Server
