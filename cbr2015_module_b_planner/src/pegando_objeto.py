@@ -7,8 +7,8 @@ import actionlib
 from actionlib import SimpleActionClient
 
 def pegandoObjeto(area, objeto):
-	        
-	rospy.logwarn('pegando produto '+str(objeto))
+	'''
+	rospy.logwarn('pegando objeto '+str(objeto))
 
 	client = actionlib.SimpleActionClient('grab_puck', GrabPuckAction)
         client.wait_for_server()
@@ -24,5 +24,5 @@ def pegandoObjeto(area, objeto):
 
 	#transport = rospy.ServiceProxy('transport_product', TransportProduct)
 	#resp = transport(objeto)
-
+	'''
 	atualizaArea(area, Objetos.NONE)

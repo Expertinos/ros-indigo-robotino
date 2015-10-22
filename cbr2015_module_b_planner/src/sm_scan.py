@@ -12,7 +12,7 @@ from indo_para_area import *
 from verificando_objeto import *
 
 objeto = Objetos.NONE
-areas = [Areas.A1, Areas.A3, Areas.A2, Areas.A4, Areas.B2, Areas.B4, Areas.B3, Areas.B1, Areas.CASA]
+areas = [Areas.A3, Areas.A1, Areas.A2, Areas.A4, Areas.B2, Areas.B4, Areas.B3, Areas.B1, Areas.CASA]
 i = 0
 terminou = False
 
@@ -48,6 +48,7 @@ class VerificandoObjeto(smach.State):
 	global i
 	global terminou
 	rospy.logwarn('Objeto Desatualizado: %s', userdata.area)
+	'''
 	if i == 0:
 		objeto = Objetos.AZUL_UM
 	if i == 1:
@@ -65,9 +66,12 @@ class VerificandoObjeto(smach.State):
 	if i == 7:
 		objeto = Objetos.VERMELHO_TRES
 	i += 1
-	verificandoObjeto(userdata.area, objeto)
+	'''
 	if areas[0] == Areas.CASA:
+		userdata.prox_area = areas.pop(0)
 		terminou = True
+		return 'verificou'
+	verificandoArea(userdata.area)
 	rospy.logwarn('Atualizei Objeto: %s, Terminou = %s', userdata.area, terminou)
 	userdata.prox_area = areas.pop(0)
 	return 'verificou'
