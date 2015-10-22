@@ -39,6 +39,8 @@ RobotinoSafety::RobotinoSafety():
 
 	calcScale();
 	buildEllipseVizMsgs();
+
+	number_of_times_idle_ = 0;
 }
 
 RobotinoSafety::~RobotinoSafety()
@@ -112,8 +114,23 @@ void RobotinoSafety::buildEllipseVizMsgs()
 void RobotinoSafety::robotinoCmdVelCallback(const geometry_msgs::TwistConstPtr& msg)
 {
 	cmd_vel_msg_.linear.x = ( dist_ / scale_ ) * msg->linear.x;
-	cmd_vel_msg_.linear.y = ( dist_ / scale_ ) *msg->linear.y;
-	cmd_vel_msg_.angular.z = ( dist_ / scale_ ) *msg->angular.z;
+	cmd_vel_msg_.linear.y = ( dist_ / scale_ ) * msg->linear.y;
+	cmd_vel_msg_.angular.z = ( dist_ / scale_ ) * msg->angular.z;
+
+	if (msg->linear.x == 0 && msg->linear.y == 0 && msg->angular.z == 0)
+	{
+		number_of_times_idle_++;
+		if (number_of_times_idle_ > 10)
+		{
+			//ROS_WARN("Corrigindo no safety, pra não ficar parado");
+			cmd_vel_msg_.linear.x = 0.1;
+			cmd_vel_msg_.angular.z = 0.2;
+		} 
+	} 
+	else 
+	{
+		number_of_times_idle_ = 0;
+	}
 
 	cmd_vel_pub_.publish(cmd_vel_msg_);
 }

@@ -53,32 +53,50 @@ def ligarNavigation(area, seq, nome):
         # Sends the goal to the action server.
         client.send_goal(goal)
 
-	global vel_x
+	'''global vel_x
 	global vel_y
 	global ang_x
 	global ang_y
 
-	while(client.getState().toString().c_str() == "ACTIVE"):
+	rospy.logwarn(client.get_state())
+	while(client.get_state() == 0 or client.get_state() == 1):
+		rospy.logwarn(client.get_state())
+		rospy.logwarn("dentro do while")
 		tempo1 = rospy.get_time()
 		tempo2 = rospy.get_time()
-		while(tempo2-tempo1 < 4 or (vel_x == 0 and vel_y == 0 and ang_x == 0 and ang_y == 0)):
+		while(tempo2-tempo1 < 4 or vel_x != 0 or vel_y != 0 or ang_x != 0 or ang_y != 0):
 			tempo2 = rospy.get_time()
 
 		if(tempo2 - tempo1 >= 4):
 			twist = Twist()
-			twist.linear.x = 0.05
+			twist.linear.x = 0.5
 			pub = rospy.Publisher('cmd_vel', Twist)
-			pub.publish()
-
-			time.sleep(1)
+			for i in range(0, 30):
+				pub.publish(twist)
 
 			twist.linear.x = 0
-			pub.publish()
-
+			pub.publish(twist)
+	rospy.logwarn("passou o while")'''
         # Waits for the server to finish performing the action.
         client.wait_for_result()
 
 	rospy.logwarn("Cheguei no pose "+ str(area[0]) +" "+ str(area[1]) +"Area = "+nome)
+
+	if nome == "Pedidos":
+		rospy.logwarn("Vou alinhar a direita")
+		client = actionlib.SimpleActionClient('align', AlignAction)
+		client.wait_for_server()
+
+		goal = AlignGoal()
+
+		goal.alignment_mode = 1
+		goal.distance_mode = 1
+
+		# Sends the goal to the action server.
+		client.send_goal(goal)
+
+		# Waits for the server to finish performing the action.
+		client.wait_for_result()
 
 	if nome == "Casa":
 		rospy.logwarn("Vou alinhar a direita")

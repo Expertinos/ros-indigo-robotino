@@ -10,7 +10,7 @@ from actionlib import SimpleActionClient
 
 def buscarPedido(pub):
 
-	rospy.logwarn("Vou alinhar a direita")
+	'''rospy.logwarn("Vou alinhar a direita")
 	client = actionlib.SimpleActionClient('align', AlignAction)
 	client.wait_for_server()
 
@@ -23,7 +23,7 @@ def buscarPedido(pub):
 	client.send_goal(goal)
 
 	# Waits for the server to finish performing the action.
-	client.wait_for_result()
+	client.wait_for_result()'''
 		
 
 	rospy.logwarn('buscando pedido')
