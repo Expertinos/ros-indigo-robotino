@@ -42,6 +42,12 @@ std::string alignment_modes::AlignmentModes::toString(alignment_modes::Alignment
 		case BACK_LEFT:
 			mode_name = "BACK and LEFT";
 			break;
+		case LASER_FRONT:
+			mode_name = "LASER FRONT";
+			break;
+		case LASER_RIGHT_LEFT:
+			mode_name = "LASER RIGHT and LEFT";
+			break;
 		default: 
 			mode_name = "Nonexistent alignment mode";
 	}
@@ -80,6 +86,11 @@ alignment_modes::AlignmentModeEnum alignment_modes::AlignmentModes::newInstance(
 		case 7:
 			mode = alignment_modes::BACK_LEFT;
 			break;
+		case 8:
+			mode = alignment_modes::LASER_FRONT;
+			break;
+		case 9:
+			mode = alignment_modes::LASER_RIGHT_LEFT;
 		default:
 			mode = alignment_modes::NONE;
 	}
