@@ -23,6 +23,7 @@
 
 #include "Colors.h"
 #include "robotino_vision/FindObjects.h"
+#include "robotino_vision/FindInsulatingTapeAreas.h"
 #include "robotino_vision/GetObjectsList.h"
 #include "robotino_vision/ContainInList.h"
 #include "robotino_vision/SaveImage.h"
@@ -32,7 +33,8 @@
 #define MIN_AREA 500 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
 #define PI 3.14159
 
-static const std::string BLACK_MASK_WINDOW = "Black Mask Window";
+static const std::string INSULATING_TAPE_WINDOW = "Insulating Tape Window";
+static const std::string ALL_MARKERS_WINDOW = "All Markers Window";
 static const std::string PUCKS_MASK_WINDOW = "Pucks Mask Window";
 static const std::string COLOR_MASK_WINDOW = "Color Mask Window";
 static const std::string FINAL_MASK_WINDOW = "Final Puck Mask Window";
@@ -85,6 +87,7 @@ private:
 	image_transport::ImageTransport it_;
 	image_transport::Subscriber image_sub_;
 	ros::ServiceServer find_objects_srv_; 
+	ros::ServiceServer find_areas_srv_; 
 	ros::ServiceServer get_list_srv_;
 	ros::ServiceServer contain_in_list_srv_;
 	ros::ServiceServer save_srv_;
@@ -104,7 +107,7 @@ private:
 	int height_;
 	int width_;
 
-	int close_aux_, open_aux_, max_area_, dilate_aux_;
+	int close_aux_, open_aux_, max_area_, dilate_aux_, thresh_area_, close_area_, dilate_area_;
 
 	bool calibration_;
 	std::string contours_window_name_;
@@ -130,6 +133,7 @@ private:
 
 	void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 	bool findObjects(robotino_vision::FindObjects::Request &req, robotino_vision::FindObjects::Response &res);
+	bool findAreas(robotino_vision::FindInsulatingTapeAreas::Request &req, robotino_vision::FindInsulatingTapeAreas::Response &res);
 	bool getList(robotino_vision::GetObjectsList::Request &req, robotino_vision::GetObjectsList::Response &res);
 	bool containInList(robotino_vision::ContainInList::Request &req, robotino_vision::ContainInList::Response &res);
 	bool saveImage(robotino_vision::SaveImage::Request &req, robotino_vision::SaveImage::Response &res);
@@ -139,7 +143,8 @@ private:
 	std::vector<cv::Point2f> processColor();
 	std::vector<cv::Point2f> processColor(Color color);
 	std::vector<cv::Point2f> getContours(cv::Mat &input);
-	cv::Mat getBlackMask();
+	cv::Mat getAllMarkers();
+	cv::Mat getInsulatingTapeArea();
 	cv::Mat getPucksMask();
 	cv::Mat getColorMask();
 	cv::Mat getPuckMarkers(cv::Mat &black_mask, cv::Mat &pucks_mask);

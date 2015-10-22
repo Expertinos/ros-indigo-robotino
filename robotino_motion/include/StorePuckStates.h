@@ -13,7 +13,7 @@
 
 #include <string>
 
-namespace storePuckStates
+namespace store_puck_states
 {
 
 	typedef enum 
@@ -38,7 +38,7 @@ namespace storePuckStates
 
 };
 
-typedef storePuckStates::StorePuckStateEnum StorePuckState;
-typedef storePuckStates::StorePuckStates StorePuckStates;
+typedef store_puck_states::StorePuckStateEnum StorePuckState;
+typedef store_puck_states::StorePuckStates StorePuckStates;
 
 #endif /* STORE_PUCK_STATES_H_ */

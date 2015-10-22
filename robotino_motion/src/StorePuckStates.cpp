@@ -13,7 +13,7 @@
 /**
  *
  */
-std::string storePuckStates::StorePuckStates::toString(storePuckStates::StorePuckStateEnum state)
+std::string store_puck_states::StorePuckStates::toString(store_puck_states::StorePuckStateEnum state)
 {
 	std::string state_name;
 	switch (state)
