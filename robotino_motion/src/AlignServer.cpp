@@ -39,7 +39,7 @@ AlignServer::AlignServer(ros::NodeHandle nh) :
 	laser_data_left_ = 0.0;
 	laser_data_right_ = 0.0;
 	error_laser_data_x_ = 0.0005;
-	error_laser_data_y_ = 0.1;
+	error_laser_data_y_ = 0.08;
 
 	angle_increment_ = 0;
 }
@@ -317,6 +317,7 @@ bool AlignServer::validateNewGoal(const robotino_motion::AlignGoalConstPtr& goal
 			lateral_ = false;
 			break;
 		case alignment_modes::LASER_FRONT:
+			break;
 		case alignment_modes::LASER_RIGHT_LEFT:
 			break;
 		case alignment_modes::FRONT_RIGHT: 

@@ -91,6 +91,7 @@ alignment_modes::AlignmentModeEnum alignment_modes::AlignmentModes::newInstance(
 			break;
 		case 9:
 			mode = alignment_modes::LASER_RIGHT_LEFT;
+			break;
 		default:
 			mode = alignment_modes::NONE;
 	}
