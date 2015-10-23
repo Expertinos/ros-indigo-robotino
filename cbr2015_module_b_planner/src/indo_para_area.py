@@ -1,5 +1,4 @@
-from enum import *
-#def indoParaArea(objeto):	
+from enum import *	
 import rospy
 import time
 from geometry_msgs.msg import PoseStamped
@@ -12,12 +11,10 @@ import tf
 import actionlib
 from actionlib import SimpleActionClient
 
-def indoParaArea(area, seq):	
+def indoParaArea(area, seq):
+	
 	#send_goal
 	client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-
-        # Waits until the action server has started up and started
-        # listening for goals.
 
 	goal = MoveBaseGoal()
 
@@ -39,5 +36,5 @@ def indoParaArea(area, seq):
 
         # Waits for the server to finish performing the action.
         client.wait_for_result()
-
+	
 	rospy.logwarn("Cheguei na Area: %s (X: %s, Y: %s)", area[0], area[1], area[2])

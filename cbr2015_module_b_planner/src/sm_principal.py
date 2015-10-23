@@ -32,15 +32,6 @@ class Inicio(smach.State):
 	return 'inicio'
 
 # define state Inicio
-class Meio(smach.State):
-    def __init__(self):
-        smach.State.__init__(self, outcomes=['meio'])
-
-    def execute(self, userdata):
-	rospy.logdebug('MEIO')	
-	return 'meio'
-
-# define state Inicio
 class Fim(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['fim'])
