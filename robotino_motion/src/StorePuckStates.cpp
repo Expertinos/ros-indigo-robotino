@@ -24,11 +24,26 @@ std::string store_puck_states::StorePuckStates::toString(store_puck_states::Stor
 		case IDLE:
 			state_name = "Idle";
 			break;
+		case ALIGNING_FRONTAL:
+			state_name = "Aligning frontal";
+			break;
+		case ALIGNING_LATERAL:
+			state_name = "Aligning lateral";
+			break;
+		case HEADING_TOWARD_AREA:
+			state_name = "Heading toward storage area";
+			break;
 		case FINDING_PUCK:
 			state_name = "Looking for the puck";
 			break;
 		case STORING_PUCK:
 			state_name = "Up to store puck";
+			break;
+		case LEAVING_PUCK:
+			state_name = "Up to leave puck";
+			break;
+		case GOING_BACK_TO_ORIGIN:
+			state_name = "Going back to origin";
 			break;
 		case STOPPING:
 			state_name = "Stopping";
