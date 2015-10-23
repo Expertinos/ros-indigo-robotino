@@ -56,7 +56,8 @@ class Casa(smach.State):
 class LigarNavigation(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['coleta_pedido', 'coleta_produto', 'voltar_casa', 'indo_deposito'],
-						input_keys=['produto'])
+						input_keys=['produto'],
+						output_keys=['produto'])
         self.count = 0
 
     def execute(self, userdata):
@@ -67,11 +68,6 @@ class LigarNavigation(smach.State):
 	global area_numero
 
 	seq += 1
-	if(len(areas_produtos) == area_numero):
-		rospy.logwarn("dentro do if - area_numero = "+str(area_numero))
-		area_numero = 0
-		del pedidos[0]
-		userdata.produto = pedidos[0]
 
 	if deposito_flag == True:
 		rospy.logwarn("o produto carregado e "+str(userdata.produto))
@@ -91,7 +87,7 @@ class LigarNavigation(smach.State):
 			rospy.logwarn("deposito3")
 			ligarNavigation(Areas.STORE_DEPOSITO3, seq, "Deposito3")
 
-
+		verifica_areas()
 		deposito_flag = False
 		return 'indo_deposito'
 
@@ -107,7 +103,16 @@ class LigarNavigation(smach.State):
 	rospy.logwarn("area_numero = "+str(area_numero))
 	rospy.logwarn(areas_produtos[area_numero])
         ligarNavigation(areas_produtos[area_numero], seq, "Area"+str(area_numero))
+
         return 'coleta_produto'
+
+def verifica_areas():
+	global num_pedido
+	if(len(areas_produtos) == area_numero-1):
+		rospy.logwarn("dentro do if - area_numero = "+str(area_numero))
+		area_numero = 0
+		num_pedido =+ 1
+		userdata.produto = pedidos[num_pedido]
 
 class BuscarPedido(smach.State):
     def __init__(self):
@@ -166,7 +171,7 @@ class VerificarProduto(smach.State):
 	global pedidos
 	global area_numero
 
-	resp = verificarProduto(pedidos)
+	resp = verificarProduto(userdata.produto)
  
 	if resp.contain == True:
 	    rospy.logwarn("produto correto")
@@ -244,10 +249,12 @@ def main():
     global area_numero
     global pos
     global areas_depositos
+    global num_pedido
 
     termina = False
     new_order = False
     area_numero = 0
+    num_pedido = 0
     pos = len(areas_depositos)-1
     #nh = rospy.init_node('cbr2015_modulo_a_node')
     pub = rospy.Publisher('action', String, queue_size=100)
