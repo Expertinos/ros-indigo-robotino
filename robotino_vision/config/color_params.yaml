@@ -10,16 +10,15 @@ orange/close_2: 20
 orange/open_3: 5
 orange/min_area: 1000
 
-red/thresh_0: 211
-red/erosion_0: 2
-red/thresh_1: 88
-red/close_1: 4
-red/open_1: 4
-red/initial_range_value: 245
-red/range_width: 11
+red/thresh_0: 207
+red/thresh_1: 106
+red/close_1: 6
+red/open_1: 12
+red/initial_range_value: 226
+red/range_width: 28
 red/open_2: 0
-red/close_2: 6
-red/open_3: 2
+red/close_2: 7
+red/open_3: 5
 red/min_area: 1000
 
 green/thresh_0: 215
@@ -35,7 +34,6 @@ green/open_3: 2
 green/min_area: 286
 
 blue/thresh_0: 207
-blue/erosion_0: 1
 blue/thresh_1: 211
 blue/close_1: 6
 blue/open_1: 8

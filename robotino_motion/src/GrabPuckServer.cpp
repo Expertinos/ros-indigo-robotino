@@ -185,7 +185,7 @@ void GrabPuckServer::controlLoop()
 			 error_angular = max_error_angular;
 		}
 		float tolerance_linear = 0.1, tolerance_angular = 0.1;
-		double K_error_linear = 1.2, K_error_angular = 1.2;
+		double K_error_linear = 1.2, K_error_angular = 0.8;
 		double percentage_f, percentage_0, tolerance, max_error, error;
 		if (fabs(error_angular) > tolerance_angular) // 80% a 89%
 		{

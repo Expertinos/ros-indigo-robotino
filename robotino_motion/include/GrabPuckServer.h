@@ -21,7 +21,7 @@
 #include "robotino_msgs/DigitalReadings.h"
 #include "robotino_vision/FindObjects.h"
 
-#define GRABBING_DEADLINE 5 // seconds
+#define GRABBING_DEADLINE 7 // seconds
 	
 class GrabPuckServer : public Server
 {
