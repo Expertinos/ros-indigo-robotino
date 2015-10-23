@@ -1,0 +1,7 @@
+---
+
+float32[] distances	
+# Area distance
+
+float32[] directions	
+# Area direction

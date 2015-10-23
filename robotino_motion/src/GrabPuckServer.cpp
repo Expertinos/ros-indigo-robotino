@@ -94,33 +94,30 @@ void GrabPuckServer::controlLoop()
 			state_ = grab_puck_states::LOST;
 			return;
 		}
-
 		std::vector<float> distances = srv.response.distances;
 		std::vector<float> directions = srv.response.directions; 
-		int num_products = srv.response.distances.size();
-		if (num_products > 0 && state_ != grab_puck_states::GRABBING_PUCK)
+		int num_objects = srv.response.distances.size();
+		if (num_objects > 0 && state_ != grab_puck_states::GRABBING_PUCK)
 		{
 			int closest_index = 0;
-			for (int i = 0; i < num_products; i++)
+			for (int i = 0; i < num_objects; i++)
 			{
-				if (distances.at(i) < distances.at(closest_index))
+				if (distances[i] < distances[closest_index])
 				{
 					closest_index = i;
 				}
 			}
-
 			double max_error_lateral = 50, max_error_frontal = 40;
-			double error_lateral = directions.at(closest_index);
+			double error_lateral = directions[closest_index];
 			if (error_lateral > max_error_lateral)
 			{
 				 error_lateral = max_error_lateral;
 			}
-			double error_frontal = distances.at(closest_index);
+			double error_frontal = distances[closest_index];
 			if (error_frontal > max_error_frontal)
 			{
 				 error_frontal = max_error_frontal;
 			}
-
 			float tolerance_lateral = 0.1, tolerance_frontal = 35;
 			double K_error_lateral = 0.3, K_error_frontal = 0.005;
 			double percentage_f, percentage_0, tolerance, max_error, error;
@@ -370,4 +367,3 @@ void GrabPuckServer::readParameters()
 {
 	
 }
-			//ROS_WARN("ex: %f, dx: %f", error_linear, delta_x_);

@@ -18,13 +18,12 @@ int main (int argc, char **argv)
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
 	robotino_motion::StorePuckGoal goal;
-	//goal.color = 0;  		//ORANGE
-	goal.color = 1;  		//YELLOW
-	//goal.color = 2;   		//BLUE
-	//goal.color = 3;   		//GREEN
-	//goal.color = 4;   		//RED
-	//goal.color = 5;   		//BLACK
-	//goal.color = -1;   		//NONE
+	// goal.mode = 0; // VISION
+	goal.mode = 1; // LASER_SCAN
+	if (argc > 1)
+	{
+		goal.mode = atoi(argv[1]);
+	}
 	ac.sendGoal(goal);
 
 	//wait for the action to return

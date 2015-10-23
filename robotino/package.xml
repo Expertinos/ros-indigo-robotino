@@ -24,6 +24,7 @@
 
 	<run_depend>invert_laser</run_depend>
 	<run_depend>simple_navigation_goals</run_depend>
+	<run_depend>laser_to_pcl</run_depend>
 
 	<export>
 		<metapackage/>

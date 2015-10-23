@@ -44,6 +44,7 @@ protected:
 private:
 
 	ros::Subscriber distance_sensors_sub_;
+	ros::Subscriber laser_scan_sub_;
 
 	void readParameters();
 
@@ -56,7 +57,11 @@ private:
 	bool validateNewGoal(const robotino_motion::AlignGoalConstPtr& goal);
 	void publishFeedback();
 
+	void laserAlignFront();
+	void laserAlignRightLeft();
+
 	void distanceSensorsCallback(const sensor_msgs::PointCloud& msg);
+	void laserScanCallback(const sensor_msgs::PointCloud& msg);
 
 	/** Movement related Variables and Functions */
 	AlignState state_;
@@ -68,6 +73,26 @@ private:
 	int left_index_, right_index_;
 	float left_ir_, right_ir_;
 	bool lateral_;
+
+	
+	//Align using laser
+	int index_laser_data_center_;
+	int index_laser_data_right_;
+	int index_laser_data_left_;
+	int angle_increment_;
+	double error_laser_data_x_;
+	double error_laser_data_y_;
+
+	double laser_data_x_[600];
+	double laser_data_y_[600];
+
+	double laser_data_center_x_;
+	double laser_data_center_y_;
+	double laser_data_center_right_;
+	double laser_data_center_left_;
+	double laser_data_front_[30];
+	double laser_data_left_;
+	double laser_data_right_;
 
 };
 

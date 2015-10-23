@@ -1,6 +1,6 @@
 ## ------------------ goal definition ------------------ ##
 
-int8 color
+#int8 color
 # Object color code
 # 0 for ORANGE colored objects (considering BLACK color borders at the leaving area)
 # 1 for YELLOW colored objects (considering BLACK color borders at the leaving area) 
@@ -10,6 +10,10 @@ int8 color
 # 5 for BLACK colored objects (considering BLACK color borders at the leaving area)
 # 6 for PINK colored objects (considering BLACK color borders at the leaving area)
 # 7 for PURPLE colored objects (considering BLACK color borders at the leaving area)
+
+int8 mode
+# 0 for VISION mode
+# 1 for LASER_SCAN mode
 
 ---
 

@@ -1,5 +1,5 @@
 <launch>
   <!-- Run the map server -->
-  <arg name="map_file" default="$(find robotino_navigation)/maps/moduloB.yaml" />
+  <arg name="map_file" default="$(find robotino_navigation)/maps/moduloA.yaml" />
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/> 
 </launch>
