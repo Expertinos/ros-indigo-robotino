@@ -50,10 +50,10 @@ def buscarPedido(pub):
 	for i in range(0, len(valores)):
 		if round(valores[i]/10) >= 1:
 			resposta.append(i) 
+	'''
 	
-	
-	for i in resposta:
-		rospy.logwarn(i)'''
+	for i in resp.objects:
+		rospy.logwarn(i)
 		
 	return resp.objects
 

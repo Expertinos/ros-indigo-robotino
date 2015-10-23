@@ -34,16 +34,16 @@ green/close_2: 8
 green/open_3: 2
 green/min_area: 286
 
-blue/thresh_0: 183
+blue/thresh_0: 207
 blue/erosion_0: 1
-blue/thresh_1: 120
+blue/thresh_1: 211
 blue/close_1: 6
-blue/open_1: 2
-blue/initial_range_value: 150
-blue/range_width: 28
+blue/open_1: 8
+blue/initial_range_value: 152
+blue/range_width: 15
 blue/open_2: 0
-blue/close_2: 11
-blue/open_3: 3
+blue/close_2: 19
+blue/open_3: 6
 blue/min_area: 1000
 
 yellow/thresh_0: 76

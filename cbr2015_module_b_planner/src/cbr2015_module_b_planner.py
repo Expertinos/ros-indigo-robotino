@@ -11,8 +11,6 @@ from enum import *
 
 global areas_desorganizadas
 global areas_organizadas
-global casa
-global buff
 
 # main
 def main():
@@ -47,23 +45,28 @@ def main():
 		smach.StateMachine.add('SCAN', sm_scan,
 				transitions={'areas_verificadas':'ORG'})
 
+
 		# Create the sub SMACH state machine ORGANIZA
 		sm_org = smach.StateMachine(outcomes=['fim'])
-		sm_org.userdata.sm_org_area_des = Areas.A1
-		sm_org.userdata.sm_org_area_aux = Areas.A2
+		sm_org.userdata.sm_org_area_des = Areas.CASA
+		sm_org.userdata.sm_org_area_aux = Areas.CASA
 		sm_org.userdata.sm_org_area_atual = Areas.CASA
-		sm_org.userdata.sm_org_area_parc = Areas.A1
+		sm_org.userdata.sm_org_area_parc = Areas.CASA
 
 		# Open sm_org
 		with sm_org:
 			# Add states to the sm_org
+			smach.StateMachine.add('LENDOPOSTES', LendoPostes(),
+				transitions={'leitura_realizada':'INDOPARAAREA','finaliza_prova':'fim'},
+				remapping={'area_atual':'sm_org_area_atual',
+						'prox_area':'sm_org_area_atual', 'nova_area_des':'sm_org_area_des', 								'nova_area_aux':'sm_org_area_aux'})
 			smach.StateMachine.add('INDOPARAAREA', IndoParaArea(), 
 					       transitions={'chegou':'ESTOUNAAREA'},
 					       remapping={'area':'sm_org_area_atual'})
 			smach.StateMachine.add('ESTOUNAAREA', EstouNaArea(), 
-					       transitions={'pegar_obj':'PEGANDOOBJETO', 'deixar_obj':'DEIXANDOOBJETO', 'fim_org':'fim', 									'comeca_org':'INDOPARAAREA'},
+					       transitions={'pegar_obj':'PEGANDOOBJETO', 'deixar_obj':'DEIXANDOOBJETO', 								'fim_org':'LENDOPOSTES', 'comeca_org':'INDOPARAAREA'},
 					       remapping={'area_des':'sm_org_area_des', 'area_aux':'sm_org_area_aux', 									'area_atual':'sm_org_area_atual',
-							  'prox_area':'sm_org_area_atual', 'area_parc':'sm_org_area_parc', 									'nova_area_des':'sm_org_area_des', 'nova_area_aux':'sm_org_area_aux'})
+							  'prox_area':'sm_org_area_atual', 'area_parc':'sm_org_area_parc'})
 			smach.StateMachine.add('PEGANDOOBJETO', PegandoObjeto(), 
 					       transitions={'pegou':'INDOPARAAREA'},
 					       remapping={'area_atual':'sm_org_area_parc'})
