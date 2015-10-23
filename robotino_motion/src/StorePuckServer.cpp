@@ -45,6 +45,7 @@ StorePuckServer::StorePuckServer(ros::NodeHandle nh) :
 StorePuckServer::~StorePuckServer() 
 {
 	digital_readings_sub_.shutdown();
+	distance_sensors_sub_.shutdown();
 	laser_scan_sub_.shutdown();
 	find_areas_cli_.shutdown();
 	server_.shutdown();
@@ -67,7 +68,7 @@ void StorePuckServer::start()
 	{
 		ROS_WARN("Waiting for robotino_vision_node!!!");
 	}
-	//find_areas_cli_.waitForExistence();
+	find_areas_cli_.waitForExistence();
 	ROS_INFO("/find_areas service server is running!!!");
 	if(!align_client_.isServerConnected())
 	{
@@ -103,217 +104,173 @@ void StorePuckServer::controlLoop()
 	double vel_x = 0, vel_y = 0, vel_phi = 0;
 	ROS_DEBUG("%s", StorePuckStates::toString(state_).c_str());
 	double percentage = 0;
-
-	switch (mode_)
+	if (mode_ == store_modes::LASER_SCAN)
 	{
-		case store_modes::LASER_SCAN:
-			robotino_motion::AlignGoal goal;
-			goal.alignment_mode = 8; //alignment_modes::LASER_FRONT; //front align
-			goal.distance_mode = 1;
-			align_client_.sendGoal(goal);
-			ROS_INFO("1 Alinhar a frente!!!");
-			align_client_.waitForResult();
-
-			resetOdometry();
-			while(getOdometry_PHI() < M_PI/2)
-			{
-				setVelocity(0, 0, 0.5);
-				publishVelocity();
-				//std::cout<<"getOdometry_PHI: "<<getOdometry_PHI()<<std::endl;
-			}
-			setVelocity(0, 0, 0);
-			publishVelocity();
-
-			goal.alignment_mode = 9; //AlignmentModes::toCode(alignment_modes::LASER_RIGHT_LEFT)); //lateral align
-			goal.distance_mode = 1;
-			align_client_.sendGoal(goal);
-			ROS_INFO("2 Alinhar a lateral!!!");
-			align_client_.waitForResult();
-
-			goal.alignment_mode = 8;
-			goal.distance_mode = 1;
-			align_client_.sendGoal(goal);
-			ROS_INFO("3 Alinhar a frente!!!");
-			align_client_.waitForResult();
-
-			goal.alignment_mode = 9; //lateral align
-			goal.distance_mode = 1;
-			align_client_.sendGoal(goal);
-			ROS_INFO("4 Alinhar a lateral!!!");
-			align_client_.waitForResult();
-
-			while(laser_front_ > 0.33)
-			{
-				setVelocity(0.1, 0, 0);
-				publishVelocity();
-			}
-			setVelocity(0, 0, 0);
-			publishVelocity();
-			while(laser_front_ < 1.0)
-			{
-				setVelocity(-0.1, 0, 0);
-				publishVelocity();
-			}
-			setVelocity(0, 0, 0);
-			publishVelocity();
-
-			if(laser_right_ < 0.7 || laser_left_ < 0.7)
-			{
-				while(laser_right_ < 0.7)
-				{
-					setVelocity(0, 0.1, 0);
-					publishVelocity();
-				}
-				setVelocity(0, 0, 0);
-				publishVelocity();
-				while(laser_left_ < 0.7)
-				{
-					setVelocity(0, -0.1, 0);
-					publishVelocity();
-				}
-				setVelocity(0, 0, 0);
-				publishVelocity();
-			}
-			break;
-		/*case store_modes::VISION:
-			///
-			break;
-		default:
-			ROS_ERROR("Storage Mode not supported yet!!!");
-			return;*/
-	}
-
-
-
-	/*if (!loaded_)
-	{
-		robotino_vision::FindObjects srv;
-		srv.request.color = Colors::toCode(color_);
-		if (!find_objects_cli_.call(srv))
-		{	
-			ROS_ERROR("Puck not found!!!");
-			state_ = store_puck_states::LOST;
-			return;
-		}
-
-		std::vector<float> distances = srv.response.distances;
-		std::vector<float> directions = srv.response.directions; 
-		int num_products = srv.response.distances.size();
-		if (num_products > 0 && state_ != store_puck_states::GRABBING_PUCK)
+		robotino_motion::AlignGoal frontal_alignment, lateral_alignment;
+		frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
+		frontal_alignment.distance_mode = 1; // NORMAL distance mode
+		lateral_alignment.alignment_mode = 9; // LEFT_RIGHT_LASER alignment mode
+		lateral_alignment.distance_mode = 1; // NORMAL distance mode
+		align_client_.sendGoal(frontal_alignment);
+		state_ = store_puck_states::ALIGNING_FRONTAL;
+		align_client_.waitForResult();
+		resetOdometry();
+		while(getOdometry_PHI() < PI / 2)
 		{
-			int closest_index = 0;
-			for (int i = 0; i < num_products; i++)
+			setVelocity(0, 0, 0.5);
+			publishVelocity();
+		}
+		align_client_.sendGoal(lateral_alignment);
+		state_ = store_puck_states::ALIGNING_LATERAL;
+		align_client_.waitForResult();
+		align_client_.sendGoal(frontal_alignment);
+		state_ = store_puck_states::ALIGNING_FRONTAL;
+		align_client_.waitForResult();
+		align_client_.sendGoal(lateral_alignment);
+		state_ = store_puck_states::ALIGNING_LATERAL;
+		align_client_.waitForResult();
+		state_ = store_puck_states::STORING_PUCK;
+		while(laser_front_ > 0.33)
+		{
+			setVelocity(0.1, 0, 0);
+			publishVelocity();
+		}
+		state_ = store_puck_states::LEAVING_PUCK;
+		while(laser_front_ < 1)
+		{
+			setVelocity(-0.1, 0, 0);
+			publishVelocity();
+		}
+		if(laser_right_ < 0.7 || laser_left_ < 0.7)
+		{
+			while(laser_right_ < 0.7)
 			{
-				if (distances.at(i) < distances.at(closest_index))
+				setVelocity(0, 0.1, 0);
+				publishVelocity();
+			}
+			while(laser_left_ < 0.7)
+			{
+				setVelocity(0, -0.1, 0);
+				publishVelocity();
+			}
+		}
+	}
+	else if (mode_ == store_modes::VISION)
+	{
+		if (state_ != store_puck_states::LEAVING_PUCK && state_ != store_puck_states::GOING_BACK_TO_ORIGIN)
+		{
+			robotino_vision::FindInsulatingTapeAreas srv;
+			find_areas_cli_.waitForExistence();
+			if (!find_areas_cli_.call(srv))
+			{	
+				ROS_ERROR("Area not found!!!");
+				state_ = store_puck_states::LOST;
+				return;
+			}
+			std::vector<float> distances = srv.response.distances;
+			std::vector<float> directions = srv.response.directions; 
+			int num_areas = srv.response.distances.size();
+			if (num_areas > 0 && state_ != store_puck_states::STORING_PUCK)
+			{
+				int closest_area_index = 0;
+				for (int i = 0; i < num_areas; i++)
 				{
-					closest_index = i;
+					if (distances[i] < distances[closest_area_index] && fabs(directions[i]) <fabs(directions[closest_area_index]))
+					{
+						closest_area_index = i;
+					}
 				}
+				double max_error_lateral = 50, max_error_frontal = 40;
+				double error_lateral = directions[closest_area_index];
+				if (error_lateral > max_error_lateral)
+				{
+					 error_lateral = max_error_lateral;
+				}
+				double error_frontal = distances[closest_area_index];
+				if (error_frontal > max_error_frontal)
+				{
+					 error_frontal = max_error_frontal;
+				}
+				float tolerance_lateral = 0.1, tolerance_frontal = 30;
+				double K_error_lateral = 0.3, K_error_frontal = 0.003;
+				double percentage_f, percentage_0, tolerance, max_error, error;
+				if (fabs(error_lateral) > tolerance_lateral) // 0% a 49%
+				{
+					state_ = store_puck_states::ALIGNING_LATERAL;
+					vel_y = -K_error_lateral * error_lateral;
+					percentage_0 = 0;
+					percentage_f = 49;
+					tolerance = tolerance_lateral;
+					max_error = max_error_lateral;
+					error = fabs(error_lateral);
+				}
+				else if (fabs(error_frontal) > tolerance_frontal) // 50% a 69%
+				{
+					state_ = store_puck_states::HEADING_TOWARD_AREA;
+					vel_x = K_error_frontal * error_frontal;
+					percentage_0 = 50;
+					percentage_f = 69;
+					tolerance = tolerance_frontal;
+					max_error = max_error_frontal;
+					error = fabs(error_frontal);
+				}
+				else 
+				{
+					vel_x = .14;
+					state_ = store_puck_states::STORING_PUCK;
+					storing_start_ = ros::Time::now();
+				}
+				percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
 			}
-
-			double max_error_lateral = 50, max_error_frontal = 40;
-			double error_lateral = directions.at(closest_index);
-			if (error_lateral > max_error_lateral)
+			else if (state_ == store_puck_states::STORING_PUCK) // 70% a 89%
 			{
-				 error_lateral = max_error_lateral;
+				vel_x = .1;
+				double percentage_0 = 70, percentage_f = 89;
+				double elapsed_time = (ros::Time::now() - storing_start_).toSec();
+				if (elapsed_time > STORING_DEADLINE)
+				{
+					state_ = store_puck_states::LEAVING_PUCK;
+				}
+				percentage = percentage_0 + (percentage_f - percentage_0) * elapsed_time / STORING_DEADLINE;
 			}
-			double error_frontal = distances.at(closest_index);
-			if (error_frontal > max_error_frontal)
+		}
+		else
+		{
+			if (state_ == store_puck_states::LEAVING_PUCK)
 			{
-				 error_frontal = max_error_frontal;
+				delta_x_ = -getOdometry_X();
+				vel_x = -.14;
+				resetOdometry();
+				state_ = store_puck_states::GOING_BACK_TO_ORIGIN;
+				percentage_ = 89;
 			}
-
-			float tolerance_lateral = 0.1, tolerance_frontal = 35;
-			double K_error_lateral = 0.3, K_error_frontal = 0.005;
+			double max_error_linear = 1.25;
+			double error_linear = delta_x_ -  getOdometry_X();
+			if (error_linear > max_error_linear)
+			{
+				 error_linear = max_error_linear;
+			}
+			float tolerance_linear = 0.01;
+			double K_error_linear = 1.2;
 			double percentage_f, percentage_0, tolerance, max_error, error;
-			if (fabs(error_lateral) > tolerance_lateral) // 0% a 49%
+			if (fabs(error_linear) > tolerance_linear) // 90% a 99%
 			{
-				state_ = store_puck_states::ALIGNING_LATERAL;
-				vel_y = -K_error_lateral * error_lateral;
-				percentage_0 = 0;
-				percentage_f = 49;
-				tolerance = tolerance_lateral;
-				max_error = max_error_lateral;
-				error = fabs(error_lateral);
-			}
-			else if (fabs(error_frontal) > tolerance_frontal) // 50% a 69%
-			{
-				state_ = store_puck_states::HEADING_TOWARD_PUCK;
-				vel_x = K_error_frontal * error_frontal;
-				percentage_0 = 50;
-				percentage_f = 69;
-				tolerance = tolerance_frontal;
-				max_error = max_error_frontal;
-				error = fabs(error_frontal);
-			}
-			else 
-			{
-				vel_x = .14;
-				state_ = store_puck_states::GRABBING_PUCK;
-				storebing_start_ = ros::Time::now();
+				state_ = store_puck_states::GOING_BACK_TO_ORIGIN;
+				vel_x = K_error_linear * error_linear;
+				percentage_0 = 91;
+				percentage_f = 99;
+				tolerance = tolerance_linear;
+				max_error = max_error_linear;
+				error = fabs(error_linear);			
 			}
 			percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
 		}
-		else if (state_ == store_puck_states::GRABBING_PUCK) // 70% a 79%
-		{
-			state_ = store_puck_states::GRABBING_PUCK;
-			vel_x = .14;
-			double percentage_0 = 70, percentage_f = 79;
-			double elapsed_time = (ros::Time::now() - storebing_start_).toSec();
-			if (elapsed_time > GRABBING_DEADLINE)
-			{
-				state_ = store_puck_states::LOST;
-				ROS_ERROR("Storebing state deadline expired!!!");
-			}
-			percentage = percentage_0 + (percentage_f - percentage_0) * elapsed_time / GRABBING_DEADLINE;
-		}		
 	}
-	else 
-	{		
-		if (state_ == store_puck_states::GRABBING_PUCK)
-		{
-			delta_x_ = -getOdometry_X();
-			resetOdometry();
-			state_ = store_puck_states::ROTATING;
-			percentage_ = 79;
-		}
-		double max_error_linear = 1.25;
-		double error_linear = getOdometry_X() - delta_x_;
-		if (error_linear > max_error_linear)
-		{
-			 error_linear = max_error_linear;
-		}
-		double max_error_angular = PI;
-		double error_angular = PI - getOdometry_PHI();
-		if (error_angular > max_error_angular)
-		{
-			 error_angular = max_error_angular;
-		}
-		float tolerance_linear = 0.1, tolerance_angular = 0.1;
-		double K_error_linear = 1.2, K_error_angular = 1.2;
-		double percentage_f, percentage_0, tolerance, max_error, error;
-		if (fabs(error_angular) > tolerance_angular) // 80% a 89%
-		{
-			state_ = store_puck_states::ROTATING;
-			vel_phi = K_error_angular * error_angular;
-			percentage_0 = 80;
-			percentage_f = 89;
-			tolerance = tolerance_angular;
-			max_error = max_error_angular;
-			error = fabs(error_angular);
-			
-		}
-		else if (fabs(error_linear) > tolerance_linear) // 90% a 99%
-		{
-			state_ = store_puck_states::GOING_BACK_TO_ORIGIN;
-			vel_x = K_error_linear * error_linear;
-			percentage_0 = 91;
-			percentage_f = 99;
-			tolerance = tolerance_linear;
-			max_error = max_error_linear;
-			error = fabs(error_linear);			
-		}
-		percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
-	}*/
+	else
+	{
+		ROS_ERROR("Storage Mode not supported yet!!!");
+		return;
+	}
 	if (vel_x == 0 && vel_y == 0 && vel_phi == 0) // 100%
 	{
 		state_ = store_puck_states::FINISHED;
@@ -406,9 +363,9 @@ bool StorePuckServer::validateNewGoal(const robotino_motion::StorePuckGoalConstP
 	{
 		result_.goal_achieved = false;
 		result_.message = "Robotino is not loaded!!!";
-		server_.setAborted(result_, result_.message);
+		//server_.setAborted(result_, result_.message);
 		ROS_ERROR("%s", result_.message.c_str());
-		return false;
+		//return false;
 	}
 	mode_ = StoreModes::newInstance(goal->mode);
 	if (mode_ == store_modes::NONE)
@@ -432,7 +389,7 @@ bool StorePuckServer::validateNewGoal(const robotino_motion::StorePuckGoalConstP
 	}*/
 	percentage_ = 0;
 	resetOdometry();
-	state_ = store_puck_states::STORING_PUCK;
+	state_ = store_puck_states::ALIGNING_LATERAL;
 	ROS_INFO("Goal accepted, storing puck in %s mode!!!", StoreModes::toString(mode_).c_str());
 	return true;
 }
@@ -484,7 +441,6 @@ void StorePuckServer::laserScanCallback(const sensor_msgs::LaserScan& msg)
 	laser_front_ = msg.ranges[central_point];
 	laser_right_ = msg.ranges[0];
 	laser_left_ = msg.ranges[extreme_point];
-
 }
 
 /**

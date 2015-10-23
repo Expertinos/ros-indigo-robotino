@@ -29,7 +29,7 @@
 #include "robotino_msgs/DigitalReadings.h"
 #include "robotino_vision/FindInsulatingTapeAreas.h"
 
-#define STORING_DEADLINE 1 // seconds
+#define STORING_DEADLINE 2 // seconds
 	
 class StorePuckServer : public Server
 {

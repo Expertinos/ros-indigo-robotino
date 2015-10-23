@@ -28,7 +28,7 @@ RobotinoVision::RobotinoVision():
 	setColor();	
 	contours_window_name_ = CONTOURS_WINDOW + ": " + Colors::toString(color_);		
 
-	calibration_ = true;
+	calibration_ = false;
 	close_aux_ = 5;
 	open_aux_ = 2;
 	dilate_aux_ = 10;

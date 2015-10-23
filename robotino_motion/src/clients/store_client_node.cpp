@@ -20,6 +20,10 @@ int main (int argc, char **argv)
 	robotino_motion::StorePuckGoal goal;
 	// goal.mode = 0; // VISION
 	goal.mode = 1; // LASER_SCAN
+	if (argc > 1)
+	{
+		goal.mode = atoi(argv[1]);
+	}
 	ac.sendGoal(goal);
 
 	//wait for the action to return
