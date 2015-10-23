@@ -2,6 +2,14 @@ from enum import *
 import rospy
 from robotino_leds.srv import *
 
+def ligandoLeds2(colors, terminou, num):
+	if terminou:
+		sinalize = rospy.ServiceProxy('sinalize', Sinalize)
+		resp = sinalize(0, colors, 0, 1)
+	sinalize = rospy.ServiceProxy('sinalize', Sinalize)
+	resp = sinalize(1, colors, num, 1)
+	rospy.logwarn('Liguei led %s', colors)
+
 def ligandoLeds(colors, terminou):
 	if terminou:
 		sinalize = rospy.ServiceProxy('sinalize', Sinalize)
@@ -10,7 +18,7 @@ def ligandoLeds(colors, terminou):
 	if colors[0] == colors[1]:
 		resp = sinalize(1, colors, 2, 1)
 	else:
-		resp = sinalize(1, colors, 1, 1)	 
+		resp = sinalize(1, colors, 1, 1)
 	rospy.logwarn('Liguei led %s', colors)
 
 def desligandoLeds():

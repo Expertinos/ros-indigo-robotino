@@ -66,12 +66,14 @@ class VerificandoObjeto(smach.State):
 	if i == 7:
 		objeto = Objetos.VERMELHO_TRES
 	i += 1
+	atualizaArea(userdata.area,objeto)
 	'''
+	verificandoArea(userdata.area)
 	if areas[0] == Areas.CASA:
+		rospy.logwarn('Atualizei Objeto: %s, Terminou = %s', userdata.area, terminou)
 		userdata.prox_area = areas.pop(0)
 		terminou = True
 		return 'verificou'
-	verificandoArea(userdata.area)
 	rospy.logwarn('Atualizei Objeto: %s, Terminou = %s', userdata.area, terminou)
 	userdata.prox_area = areas.pop(0)
 	return 'verificou'

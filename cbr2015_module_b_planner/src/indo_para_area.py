@@ -12,7 +12,7 @@ import actionlib
 from actionlib import SimpleActionClient
 
 def indoParaArea(area, seq):
-	'''	
+	
 	#send_goal
 	client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
@@ -36,5 +36,5 @@ def indoParaArea(area, seq):
 
         # Waits for the server to finish performing the action.
         client.wait_for_result()
-	'''
+	
 	rospy.logwarn("Cheguei na Area: %s (X: %s, Y: %s)", area[0], area[1], area[2])

@@ -73,6 +73,7 @@ class EstouNaArea(smach.State):
 	global prox_area
 	rospy.logwarn("Area Atual: %s, Area Desejada: %s, Area Auxiliar: %s", userdata.area_atual, userdata.area_des, userdata.area_aux)
 	if userdata.area_atual[0] == Areas.CASA[0]:	
+		terminou = True
 		return 'fim_org'
 	if userdata.area_atual[0] == userdata.area_des[0]:
 		rospy.logwarn('Estou na Area Desejada com o objeto %s, buffer %s', userdata.area_atual[4], buffer_empty)
@@ -89,6 +90,16 @@ class EstouNaArea(smach.State):
 			return 'comeca_org'
 		if not areaOrganizada(userdata.area_atual, objeto) and buffer_empty:
 			rospy.logwarn('Estou na Prateleira Desejada com Objeto AUXILIAR')
+			if len(userdata.area_atual[4]) == 0:
+				userdata.prox_area = Areas.CASA
+				success = True
+				terminou = True
+				return 'comeca_org'
+			if userdata.area_aux == Areas.CASA:
+				userdata.prox_area = Areas.CASA
+				success = True
+				terminou = True
+				return 'comeca_org'
 			userdata.area_parc = userdata.area_atual			
 			userdata.prox_area = Areas.BUFFER
 			return 'pegar_obj'
@@ -179,28 +190,29 @@ class LendoPostes(smach.State):
 	global prox_area
 	global areas
 	if userdata.area_atual[0] == Areas.CASA[0] and not terminou:
-		prox_area = areas.pop(0)				
+		rospy.logwarn('Estou em casa e vou comecar a ler os postes')
+		prox_area = areas.pop(0)
+		ondeIr()				
 		userdata.prox_area = prox_area
 		userdata.nova_area_des = prox_area
 		novaAreaAux(prox_area)
 		userdata.nova_area_aux = prox_area_aux
-		rospy.logwarn('Estou em casa e vou comecar a ler os postes, Area Des: %s, Area Aux:%s, Prox_area: %s' , prox_area, prox_area_aux, prox_area)
-		ligandoLeds(sinalizaLeitura(prox_area), terminou)
+		#ligandoLeds(sinalizaLeitura(prox_area), terminou)
 		return 'leitura_realizada'
 	if userdata.area_atual[0] == Areas.CASA[0] and terminou:		
-		if areas[0] == Areas.CASA:
+		if prox_area[0] == Areas.CASA[0]:
 			rospy.logwarn('Finalizei a organizacao')
 			rospy.logwarn('Como ficaram Areas A: %s, %s, %s, %s', Areas.A1, Areas.A2, Areas.A3, Areas.A4)
 			rospy.logwarn('Como ficaram Areas B: %s, %s, %s, %s', Areas.B1, Areas.B2, Areas.B3, Areas.B4)
 			return 'finaliza_prova'
 		prox_area = areas.pop(0)
+		ondeIr()
 		userdata.prox_area = prox_area
 		userdata.nova_area_des = prox_area
 		novaAreaAux(prox_area)
 		userdata.nova_area_aux = prox_area_aux
 		rospy.logwarn('Acabei de organizar mais um e vou ler o prox pedido, %s', prox_area)
 		terminou = False
-		ligandoLeds(sinalizaLeitura(prox_area), terminou)
 		return 'leitura_realizada'
 
 def novaAreaAux(area_des):
@@ -254,17 +266,18 @@ def atualizaAreasOgz():
 	global areas_ogz
 	areas_ogz = [AreasOrganizadas.A1, AreasOrganizadas.A2, AreasOrganizadas.A3, AreasOrganizadas.A4, AreasOrganizadas.B1, AreasOrganizadas.B2, AreasOrganizadas.B3, AreasOrganizadas.B4]
 
-'''
-def necessitaIrArea(prox_area):
-	global prox_area_aux
-	global areas_ogz
-	global area_verifica
-	atualizaAreasOgz()
-	area_verifica = areas_ogz.pop(0)
-	if prox_area[0] == area_verifica[0]:
-			if prox_area[4] != area_verifica[1]:
-				return
+def ondeIr():
+	global areas
+	global prox_area
+	global terminou
+	for  i in range (0, 6):
+		i += 1
+		if prox_area[0] == Areas.CASA[0]:
+			return
+		elif areaOrganizada(prox_area, objeto):
+			ligandoLeds(sinalizaLeitura(prox_area), terminou)	
+			rospy.logwarn('Area ja organizada, bora pra Proxima')		
 			prox_area = areas.pop(0)
-			area_verifica = areas_ogz.pop(0)
-	area_verifica = AreasOrganizadas.A1
-'''
+		else:
+			ligandoLeds(sinalizaLeitura(prox_area), terminou)
+			return prox_area
