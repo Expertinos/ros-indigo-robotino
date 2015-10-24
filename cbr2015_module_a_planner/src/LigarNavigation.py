@@ -90,7 +90,7 @@ def ligarNavigation(area, seq, nome):
 		goal = AlignGoal()
 
 		goal.alignment_mode = 1
-		goal.distance_mode = 1
+		goal.distance_mode = 0
 
 		# Sends the goal to the action server.
 		client.send_goal(goal)
