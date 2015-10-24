@@ -31,7 +31,7 @@ RobotinoVision::RobotinoVision():
 	calibration_ = false;
 	close_aux_ = 5;
 	open_aux_ = 2;
-	dilate_aux_ = 10;
+	dilate_aux_ = 3;
 	max_area_ = 10;
 	thresh_area_ = 50;
 	close_area_ = 15;
