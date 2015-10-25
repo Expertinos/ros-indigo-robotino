@@ -11,7 +11,10 @@ def verificandoObjeto(area, color):
 	objeto[2] = obtemMaior(resp.number_of_markers)
 	rospy.logwarn('objeto %s', objeto)
 	if objeto[1] == Cores.AZUL:
-		if objeto[2] == 0 or objeto[2] == 1:
+		rospy.logwarn('seringas %s', objeto[2])
+		if objeto[2] == 0:
+			return False
+		if objeto[2] == 1:
 			objeto[0] = 'AZUL_UM'
 			if objeto[2] == 0:
 				objeto[2] = 1
@@ -25,7 +28,7 @@ def verificandoObjeto(area, color):
 				objeto[2] = 5
 		atualizaArea(area, objeto)
 		ligandoLeds2([color, color], False, objeto[2])
-		return
+		return True
 	elif objeto[1] == Cores.VERMELHO:
 		if objeto[2] == 0 or objeto[2] == 1:
 			objeto[0] = 'VERMELHO_UM'

@@ -11,5 +11,6 @@
 	<node name="align_server_node" pkg="robotino_motion" type="align_server_node" output="screen" />
 	<node name="grab_server_node" pkg="robotino_motion" type="grab_server_node" output="screen" />
 	<node name="move_puck_server" pkg="robotino_motion" type="move_server_node" output="screen" />
+	<node name="store_puck_server" pkg="robotino_motion" type="store_server_node" output="screen" />
 	<!--<include file="$(find cbr2015_module_a_planner)/launch/modulo_a.launch" />-->
 </launch>

@@ -19,6 +19,7 @@ global prox_area_aux
 global prox_area
 global area_verifica
 global areas_ogz
+global new_order
 prox_area_aux = []
 prox_area = []
 area_verifica = AreasOrganizadas.A1
@@ -49,7 +50,7 @@ class IndoParaArea(smach.State):
 	rospy.logwarn('Area: %s', userdata.area[0])
 	
 	if userdata.area[0] == Areas.CASA:
-		ligandoLeds(cores, terminou)
+		ligandoLeds(cores, True)
 		indoParaArea(userdata.area, seq)
 		desligandoLeds()
 		return 'chegou'
@@ -189,6 +190,11 @@ class LendoPostes(smach.State):
 	global terminou
 	global prox_area
 	global areas
+	global new_order
+	'''
+	while new_order == False:
+		rospy.logwarn("Esperando comando para iniciar")
+	'''
 	if userdata.area_atual[0] == Areas.CASA[0] and not terminou:
 		rospy.logwarn('Estou em casa e vou comecar a ler os postes')
 		prox_area = areas.pop(0)
@@ -275,7 +281,8 @@ def ondeIr():
 		if prox_area[0] == Areas.CASA[0]:
 			return
 		elif areaOrganizada(prox_area, objeto):
-			ligandoLeds(sinalizaLeitura(prox_area), terminou)	
+			ligandoLeds(sinalizaLeitura(prox_area), terminou)
+			ligandoLeds(cores, True)	
 			rospy.logwarn('Area ja organizada, bora pra Proxima')		
 			prox_area = areas.pop(0)
 		else:

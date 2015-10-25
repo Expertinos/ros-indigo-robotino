@@ -9,7 +9,7 @@ from Casa import casa
 from LigarNavigation import ligarNavigation
 from LigarNavigation import atualizaCmdVel
 from BuscarPedido import buscarPedido
-from BuscarProduto import buscarProduto
+from VerificaDeposito import verificaDeposito
 from VerificarProduto import verificarProduto
 from PegarProduto import pegarProduto
 from EntregarProduto import entregarProduto
@@ -22,6 +22,7 @@ from std_srvs.srv import Empty
 from geometry_msgs.msg import Twist
 import time
 
+global num_pedido
 global area_casa
 global areas_depositos
 global store_areas_depositos
@@ -87,9 +88,11 @@ class LigarNavigation(smach.State):
 			rospy.logwarn("deposito3")
 			ligarNavigation(Areas.STORE_DEPOSITO3, seq, "Deposito3")
 
-		verifica_areas()
+		userdata.produto = verifica_areas(userdata.produto)
 		deposito_flag = False
 		return 'indo_deposito'
+
+	userdata.produto = verifica_areas(userdata.produto)
 
         if self.count == 0:
             self.count += 1
@@ -106,13 +109,17 @@ class LigarNavigation(smach.State):
 
         return 'coleta_produto'
 
-def verifica_areas():
+def verifica_areas(produto):
 	global num_pedido
-	if(len(areas_produtos) == area_numero-1):
-		rospy.logwarn("dentro do if - area_numero = "+str(area_numero))
+	global area_numero
+	if(len(areas_produtos) == (area_numero)):
 		area_numero = 0
-		num_pedido =+ 1
-		userdata.produto = pedidos[num_pedido]
+		num_pedido += 1
+		if(num_pedido < 3):
+			produto = pedidos[num_pedido]
+			rospy.logwarn(produto)
+
+	return produto
 
 class BuscarPedido(smach.State):
     def __init__(self):
@@ -144,7 +151,7 @@ class VerificaDepositos(smach.State):
 
 	if pos != -1:
 		ligarNavigation(areas_depositos[pos], seq, "Deposito")
-		cor = buscarPedido(pub)
+		cor = verificaDeposito()
 		areas_depositos[pos][3] = cor
 		store_areas_depositos[pos][3] = cor
 		rospy.logwarn("deposito "+str(pos)+" = "+str(areas_depositos[pos][3]))
@@ -158,7 +165,7 @@ class BuscarProduto(smach.State):
 	smach.State.__init__(self, outcomes=['area_produto'])
 
     def execute(self, userdata):
-	buscarProduto()
+	#buscarProduto()
         return 'area_produto'
 
 class VerificarProduto(smach.State):
