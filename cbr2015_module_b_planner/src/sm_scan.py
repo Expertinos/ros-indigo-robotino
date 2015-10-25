@@ -8,11 +8,14 @@ from enum import *
 global areas
 global objeto
 global terminou
+global cores
 from indo_para_area import *
 from verificando_objeto import *
+from ligando_leds import *
 
 objeto = Objetos.NONE
 areas = [Areas.A3, Areas.A1, Areas.A2, Areas.A4, Areas.B2, Areas.B4, Areas.B3, Areas.B1, Areas.CASA]
+cores = [1, 2, 3, 4]
 i = 0
 terminou = False
 
@@ -48,28 +51,29 @@ class VerificandoObjeto(smach.State):
 	global i
 	global terminou
 	rospy.logwarn('Objeto Desatualizado: %s', userdata.area)
-	'''
+	
 	if i == 0:
-		objeto = Objetos.AZUL_UM
+		objeto = Objetos.VERMELHO_UM
 	if i == 1:
 		objeto = Objetos.AZUL_TRES
 	if i == 2:
-		objeto = Objetos.AZUL_CINCO
+		objeto = Objetos.AZUL_UM
 	if i == 3:
 		objeto = Objetos.VERMELHO_CINCO
 	if i == 4:
-		objeto = Objetos.VERMELHO_TRES
-	if i == 5:
-		objeto = Objetos.VERMELHO_UM
-	if i == 6:
 		objeto = Objetos.AZUL_TRES
+	if i == 5:
+		objeto = Objetos.VERMELHO_TRES
+	if i == 6:
+		objeto = Objetos.AZUL_CINCO
 	if i == 7:
 		objeto = Objetos.VERMELHO_TRES
 	i += 1
 	atualizaArea(userdata.area,objeto)
-	'''
-	verificandoArea(userdata.area)
+
+	#verificandoArea(userdata.area)
 	if areas[0] == Areas.CASA:
+		ligandoLeds(cores, True)
 		rospy.logwarn('Atualizei Objeto: %s, Terminou = %s', userdata.area, terminou)
 		userdata.prox_area = areas.pop(0)
 		terminou = True
