@@ -7,6 +7,7 @@ import actionlib
 from actionlib import SimpleActionClient
 
 def pegandoObjeto(area, objeto):
+	'''
 	rospy.logwarn('pegando objeto '+str(objeto))
 
 	client = actionlib.SimpleActionClient('grab_puck', GrabPuckAction)
@@ -17,5 +18,5 @@ def pegandoObjeto(area, objeto):
 
         client.send_goal(goal)
         client.wait_for_result()
-
+	'''
 	atualizaArea(area, Objetos.NONE)

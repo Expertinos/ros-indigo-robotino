@@ -15,9 +15,6 @@ global areas_organizadas
 
 # main
 def main():
-	global new_order
-	new_order = False
-
 
 	# Create a SMACH state machine
 	sm = smach.StateMachine(outcomes=['end'])
@@ -83,10 +80,6 @@ def main():
 
 	# Execute SMACH plan
 	outcome = sm.execute()
-
-def seta_order(req):
-	global new_order
-	new_order = True
 
 def printAreas():
 	for area in areas_desorganizadas:
@@ -161,5 +154,5 @@ def readParameters():
 if __name__ == '__main__':
 	rospy.init_node('cbr2015_module_b_node')# log_level = rospy.DEBUG)
     	rospy.logwarn("cbr2015_modula_b node is up and running!!!")
-	s = rospy.Service('new_order', Empty, seta_order)
+     	s = rospy.Service('new_order', Empty, seta_order)
 	main()
