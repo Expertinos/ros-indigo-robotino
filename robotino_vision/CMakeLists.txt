@@ -18,11 +18,17 @@ set(CMAKE_MODULE_PATH /usr/local/robotino/api2/cmake)
 
 find_package(RobotinoAPI2 REQUIRED)
 
+add_message_files(
+	FILES
+	LampPost.msg
+)
+
 add_service_files(
   	FILES
 	FindObjects.srv
 	FindInsulatingTapeAreas.srv
 	GetObjectsList.srv
+	GetLampPosts.srv
 	ContainInList.srv
   	SaveImage.srv
 	SetCalibration.srv
@@ -47,7 +53,7 @@ link_directories(
 #	${FL_PATH}
 	)
 
-catkin_package()
+catkin_package(CATKIN_DEPENDS message_runtime)
 
 add_executable(robotino_vision_node 
 	src/robotino_vision_node.cpp 

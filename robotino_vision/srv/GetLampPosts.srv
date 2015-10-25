@@ -1,0 +1,11 @@
+
+---
+
+robotino_vision/LampPost left
+# each lamp post contain a green, red and yellow variable
+
+robotino_vision/LampPost right
+# each lamp post contain a green, red and yellow variable
+
+bool success	
+# false if all lamp posts are not lighting

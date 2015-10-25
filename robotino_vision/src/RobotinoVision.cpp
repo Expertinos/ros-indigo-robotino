@@ -18,6 +18,7 @@ RobotinoVision::RobotinoVision():
 	find_objects_srv_ = nh_.advertiseService("find_objects", &RobotinoVision::findObjects, this);
 	find_areas_srv_ = nh_.advertiseService("find_areas", &RobotinoVision::findAreas, this);
 	get_list_srv_ = nh_.advertiseService("get_objects_list", &RobotinoVision::getList, this);
+	get_lamp_posts_srv_ = nh_.advertiseService("get_lamp_posts", &RobotinoVision::getLampPosts, this);
 	contain_in_list_srv_ = nh_.advertiseService("contain_in_list", &RobotinoVision::containInList, this);
 	image_sub_ = it_.subscribe("image_raw", 1, &RobotinoVision::imageCallback, this);
 	save_srv_ = nh_.advertiseService("save_image", &RobotinoVision::saveImage, this);
@@ -31,18 +32,79 @@ RobotinoVision::RobotinoVision():
 	calibration_ = false;
 	close_aux_ = 5;
 	open_aux_ = 2;
-	dilate_aux_ = 3;
+	dilate_aux_ = 10;
 	max_area_ = 10;
 	thresh_area_ = 50;
 	close_area_ = 15;
 	dilate_area_ = 15;
 
+	pucks_blur_size_ = 9;
+	pucks_dilate_ = 5;
+	pucks_thresh_ = 70;
+	pucks_close_ = 2;
+	pucks_open_ = 2;
+
+	color_blur_size_ = 9;
+	color_dilate_ = 5;
+	color_close_ = 2;
+	color_open_ = 4;
 
 	verify_markers_ = true;
 	specific_number_of_markers_ = -1;
 	
 	setImagesWindows();
+
+	/* Possible combinations
+	colors::GREEN, colors::GREEN
+	colors::YELLOW, colors::YELLOW
+	colors::RED, colors::RED
+	colors::GREEN, colors::YELLOW
+	colors::GREEN, colors::RED
+	colors::YELLOW, colors::RED
+	colors::YELLOW, colors::GREEN
+	colors::RED, colors::GREEN*/	
+	lamp_posts_.resize(8);
+	lamp_posts_[0].left.green = true; lamp_posts_[0].right.green = true;
+	lamp_posts_[0].left.yellow = false; lamp_posts_[0].right.yellow = false;
+	lamp_posts_[0].left.red = false; lamp_posts_[0].right.red = false;
+	lamp_posts_[1].left.green = false; lamp_posts_[1].right.green = false;
+	lamp_posts_[1].left.yellow = true; lamp_posts_[1].right.yellow = true;
+	lamp_posts_[1].left.red = false; lamp_posts_[1].right.red = false;
+	lamp_posts_[2].left.green = false; lamp_posts_[2].right.green = false;
+	lamp_posts_[2].left.yellow = false; lamp_posts_[2].right.yellow = false;
+	lamp_posts_[2].left.red = true; lamp_posts_[2].right.red = true;
+	lamp_posts_[3].left.green = true; lamp_posts_[3].right.green = false;
+	lamp_posts_[3].left.yellow = false; lamp_posts_[3].right.yellow = true;
+	lamp_posts_[3].left.red = false; lamp_posts_[3].right.red = false;
+	lamp_posts_[4].left.green = true; lamp_posts_[4].right.green = false;
+	lamp_posts_[4].left.yellow = false; lamp_posts_[4].right.yellow = false;
+	lamp_posts_[4].left.red = false; lamp_posts_[4].right.red = true;
+	lamp_posts_[5].left.green = false; lamp_posts_[5].right.green = false;
+	lamp_posts_[5].left.yellow = true; lamp_posts_[5].right.yellow = false;
+	lamp_posts_[5].left.red = false; lamp_posts_[5].right.red = true;
+	lamp_posts_[6].left.green = false; lamp_posts_[6].right.green = true;
+	lamp_posts_[6].left.yellow = true; lamp_posts_[6].right.yellow = false;
+	lamp_posts_[6].left.red = false; lamp_posts_[6].right.red = false;
+	lamp_posts_[7].left.green = false; lamp_posts_[7].right.green = true;
+	lamp_posts_[7].left.yellow = false; lamp_posts_[7].right.yellow = false;
+	lamp_posts_[7].left.red = true; lamp_posts_[7].right.red = false;
+	srand(time(NULL));
 }
+
+/**
+ *
+ */
+double RobotinoVision::randomDouble(double min, double max) {
+	return (max - min) * (rand() % 101) / 100 + min;
+}
+
+/**
+ *
+ */
+int RobotinoVision::randomInteger(int min, int max) {
+	return (max - min) * (rand() % 101) / 100 + min;
+}
+
 
 /**
  *
@@ -136,6 +198,24 @@ bool RobotinoVision::getList(robotino_vision::GetObjectsList::Request &req, robo
 		res.succeed = true;
 	}
 	setColor();
+	return true;
+}
+
+/**
+ *
+ */
+bool RobotinoVision::getLampPosts(robotino_vision::GetLampPosts::Request &req, robotino_vision::GetLampPosts::Response &res)
+{
+	if (lamp_posts_.empty())
+	{
+		res.success = false;
+		return true;
+	}
+	int index = randomInteger(0, lamp_posts_.size() - 1);
+	res.left = lamp_posts_[index].left;
+	res.right = lamp_posts_[index].right;
+	lamp_posts_.erase(lamp_posts_.begin() + index);
+	res.success = true;
 	return true;
 }
 
@@ -352,7 +432,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	ROS_DEBUG("Getting Final Puck Mask!!!");
 	cv::Mat final_mask = getFinalMask(pucks_mask, color_mask);
 	ROS_DEBUG("Getting All Markers!!!");
-	cv::Mat all_markers = getAllMarkers();
+	cv::Mat all_markers = getAllMarkers(pucks_mask);
 	ROS_DEBUG("Getting Puck Markers!!!");
 	cv::Mat puck_markers = getPuckMarkers(all_markers, pucks_mask);
 	ROS_DEBUG("Getting Puck without Markers!!!");
@@ -376,13 +456,18 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		cv::createTrackbar("Close: ", INSULATING_TAPE_WINDOW, &close_area_, 50);
 		cv::createTrackbar("Dilate: ", INSULATING_TAPE_WINDOW, &dilate_area_, 50);
 
-		cv::createTrackbar("Threshold: ", PUCKS_MASK_WINDOW, &color_params_.thresh_1, 255);
-		cv::createTrackbar("Close: ", PUCKS_MASK_WINDOW, &color_params_.close_1, 20);
-		cv::createTrackbar("Open: ", PUCKS_MASK_WINDOW, &color_params_.open_1, 20);
+		cv::createTrackbar("Blur: ", PUCKS_MASK_WINDOW, &pucks_blur_size_, 40);
+		cv::createTrackbar("Dilate: ", PUCKS_MASK_WINDOW, &pucks_dilate_, 40);
+		cv::createTrackbar("Threshold: ", PUCKS_MASK_WINDOW, &pucks_thresh_, 255);
+		cv::createTrackbar("Close: ", PUCKS_MASK_WINDOW, &pucks_close_, 40);
+		cv::createTrackbar("Open: ", PUCKS_MASK_WINDOW, &pucks_open_, 40);
 	
 		cv::createTrackbar("Initial range value: ", COLOR_MASK_WINDOW, &color_params_.initial_range_value, 255);
 		cv::createTrackbar("Range width: ", COLOR_MASK_WINDOW, &color_params_.range_width, 255);
-		cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &close_aux_, 20);
+		cv::createTrackbar("Blur: ", COLOR_MASK_WINDOW, &color_blur_size_, 40);
+		cv::createTrackbar("Dilate: ", COLOR_MASK_WINDOW, &color_dilate_, 40);
+		cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &color_close_, 40);
+		cv::createTrackbar("Open: ", COLOR_MASK_WINDOW, &color_open_, 40);
 	
 		cv::createTrackbar("Open(before): ", FINAL_MASK_WINDOW, &color_params_.open_2, 20);
 		cv::createTrackbar("Close: ", FINAL_MASK_WINDOW, &color_params_.close_2, 20);
@@ -415,7 +500,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 /**
  *
  */
-cv::Mat RobotinoVision::getAllMarkers()
+cv::Mat RobotinoVision::getAllMarkers(cv::Mat &pucks_mask)
 {
 	cv::Mat all_markers;
 
@@ -435,10 +520,12 @@ cv::Mat RobotinoVision::getAllMarkers()
 	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * open_aux_ + 1, 2 * open_aux_ + 1), cv::Point(open_aux_, open_aux_));
 	cv::morphologyEx(all_markers, all_markers, 2, element);
 
-	if (calibration_)
+	/*if (calibration_)
 	{
 		cv::imshow(ALL_MARKERS_WINDOW, all_markers);
-	}
+	}*/
+	cv::imshow(ALL_MARKERS_WINDOW, all_markers);
+
 
 	imgHSV.release();
 	splitted[0].release();
@@ -513,21 +600,31 @@ cv::Mat RobotinoVision::getPucksMask()
 	cv::split(imgHSV, splitted);
 	pucks_mask = splitted[1];
 
+	cv::imshow("Pucks: HSV[1]", pucks_mask);
+	cv::medianBlur(pucks_mask, pucks_mask, 2 * pucks_blur_size_ + 1);
+	cv::imshow("Pucks: HSV[1] Blur", pucks_mask);
+
+	// fazendo dilatação na imagem acima
+	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * pucks_dilate_ + 1, 2 * pucks_dilate_ + 1), cv::Point(pucks_dilate_, pucks_dilate_));
+	cv::dilate(pucks_mask, pucks_mask, element);
+	cv::imshow("Pucks: HSV[1] Dilate", pucks_mask);
+
 	// fazendo threshold da imagem S
 	cv::threshold(pucks_mask, pucks_mask, color_params_.thresh_1, 255, cv::THRESH_BINARY);
 
 	// fechando buracos
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_params_.close_1 + 1, 2 * color_params_.close_1 + 1), cv::Point(color_params_.close_1, color_params_.close_1));
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * pucks_close_ + 1, 2 * pucks_close_ + 1), cv::Point(pucks_close_, pucks_close_));
 	cv::morphologyEx(pucks_mask, pucks_mask, 3, element);
 
 	// filtro de partícula pequenas
-	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_params_.open_1 + 1, 2 * color_params_.open_1 + 1), cv::Point(color_params_.open_1, color_params_.open_1));
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * pucks_open_ + 1, 2 * pucks_open_ + 1), cv::Point(pucks_open_, pucks_open_));
 	cv::morphologyEx(pucks_mask, pucks_mask, 2, element);
 
 	if (calibration_)
 	{
 		cv::imshow(PUCKS_MASK_WINDOW, pucks_mask);
 	}
+	cv::imshow(PUCKS_MASK_WINDOW, pucks_mask);
 
 	imgHSV.release();
 	splitted[0].release();
@@ -552,11 +649,17 @@ cv::Mat RobotinoVision::getColorMask()
 	// separando a HLS 
 	cv::Mat splitted[3];
 	cv::split(imgHLS, splitted);
+	cv::imshow("Color: HLS[0]", splitted[0]);
+	cv::imshow("Color: HLS[1]", splitted[1]);
+	cv::imshow("Color: HLS[2]", splitted[2]);
 	color_mask = 1.41666 * splitted[0];
+	cv::imshow("Color: HLS[0] 1.4166", color_mask);
 
 	// rodando a roleta da imagem H
 	cv::Mat unsaturated = color_mask - color_params_.initial_range_value;
+	cv::imshow("Color: HLS[0] unsaturated", unsaturated);
 	cv::Mat saturated = color_mask + (255 - color_params_.initial_range_value); 
+	cv::imshow("Color: HLS[0] saturated", saturated);
 	cv::Mat aux;
 	cv::threshold(saturated, aux, 254, 255, cv::THRESH_BINARY);
 	aux = 255 - aux; 
@@ -568,17 +671,18 @@ cv::Mat RobotinoVision::getColorMask()
 	color_mask = 255 - color_mask;
 
 	// fechando buracos
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * close_aux_ + 1, 2 * close_aux_ + 1), cv::Point(close_aux_, close_aux_));
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_close_ + 1, 2 * color_close_ + 1), cv::Point(color_close_, color_close_));
 	cv::morphologyEx(color_mask, color_mask, 3, element);
 
 	// filtro de partícula pequenas
-	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * open_aux_ + 1, 2 * open_aux_ + 1), cv::Point(open_aux_, open_aux_));
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_open_ + 1, 2 * color_open_ + 1), cv::Point(color_open_, color_open_));
 	cv::morphologyEx(color_mask, color_mask, 2, element);
 
 	if (calibration_)
 	{
 		cv::imshow(COLOR_MASK_WINDOW, color_mask);
 	}
+	cv::imshow(COLOR_MASK_WINDOW, color_mask);
 
 	imgHLS.release();
 	splitted[0].release();
