@@ -44,10 +44,10 @@ RobotinoVision::RobotinoVision():
 	pucks_close_ = 2;
 	pucks_open_ = 2;
 
-	color_blur_size_ = 9;
-	color_dilate_ = 5;
-	color_close_ = 2;
-	color_open_ = 4;
+	color_blur_size_ = 3;
+	color_dilate_ = 2;
+	color_open_ = 10;
+	color_close_ = 3;
 
 	verify_markers_ = true;
 	specific_number_of_markers_ = -1;
@@ -466,8 +466,8 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		cv::createTrackbar("Range width: ", COLOR_MASK_WINDOW, &color_params_.range_width, 255);
 		cv::createTrackbar("Blur: ", COLOR_MASK_WINDOW, &color_blur_size_, 40);
 		cv::createTrackbar("Dilate: ", COLOR_MASK_WINDOW, &color_dilate_, 40);
-		cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &color_close_, 40);
 		cv::createTrackbar("Open: ", COLOR_MASK_WINDOW, &color_open_, 40);
+		cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &color_close_, 40);
 	
 		cv::createTrackbar("Open(before): ", FINAL_MASK_WINDOW, &color_params_.open_2, 20);
 		cv::createTrackbar("Close: ", FINAL_MASK_WINDOW, &color_params_.close_2, 20);
@@ -600,14 +600,11 @@ cv::Mat RobotinoVision::getPucksMask()
 	cv::split(imgHSV, splitted);
 	pucks_mask = splitted[1];
 
-	cv::imshow("Pucks: HSV[1]", pucks_mask);
 	cv::medianBlur(pucks_mask, pucks_mask, 2 * pucks_blur_size_ + 1);
-	cv::imshow("Pucks: HSV[1] Blur", pucks_mask);
 
 	// fazendo dilatação na imagem acima
 	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * pucks_dilate_ + 1, 2 * pucks_dilate_ + 1), cv::Point(pucks_dilate_, pucks_dilate_));
 	cv::dilate(pucks_mask, pucks_mask, element);
-	cv::imshow("Pucks: HSV[1] Dilate", pucks_mask);
 
 	// fazendo threshold da imagem S
 	cv::threshold(pucks_mask, pucks_mask, color_params_.thresh_1, 255, cv::THRESH_BINARY);
@@ -649,17 +646,15 @@ cv::Mat RobotinoVision::getColorMask()
 	// separando a HLS 
 	cv::Mat splitted[3];
 	cv::split(imgHLS, splitted);
-	cv::imshow("Color: HLS[0]", splitted[0]);
-	cv::imshow("Color: HLS[1]", splitted[1]);
-	cv::imshow("Color: HLS[2]", splitted[2]);
-	color_mask = 1.41666 * splitted[0];
-	cv::imshow("Color: HLS[0] 1.4166", color_mask);
+	color_mask = splitted[0];
 
-	// rodando a roleta da imagem H
+	cv::medianBlur(color_mask, color_mask, 2 * color_blur_size_ + 1);
+
+	color_mask = 1.41666 * color_mask;
+
+	// rodando a roleta da imagem H com blur
 	cv::Mat unsaturated = color_mask - color_params_.initial_range_value;
-	cv::imshow("Color: HLS[0] unsaturated", unsaturated);
 	cv::Mat saturated = color_mask + (255 - color_params_.initial_range_value); 
-	cv::imshow("Color: HLS[0] saturated", saturated);
 	cv::Mat aux;
 	cv::threshold(saturated, aux, 254, 255, cv::THRESH_BINARY);
 	aux = 255 - aux; 
@@ -670,13 +665,17 @@ cv::Mat RobotinoVision::getColorMask()
 	cv::threshold(color_mask, color_mask, color_params_.range_width, 255, cv::THRESH_BINARY);
 	color_mask = 255 - color_mask;
 
-	// fechando buracos
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_close_ + 1, 2 * color_close_ + 1), cv::Point(color_close_, color_close_));
-	cv::morphologyEx(color_mask, color_mask, 3, element);
+	// fazendo dilatação na imagem acima
+	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_dilate_ + 1, 2 * color_dilate_ + 1), cv::Point(color_dilate_, color_dilate_));
+	cv::dilate(color_mask, color_mask, element);
 
 	// filtro de partícula pequenas
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_open_ + 1, 2 * color_open_ + 1), cv::Point(color_open_, color_open_));
 	cv::morphologyEx(color_mask, color_mask, 2, element);
+
+	// fechando buracos
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_close_ + 1, 2 * color_close_ + 1), cv::Point(color_close_, color_close_));
+	cv::morphologyEx(color_mask, color_mask, 3, element);
 
 	if (calibration_)
 	{
