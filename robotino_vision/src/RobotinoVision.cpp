@@ -29,25 +29,29 @@ RobotinoVision::RobotinoVision():
 	setColor();	
 	contours_window_name_ = CONTOURS_WINDOW + ": " + Colors::toString(color_);		
 
-	calibration_ = false;
+	calibration_ = true;
 	close_aux_ = 5;
 	open_aux_ = 2;
-	dilate_aux_ = 10;
+	dilate_aux_ = 2;
 	max_area_ = 10;
 	thresh_area_ = 50;
 	close_area_ = 15;
 	dilate_area_ = 15;
 
-	pucks_blur_size_ = 9;
-	pucks_dilate_ = 5;
+	markers_blur_size_ = 1;
+	markers_thresh_ = 220;
+	markers_open_ = 2;
+
+	pucks_blur_size_ = 4;
+	pucks_dilate_ = 6;
 	pucks_thresh_ = 70;
 	pucks_close_ = 2;
 	pucks_open_ = 2;
 
 	color_blur_size_ = 3;
 	color_dilate_ = 2;
-	color_open_ = 10;
-	color_close_ = 3;
+	color_open_ = 2;
+	color_close_ = 5;
 
 	verify_markers_ = true;
 	specific_number_of_markers_ = -1;
@@ -449,8 +453,9 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 			setImagesWindows();
 		}	
 
-		cv::createTrackbar("Threshold: ", ALL_MARKERS_WINDOW, &color_params_.thresh_0, 255);
-		cv::createTrackbar("Open: ", ALL_MARKERS_WINDOW, &open_aux_, 20);
+		cv::createTrackbar("Blur: ", ALL_MARKERS_WINDOW, &markers_blur_size_, 20);
+		cv::createTrackbar("Threshold: ", ALL_MARKERS_WINDOW, &markers_thresh_, 255);
+		cv::createTrackbar("Open: ", ALL_MARKERS_WINDOW, &markers_open_, 20);
 
 		cv::createTrackbar("Threshold: ", INSULATING_TAPE_WINDOW, &thresh_area_, 255);
 		cv::createTrackbar("Close: ", INSULATING_TAPE_WINDOW, &close_area_, 50);
@@ -487,7 +492,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	color_mask.release();
 	puck_markers.release();
 
-	points = getContours(puck_without_markers);///////////////////////final_mask);
+	points = getContours(puck_without_markers);
 
 	final_mask.release();
 	puck_without_markers.release();
@@ -513,11 +518,13 @@ cv::Mat RobotinoVision::getAllMarkers(cv::Mat &pucks_mask)
 	cv::split(imgHSV, splitted);
 	all_markers = splitted[2];
 
+	cv::medianBlur(all_markers, all_markers, 2 * markers_blur_size_ + 1);
+
 	// fazendo threshold da imagem V
-	cv::threshold(all_markers, all_markers, color_params_.thresh_0, 255, cv::THRESH_BINARY);
+	cv::threshold(all_markers, all_markers, markers_thresh_, 255, cv::THRESH_BINARY);
 
 	// filtro de partícula pequenas
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * open_aux_ + 1, 2 * open_aux_ + 1), cv::Point(open_aux_, open_aux_));
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * markers_open_ + 1, 2 * markers_open_ + 1), cv::Point(markers_open_, markers_open_));
 	cv::morphologyEx(all_markers, all_markers, 2, element);
 
 	/*if (calibration_)
@@ -607,7 +614,7 @@ cv::Mat RobotinoVision::getPucksMask()
 	cv::dilate(pucks_mask, pucks_mask, element);
 
 	// fazendo threshold da imagem S
-	cv::threshold(pucks_mask, pucks_mask, color_params_.thresh_1, 255, cv::THRESH_BINARY);
+	cv::threshold(pucks_mask, pucks_mask, pucks_thresh_, 255, cv::THRESH_BINARY);
 
 	// fechando buracos
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * pucks_close_ + 1, 2 * pucks_close_ + 1), cv::Point(pucks_close_, pucks_close_));
@@ -765,6 +772,13 @@ cv::Mat RobotinoVision::getPuckMarkers(cv::Mat &insulating_tape_area, cv::Mat &p
 	// juntando todas as máscaras
 	cv::Mat puck_markers;
 	cv::bitwise_and(pucks_mask, insulating_tape_area, puck_markers);
+	
+	// filtro de partícula pequenas
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * markers_open_ + 1, 2 * markers_open_ + 1), cv::Point(markers_open_, markers_open_));
+	cv::morphologyEx(puck_markers, puck_markers, 2, element);
+
+	element.release();
+	
 	return puck_markers;
 }
 
