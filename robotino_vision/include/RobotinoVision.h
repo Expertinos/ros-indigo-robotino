@@ -122,6 +122,7 @@ private:
 	int width_;
 
 	int close_aux_, open_aux_, max_area_, dilate_aux_, thresh_area_, close_area_, dilate_area_;
+	int markers_blur_size_, markers_thresh_, markers_open_;
 	int pucks_blur_size_, pucks_dilate_, pucks_thresh_, pucks_close_, pucks_open_;
 	int color_blur_size_, color_dilate_, color_close_, color_open_;
 
