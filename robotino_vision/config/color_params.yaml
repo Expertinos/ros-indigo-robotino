@@ -17,7 +17,7 @@ red/open_1: 12
 red/initial_range_value: 214
 red/range_width: 54
 red/open_2: 0
-red/close_2: 7
+red/close_2: 0
 red/open_3: 5
 red/min_area: 1000
 
@@ -40,8 +40,8 @@ blue/open_1: 8
 blue/initial_range_value: 152
 blue/range_width: 15
 blue/open_2: 0
-blue/close_2: 19
-blue/open_3: 6
+blue/close_2: 0
+blue/open_3: 5
 blue/min_area: 1000
 
 yellow/thresh_0: 76
