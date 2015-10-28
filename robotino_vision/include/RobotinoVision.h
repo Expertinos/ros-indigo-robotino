@@ -38,33 +38,20 @@
 #define MIN_AREA 500 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
 #define PI 3.14159
 
-static const std::string INSULATING_TAPE_WINDOW = "Insulating Tape Window";
 static const std::string ALL_MARKERS_WINDOW = "All Markers Window";
 static const std::string PUCKS_MASK_WINDOW = "Pucks Mask Window";
 static const std::string COLOR_MASK_WINDOW = "Color Mask Window";
 static const std::string FINAL_MASK_WINDOW = "Final Puck Mask Window";
 static const std::string PUCK_MARKERS_WINDOW = "Puck Markers Window";
-static const std::string PUCK_WITHOUT_MARKERS_WINDOW = "Pucks without Markers Window";
 static const std::string BGR_WINDOW = "BGR Model Window";
 static const std::string CONTOURS_WINDOW = "Contours Window";
+static const std::string INSULATING_TAPE_WINDOW = "Insulating Tape Window";
+static const std::string PUCK_WITHOUT_MARKERS_WINDOW = "Pucks without Markers Window";
 
 struct ColorParameters {
-	// variáveis usadas para o processamento de Black Mask
-	int thresh_0;
-	int erosion_0;
-	// variáveis usadas para o processamento de Pucks Mask
-	int thresh_1;
-	int close_1;
-	int open_1;
 	// variáveis usadas para o processamento de Color Mask
 	int initial_range_value;
 	int range_width;
-	// variáveis usadas para o processamento de Final Mask
-	int open_2;
-	int close_2;
-	int open_3;
-	// váriaveis usadas para o filtro de áreas aleatórias
-	int min_area;
 };
 
 struct Object {
@@ -121,10 +108,11 @@ private:
 	int height_;
 	int width_;
 
-	int close_aux_, open_aux_, max_area_, dilate_aux_, thresh_area_, close_area_, dilate_area_;
 	int markers_blur_size_, markers_thresh_, markers_open_;
 	int pucks_blur_size_, pucks_dilate_, pucks_thresh_, pucks_close_, pucks_open_;
-	int color_blur_size_, color_dilate_, color_close_, color_open_;
+	int color_blur_size_, color_dilate_, color_open_, color_close_;
+	int final_open_before_, final_close_, final_open_after_, final_dilate_;
+	int area_blur_size_, area_thresh_, area_close_, area_dilate_;
 
 	bool calibration_;
 	std::string contours_window_name_;
