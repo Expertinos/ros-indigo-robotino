@@ -30,29 +30,7 @@ RobotinoVision::RobotinoVision():
 	contours_window_name_ = CONTOURS_WINDOW + ": " + Colors::toString(color_);		
 
 	calibration_ = true;
-	close_aux_ = 5;
-	open_aux_ = 2;
-	dilate_aux_ = 2;
-	max_area_ = 10;
-	thresh_area_ = 50;
-	close_area_ = 15;
-	dilate_area_ = 15;
-
-	markers_blur_size_ = 1;
-	markers_thresh_ = 220;
-	markers_open_ = 2;
-
-	pucks_blur_size_ = 4;
-	pucks_dilate_ = 6;
-	pucks_thresh_ = 70;
-	pucks_close_ = 2;
-	pucks_open_ = 2;
-
-	color_blur_size_ = 3;
-	color_dilate_ = 2;
-	color_open_ = 2;
-	color_close_ = 5;
-
+	
 	verify_markers_ = true;
 	specific_number_of_markers_ = -1;
 	
@@ -117,6 +95,10 @@ RobotinoVision::~RobotinoVision()
 {
 	imgRGB_.release();
 	find_objects_srv_.shutdown();
+	find_areas_srv_.shutdown();
+	get_list_srv_.shutdown();
+	get_lamp_posts_srv_.shutdown();
+	contain_in_list_srv_.shutdown();
 	image_sub_.shutdown();
 	save_srv_.shutdown();
 	set_calibration_srv_.shutdown();
@@ -442,6 +424,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	ROS_DEBUG("Getting Puck without Markers!!!");
 	cv::Mat puck_without_markers = getPuckWithoutMarkers(final_mask, puck_markers);
 	ROS_DEBUG("Getting Contours based on Final Mask!!!");
+	cv::Mat area = getInsulatingTapeArea();
 	
 	if (calibration_)
 	{
@@ -457,10 +440,6 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		cv::createTrackbar("Threshold: ", ALL_MARKERS_WINDOW, &markers_thresh_, 255);
 		cv::createTrackbar("Open: ", ALL_MARKERS_WINDOW, &markers_open_, 20);
 
-		cv::createTrackbar("Threshold: ", INSULATING_TAPE_WINDOW, &thresh_area_, 255);
-		cv::createTrackbar("Close: ", INSULATING_TAPE_WINDOW, &close_area_, 50);
-		cv::createTrackbar("Dilate: ", INSULATING_TAPE_WINDOW, &dilate_area_, 50);
-
 		cv::createTrackbar("Blur: ", PUCKS_MASK_WINDOW, &pucks_blur_size_, 40);
 		cv::createTrackbar("Dilate: ", PUCKS_MASK_WINDOW, &pucks_dilate_, 40);
 		cv::createTrackbar("Threshold: ", PUCKS_MASK_WINDOW, &pucks_thresh_, 255);
@@ -474,15 +453,18 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		cv::createTrackbar("Open: ", COLOR_MASK_WINDOW, &color_open_, 40);
 		cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &color_close_, 40);
 	
-		cv::createTrackbar("Open(before): ", FINAL_MASK_WINDOW, &color_params_.open_2, 20);
-		cv::createTrackbar("Close: ", FINAL_MASK_WINDOW, &color_params_.close_2, 20);
-		cv::createTrackbar("Open(after): ", FINAL_MASK_WINDOW, &color_params_.open_3, 20);
-		cv::createTrackbar("Dilate: ", FINAL_MASK_WINDOW, &dilate_aux_, 20);
-	
-		cv::createTrackbar("Max Marker Area Size: ", contours_window_name_, &max_area_, MIN_AREA);
-		cv::imshow(PUCK_MARKERS_WINDOW, puck_markers);
+		cv::createTrackbar("Open(before): ", FINAL_MASK_WINDOW, &final_open_before_, 20);
+		cv::createTrackbar("Close: ", FINAL_MASK_WINDOW, &final_close_, 20);
+		cv::createTrackbar("Open(after): ", FINAL_MASK_WINDOW, &final_open_after_, 20);
+		cv::createTrackbar("Dilate: ", FINAL_MASK_WINDOW, &final_dilate_, 20);
 
-		cv::createTrackbar("Min Puck Area Size: ", contours_window_name_, &color_params_.min_area, 10 * MIN_AREA);
+		cv::createTrackbar("Blur: ", INSULATING_TAPE_WINDOW, &area_blur_size_, 50);
+		cv::createTrackbar("Threshold: ", INSULATING_TAPE_WINDOW, &area_thresh_, 255);
+		cv::createTrackbar("Close: ", INSULATING_TAPE_WINDOW, &area_close_, 50);
+		cv::createTrackbar("Dilate: ", INSULATING_TAPE_WINDOW, &area_dilate_, 50);
+		cv::imshow(INSULATING_TAPE_WINDOW, area);
+	
+		cv::imshow(PUCK_MARKERS_WINDOW, puck_markers);
 	
 		showImageBGRwithMask(final_mask);
 	}
@@ -496,6 +478,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 
 	final_mask.release();
 	puck_without_markers.release();
+	area.release();
 	
 	cv::waitKey(30);
 
@@ -527,12 +510,10 @@ cv::Mat RobotinoVision::getAllMarkers(cv::Mat &pucks_mask)
 	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * markers_open_ + 1, 2 * markers_open_ + 1), cv::Point(markers_open_, markers_open_));
 	cv::morphologyEx(all_markers, all_markers, 2, element);
 
-	/*if (calibration_)
+	if (calibration_)
 	{
 		cv::imshow(ALL_MARKERS_WINDOW, all_markers);
-	}*/
-	cv::imshow(ALL_MARKERS_WINDOW, all_markers);
-
+	}
 
 	imgHSV.release();
 	splitted[0].release();
@@ -559,22 +540,24 @@ cv::Mat RobotinoVision::getInsulatingTapeArea()
 	cv::split(imgHSV, splitted);
 	insulating_tape_area = splitted[2];
 
+	cv::medianBlur(insulating_tape_area, insulating_tape_area, 2 * area_blur_size_ + 1);
+
 	// fazendo threshold da imagem V
-	cv::threshold(insulating_tape_area, insulating_tape_area, thresh_area_, 255, cv::THRESH_BINARY);
+	cv::threshold(insulating_tape_area, insulating_tape_area, area_thresh_, 255, cv::THRESH_BINARY);
 
 	// invertendo imagem
 	insulating_tape_area = 255 - insulating_tape_area;
 
 	// fazendo dilatação na imagem acima
-	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * dilate_area_ + 1, 2 * dilate_area_ + 1), cv::Point(dilate_area_, dilate_area_));
+	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * area_dilate_ + 1, 2 * area_dilate_ + 1), cv::Point(area_dilate_, area_dilate_));
 	cv::dilate(insulating_tape_area, insulating_tape_area, element);
 
 	// fechando buracos na area
-	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * close_area_ + 1, 2 * close_area_ + 1), cv::Point(close_area_, close_area_));
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * area_close_ + 1, 2 * area_close_ + 1), cv::Point(area_close_, area_close_));
 	cv::morphologyEx(insulating_tape_area, insulating_tape_area, 3, element);
 
 	// fazendo dilatação na imagem acima
-	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * dilate_aux_ + 1, 2 * dilate_aux_ + 1), cv::Point(dilate_aux_, dilate_aux_));
+	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * area_dilate_ + 1, 2 * area_dilate_ + 1), cv::Point(area_dilate_, area_dilate_));
 	cv::dilate(insulating_tape_area, insulating_tape_area, element);
 	
 	if (calibration_)
@@ -628,7 +611,6 @@ cv::Mat RobotinoVision::getPucksMask()
 	{
 		cv::imshow(PUCKS_MASK_WINDOW, pucks_mask);
 	}
-	cv::imshow(PUCKS_MASK_WINDOW, pucks_mask);
 
 	imgHSV.release();
 	splitted[0].release();
@@ -688,7 +670,6 @@ cv::Mat RobotinoVision::getColorMask()
 	{
 		cv::imshow(COLOR_MASK_WINDOW, color_mask);
 	}
-	cv::imshow(COLOR_MASK_WINDOW, color_mask);
 
 	imgHLS.release();
 	splitted[0].release();
@@ -713,16 +694,20 @@ cv::Mat RobotinoVision::getFinalMask(cv::Mat &insulating_tape_area, cv::Mat &puc
 	cv::bitwise_and(final_mask, color_mask, final_mask);
 
 	// removendo particulas pequenas
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_params_.open_2 + 1, 2 * color_params_.open_2 + 1), cv::Point(color_params_.open_2, color_params_.open_2));
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_before_ + 1, 2 * final_open_before_ + 1), cv::Point(final_open_before_, final_open_before_));
 	cv::morphologyEx(final_mask, final_mask, 2, element);
 	
 	// fechando buracos
-	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_params_.close_2 + 1, 2 * color_params_.close_2 + 1), cv::Point(color_params_.close_2, color_params_.close_2));
+	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_close_ + 1, 2 * final_close_ + 1), cv::Point(final_close_, final_close_));
 	morphologyEx(final_mask, final_mask, 3, element);
 
 	// removendo particulas pequenas
-	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_params_.open_3 + 1, 2 * color_params_.open_3 + 1), cv::Point(color_params_.open_3, color_params_.open_3));
+	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_after_ + 1, 2 * final_open_after_ + 1), cv::Point(final_open_after_, final_open_after_));
 	cv::morphologyEx(final_mask, final_mask, 2, element);
+
+	// fazendo dilatação na imagem acima
+	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_dilate_+ 1, 2 * final_dilate_ + 1), cv::Point(final_dilate_, final_dilate_));
+	cv::dilate(final_mask, final_mask, element);
 
 	element.release();
 
@@ -739,19 +724,19 @@ cv::Mat RobotinoVision::getFinalMask(cv::Mat &pucks_mask, cv::Mat &color_mask)
 	cv::bitwise_and(pucks_mask, color_mask, final_mask);
 
 	// removendo particulas pequenas
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_params_.open_2 + 1, 2 * color_params_.open_2 + 1), cv::Point(color_params_.open_2, color_params_.open_2));
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_before_ + 1, 2 * final_open_before_ + 1), cv::Point(final_open_before_, final_open_before_));
 	cv::morphologyEx(final_mask, final_mask, 2, element);
 	
 	// fechando buracos
-	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_params_.close_2 + 1, 2 * color_params_.close_2 + 1), cv::Point(color_params_.close_2, color_params_.close_2));
+	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_close_ + 1, 2 * final_close_ + 1), cv::Point(final_close_, final_close_));
 	morphologyEx(final_mask, final_mask, 3, element);
 
 	// removendo particulas pequenas
-	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_params_.open_3 + 1, 2 * color_params_.open_3 + 1), cv::Point(color_params_.open_3, color_params_.open_3));
+	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_after_ + 1, 2 * final_open_after_ + 1), cv::Point(final_open_after_, final_open_after_));
 	cv::morphologyEx(final_mask, final_mask, 2, element);
 
 	// fazendo dilatação na imagem acima
-	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * dilate_aux_ + 1, 2 * dilate_aux_ + 1), cv::Point(dilate_aux_, dilate_aux_));
+	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_dilate_+ 1, 2 * final_dilate_ + 1), cv::Point(final_dilate_, final_dilate_));
 	cv::dilate(final_mask, final_mask, element);
 
 	if (calibration_)
@@ -845,7 +830,7 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 	{
 		float area = cv::contourArea(initial_contours[i]);
 		//ROS_WARN("Contour %d: (next: %d|previous: %d|1st_child: %d|parent: %d): %f", i, hierarchy[i][0], hierarchy[i][1], hierarchy[i][2], hierarchy[i][3], area);
-		if (!verify_markers_ && area > color_params_.min_area)
+		if (!verify_markers_ && area > MIN_AREA)
 		{
 			contours.push_back(initial_contours[i]);
 		} 
@@ -919,11 +904,11 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 	std::string contours_window_name = CONTOURS_WINDOW + ": " + Colors::toString(color_);
 	if (contours_window_name != contours_window_name_) 
 	{
-		cv::destroyWindow(contours_window_name_);
 		contours_window_name_ = contours_window_name;
-		cv::namedWindow(contours_window_name_);
+		without_markers_window_name_ = Colors::toString(color_) + " " + PUCK_WITHOUT_MARKERS_WINDOW;
+		setImagesWindows();
 	}
-	cv::imshow(contours_window_name_.c_str(), drawing);///////////////////////////////
+	cv::imshow(contours_window_name_.c_str(), drawing);
 
 	int numberOfObjects = mass_centers.size();
 	if (numberOfObjects > MAX_NUMBER_OF_PUCKS) 
@@ -1031,20 +1016,22 @@ void RobotinoVision::setImagesWindows()
 	{
 		return;
 	}
-	cv::namedWindow(INSULATING_TAPE_WINDOW);
 	cv::namedWindow(ALL_MARKERS_WINDOW);
 	cv::namedWindow(PUCKS_MASK_WINDOW);
 	cv::namedWindow(COLOR_MASK_WINDOW);
 	cv::namedWindow(FINAL_MASK_WINDOW);
-	cv::namedWindow(BGR_WINDOW);
 	cv::namedWindow(PUCK_MARKERS_WINDOW);
 	cv::namedWindow(contours_window_name_.c_str());
-	cv::moveWindow(ALL_MARKERS_WINDOW, 1 * width_, 4 * height_);
-	cv::moveWindow(PUCKS_MASK_WINDOW, 2 * width_, 4 * height_);
-	cv::moveWindow(COLOR_MASK_WINDOW, 3 * width_, 4 * height_);
-	cv::moveWindow(FINAL_MASK_WINDOW, 1 * width_, 1 * height_);
-	cv::moveWindow(BGR_WINDOW, 2 * width_, 1 * height_);
-	cv::moveWindow(contours_window_name_.c_str(), 3 * width_, 1 * height_);
+	cv::namedWindow(INSULATING_TAPE_WINDOW);
+	cv::namedWindow(BGR_WINDOW);
+	cv::moveWindow(ALL_MARKERS_WINDOW, 0.5 * width_, 0 * height_);
+	cv::moveWindow(PUCKS_MASK_WINDOW, 1.5 * width_, 0 * height_);
+	cv::moveWindow(COLOR_MASK_WINDOW, 2.5 * width_, 0 * height_);
+	cv::moveWindow(FINAL_MASK_WINDOW, 3.5 * width_, 0 * height_);
+	cv::moveWindow(PUCK_MARKERS_WINDOW, 0.5 * width_, 3 * height_);
+	cv::moveWindow(contours_window_name_.c_str(), 1.5 * width_, 3 * height_);	
+	cv::moveWindow(INSULATING_TAPE_WINDOW, 2.5 * width_, 3 * height_);
+	cv::moveWindow(BGR_WINDOW, 3.5 * width_, 3 * height_);
 }
 
 /**
@@ -1063,149 +1050,103 @@ bool RobotinoVision::setCalibration(robotino_vision::SetCalibration::Request &re
 void RobotinoVision::readParameters()
 {	
 	//which were defined in config/camera_params.yaml file
+	ROS_DEBUG("************* Camera Position ************* ");
 	nh_.param<double>("/robotino_vision_node/camera/height", camera_height_, 28.0); // in centimeters
 	nh_.param<double>("/robotino_vision_node/camera/close_distance", camera_close_distance_, 20.0); // in centimeters
 	nh_.param<double>("/robotino_vision_node/camera/far_distance", camera_far_distance_, 62.0); // in centimeters
 	nh_.param<double>("/robotino_vision_node/camera/depth_width", camera_depth_width_, 50.0); // in centimeters
-
-	ROS_DEBUG("************* Camera Position ************* ");
 	ROS_DEBUG("~/camera/height: %f", camera_height_); 
 	ROS_DEBUG("~/camera/close_distance: %f", camera_close_distance_);
 	ROS_DEBUG("~/camera/far_distance: %f", camera_far_distance_);
 	ROS_DEBUG("~/camera/depth_width: %f", camera_depth_width_);
 
+	ROS_DEBUG("************ Image Size ***************** ");
 	nh_.param<int>("/robotino_vision_node/image/height", height_, 240); // in pixels
 	nh_.param<int>("/robotino_vision_node/image/width", width_, 320); // in pixels
-
-	ROS_DEBUG("************ Image Size ***************** ");
 	ROS_DEBUG("~/image/height: %d", height_);
 	ROS_DEBUG("~/image/width: %d", width_);
 
-	//which were defined in config/color_params.yaml file
-	nh_.param<int>("/robotino_vision_node/color/orange/thresh_0", orange_params_.thresh_0, 137);
-	//nh_.param<int>("/robotino_vision_node/color/orange/erosion_0", orange_params_.erosion_0, 1);
-	nh_.param<int>("/robotino_vision_node/color/orange/thresh_1", orange_params_.thresh_1, 106);
-	nh_.param<int>("/robotino_vision_node/color/orange/close_1", orange_params_.close_1, 0);
-	nh_.param<int>("/robotino_vision_node/color/orange/open_1", orange_params_.open_1, 6);
+	// which were defined in config/color_params.yaml file
+	ROS_DEBUG("********* Orange Color Parameters **********");
 	nh_.param<int>("/robotino_vision_node/color/orange/initial_range_value", orange_params_.initial_range_value, 241);
 	nh_.param<int>("/robotino_vision_node/color/orange/range_width", orange_params_.range_width, 36);
-	nh_.param<int>("/robotino_vision_node/color/orange/open_2", orange_params_.open_2, 0);
-	nh_.param<int>("/robotino_vision_node/color/orange/close_2", orange_params_.close_2, 20);
-	nh_.param<int>("/robotino_vision_node/color/orange/open_3", orange_params_.open_3, 5);
-	nh_.param<int>("/robotino_vision_node/color/orange/min_area", orange_params_.min_area, MIN_AREA);
-
-	ROS_DEBUG("********* Orange Color Parameters **********");
-	ROS_DEBUG("~/orange/thresh_0: %d", orange_params_.thresh_0);
-	//ROS_DEBUG("~/orange/erosion_0: %d", orange_params_.erosion_0);
-	ROS_DEBUG("~/orange/thresh_1: %d", orange_params_.thresh_1);
-	ROS_DEBUG("~/orange/close_1: %d", orange_params_.close_1);
-	ROS_DEBUG("~/orange/open_1: %d", orange_params_.open_1);
 	ROS_DEBUG("~/orange/initial_range_value: %d", orange_params_.initial_range_value);
 	ROS_DEBUG("~/orange/range_width: %d", orange_params_.range_width);
-	ROS_DEBUG("~/orange/open_2: %d", orange_params_.open_2);
-	ROS_DEBUG("~/orange/close_2: %d", orange_params_.close_2);
-	ROS_DEBUG("~/orange/open_3: %d", orange_params_.open_3);
-	ROS_DEBUG("~/orange/min_area: %d", orange_params_.min_area);
-
-	nh_.param<int>("/robotino_vision_node/color/red/thresh_0", red_params_.thresh_0, 52);
-	//nh_.param<int>("/robotino_vision_node/color/red/erosion_0", red_params_.erosion_0, 2);
-	nh_.param<int>("/robotino_vision_node/color/red/thresh_1", red_params_.thresh_1, 0);
-	nh_.param<int>("/robotino_vision_node/color/red/close_1", red_params_.close_1, 0);
-	nh_.param<int>("/robotino_vision_node/color/red/open_1", red_params_.open_1, 0);
-	nh_.param<int>("/robotino_vision_node/color/red/initial_range_value", red_params_.initial_range_value, 245);
-	nh_.param<int>("/robotino_vision_node/color/red/range_width", red_params_.range_width, 14);
-	nh_.param<int>("/robotino_vision_node/color/red/open_2", red_params_.open_2, 3);
-	nh_.param<int>("/robotino_vision_node/color/red/close_2", red_params_.close_2, 4);
-	nh_.param<int>("/robotino_vision_node/color/red/open_3", red_params_.open_3, 2);
-	nh_.param<int>("/robotino_vision_node/color/red/min_area", red_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Red Color Parameters **********");
-	ROS_DEBUG("~/red/thresh_0: %d", red_params_.thresh_0);
-	//ROS_DEBUG("~/red/erosion_0: %d", red_params_.erosion_0);
-	ROS_DEBUG("~/red/thresh_1: %d", red_params_.thresh_1);
-	ROS_DEBUG("~/red/close_1: %d", red_params_.close_1);
-	ROS_DEBUG("~/red/open_1: %d", red_params_.open_1);
+	nh_.param<int>("/robotino_vision_node/color/red/initial_range_value", red_params_.initial_range_value, 245);
+	nh_.param<int>("/robotino_vision_node/color/red/range_width", red_params_.range_width, 14);
 	ROS_DEBUG("~/red/initial_range_value: %d", red_params_.initial_range_value);
 	ROS_DEBUG("~/red/range_width: %d", red_params_.range_width);
-	ROS_DEBUG("~/red/open_2: %d", red_params_.open_2);
-	ROS_DEBUG("~/red/close_2: %d", red_params_.close_2);
-	ROS_DEBUG("~/red/open_3: %d", red_params_.open_3);
-	ROS_DEBUG("~/red/min_area: %d", red_params_.min_area);
-
-	nh_.param<int>("/robotino_vision_node/color/green/thresh_0", green_params_.thresh_0, 36);
-	//nh_.param<int>("/robotino_vision_node/color/green/erosion_0", green_params_.erosion_0, 1);
-	nh_.param<int>("/robotino_vision_node/color/green/thresh_1", green_params_.thresh_1, 55);
-	nh_.param<int>("/robotino_vision_node/color/green/close_1", green_params_.close_1, 5);
-	nh_.param<int>("/robotino_vision_node/color/green/open_1", green_params_.open_1, 5);
-	nh_.param<int>("/robotino_vision_node/color/green/initial_range_value", green_params_.initial_range_value, 112);
-	nh_.param<int>("/robotino_vision_node/color/green/range_width", green_params_.range_width, 40);
-	nh_.param<int>("/robotino_vision_node/color/green/open_2", green_params_.open_2, 5);
-	nh_.param<int>("/robotino_vision_node/color/green/close_2", green_params_.close_2, 0);
-	nh_.param<int>("/robotino_vision_node/color/green/open_3", green_params_.open_3, 2);
-	nh_.param<int>("/robotino_vision_node/color/green/min_area", green_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Green Color Parameters **********");
-	ROS_DEBUG("~/green/thresh_0: %d", green_params_.thresh_0);
-	//ROS_DEBUG("~/green/erosion_0: %d", green_params_.erosion_0);
-	ROS_DEBUG("~/green/thresh_1: %d", green_params_.thresh_1);
-	ROS_DEBUG("~/green/close_1: %d", green_params_.close_1);
-	ROS_DEBUG("~/green/open_1: %d", green_params_.open_1);
+	nh_.param<int>("/robotino_vision_node/color/green/initial_range_value", green_params_.initial_range_value, 112);
+	nh_.param<int>("/robotino_vision_node/color/green/range_width", green_params_.range_width, 40);
 	ROS_DEBUG("~/green/initial_range_value: %d", green_params_.initial_range_value);
 	ROS_DEBUG("~/green/range_width: %d", green_params_.range_width);
-	ROS_DEBUG("~/green/open_2: %d", green_params_.open_2);
-	ROS_DEBUG("~/green/close_2: %d", green_params_.close_2);
-	ROS_DEBUG("~/green/open_3: %d", green_params_.open_3);
-	ROS_DEBUG("~/green/min_area: %d", green_params_.min_area);
-
-	nh_.param<int>("/robotino_vision_node/color/blue/thresh_0", blue_params_.thresh_0, 36);
-	//nh_.param<int>("/robotino_vision_node/color/blue/erosion_0", blue_params_.erosion_0, 1);
-	nh_.param<int>("/robotino_vision_node/color/blue/thresh_1", blue_params_.thresh_1, 85);
-	nh_.param<int>("/robotino_vision_node/color/blue/close_1", blue_params_.close_1, 0);
-	nh_.param<int>("/robotino_vision_node/color/blue/open_1", blue_params_.open_1, 0);
-	nh_.param<int>("/robotino_vision_node/color/blue/initial_range_value", blue_params_.initial_range_value, 150);
-	nh_.param<int>("/robotino_vision_node/color/blue/range_width", blue_params_.range_width, 28);
-	nh_.param<int>("/robotino_vision_node/color/blue/open_2", blue_params_.open_2, 1);
-	nh_.param<int>("/robotino_vision_node/color/blue/close_2", blue_params_.close_2, 11);
-	nh_.param<int>("/robotino_vision_node/color/blue/open_3", blue_params_.open_3, 2);
-	nh_.param<int>("/robotino_vision_node/color/blue/min_area", blue_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Blue Color Parameters **********");
-	ROS_DEBUG("~/blue/thresh_0: %d", blue_params_.thresh_0);
-	//ROS_DEBUG("~/blue/erosion_0: %d", blue_params_.erosion_0);
-	ROS_DEBUG("~/blue/thresh_1: %d", blue_params_.thresh_1);
-	ROS_DEBUG("~/blue/close_1: %d", blue_params_.close_1);
-	ROS_DEBUG("~/blue/open_1: %d", blue_params_.open_1);
+	nh_.param<int>("/robotino_vision_node/color/blue/initial_range_value", blue_params_.initial_range_value, 150);
+	nh_.param<int>("/robotino_vision_node/color/blue/range_width", blue_params_.range_width, 28);
 	ROS_DEBUG("~/blue/initial_range_value: %d", blue_params_.initial_range_value);
 	ROS_DEBUG("~/blue/range_width: %d", blue_params_.range_width);
-	ROS_DEBUG("~/blue/open_2: %d", blue_params_.open_2);
-	ROS_DEBUG("~/blue/close_2: %d", blue_params_.close_2);
-	ROS_DEBUG("~/blue/open_3: %d", blue_params_.open_3);
-	ROS_DEBUG("~/blue/min_area: %d", blue_params_.min_area);
-
-	nh_.param<int>("/robotino_vision_node/color/yellow/thresh_0", yellow_params_.thresh_0, 76);
-	//nh_.param<int>("/robotino_vision_node/color/yellow/erosion_0", yellow_params_.erosion_0, 1);
-	nh_.param<int>("/robotino_vision_node/color/yellow/thresh_1", yellow_params_.thresh_1, 61);
-	nh_.param<int>("/robotino_vision_node/color/yellow/close_1", yellow_params_.close_1, 0);
-	nh_.param<int>("/robotino_vision_node/color/yellow/open_1", yellow_params_.open_1, 6);
-	nh_.param<int>("/robotino_vision_node/color/yellow/initial_range_value", yellow_params_.initial_range_value, 22);
-	nh_.param<int>("/robotino_vision_node/color/yellow/range_width", yellow_params_.range_width, 28);
-	nh_.param<int>("/robotino_vision_node/color/yellow/open_2", yellow_params_.open_2, 3);
-	nh_.param<int>("/robotino_vision_node/color/yellow/close_2", yellow_params_.close_2, 8);
-	nh_.param<int>("/robotino_vision_node/color/yellow/open_3", yellow_params_.open_3, 0);
-	nh_.param<int>("/robotino_vision_node/color/yellow/min_area", yellow_params_.min_area, MIN_AREA);
 
 	ROS_DEBUG("********* Yellow Color Parameters **********");
-	ROS_DEBUG("~/yellow/thresh_0: %d", yellow_params_.thresh_0);
-	//ROS_DEBUG("~/yellow/erosion_0: %d", yellow_params_.erosion_0);
-	ROS_DEBUG("~/yellow/thresh_1: %d", yellow_params_.thresh_1);
-	ROS_DEBUG("~/yellow/close_1: %d", yellow_params_.close_1);
-	ROS_DEBUG("~/yellow/open_1: %d", yellow_params_.open_1);
+	nh_.param<int>("/robotino_vision_node/color/yellow/initial_range_value", yellow_params_.initial_range_value, 22);
+	nh_.param<int>("/robotino_vision_node/color/yellow/range_width", yellow_params_.range_width, 28);
 	ROS_DEBUG("~/yellow/initial_range_value: %d", yellow_params_.initial_range_value);
 	ROS_DEBUG("~/yellow/range_width: %d", yellow_params_.range_width);
-	ROS_DEBUG("~/yellow/open_2: %d", yellow_params_.open_2);
-	ROS_DEBUG("~/yellow/close_2: %d", yellow_params_.close_2);
-	ROS_DEBUG("~/yellow/open_3: %d", yellow_params_.open_3);
-	ROS_DEBUG("~/yellow/min_area: %d", yellow_params_.min_area);
+
+	// which were defined in config/image_processing_params.yaml file
+	ROS_DEBUG("********* All Markers Mask Parameters **********");
+	nh_.param<int>("/robotino_vision_node/mask/markers/blur_size", markers_blur_size_, 1);
+	nh_.param<int>("/robotino_vision_node/mask/markers/thresh", markers_thresh_, 220);
+	nh_.param<int>("/robotino_vision_node/mask/markers/open", markers_open_, 2);
+	ROS_DEBUG("~/mask/markers/blur_size: %d", markers_blur_size_);
+	ROS_DEBUG("~/mask/markers/thresh: %d", markers_thresh_);
+	ROS_DEBUG("~/mask/markers/open: %d", markers_open_);
+
+	ROS_DEBUG("********* All Pucks Mask Parameters **********");
+	nh_.param<int>("/robotino_vision_node/mask/pucks/blur_size", pucks_blur_size_, 4);
+	nh_.param<int>("/robotino_vision_node/mask/pucks/dilate", pucks_dilate_, 6);
+	nh_.param<int>("/robotino_vision_node/mask/pucks/thresh", pucks_thresh_, 70);
+	nh_.param<int>("/robotino_vision_node/mask/pucks/close", pucks_close_, 2);
+	nh_.param<int>("/robotino_vision_node/mask/pucks/open", pucks_open_, 2);
+	ROS_DEBUG("~/mask/pucks/blur_size: %d", pucks_blur_size_);
+	ROS_DEBUG("~/mask/pucks/dilate: %d", pucks_dilate_);
+	ROS_DEBUG("~/mask/pucks/thresh: %d", pucks_thresh_);
+	ROS_DEBUG("~/mask/pucks/close: %d", pucks_close_);
+	ROS_DEBUG("~/mask/pucks/open: %d", pucks_open_);
+
+	ROS_DEBUG("********* Color Mask Parameters **********");
+	nh_.param<int>("/robotino_vision_node/mask/color/blur_size", color_blur_size_, 3);
+	nh_.param<int>("/robotino_vision_node/mask/color/dilate", color_dilate_, 2);
+	nh_.param<int>("/robotino_vision_node/mask/color/open", color_open_, 2);
+	nh_.param<int>("/robotino_vision_node/mask/color/close", color_close_, 5);
+	ROS_DEBUG("~/mask/color/blur_size: %d", color_blur_size_);
+	ROS_DEBUG("~/mask/color/dilate: %d", color_dilate_);
+	ROS_DEBUG("~/mask/color/open: %d", color_open_);
+	ROS_DEBUG("~/mask/color/close: %d", color_close_);
+
+	ROS_DEBUG("********* Final Puck Mask Parameters **********");
+	nh_.param<int>("/robotino_vision_node/mask/final_puck/open/before", final_open_before_, 2);
+	nh_.param<int>("/robotino_vision_node/mask/final_puck/close", final_close_, 2);
+	nh_.param<int>("/robotino_vision_node/mask/final_puck/open/after", final_open_after_, 7);
+	nh_.param<int>("/robotino_vision_node/mask/final_puck/dilate", final_dilate_, 2);
+	ROS_DEBUG("~/mask/final_puck/open/before: %d", final_open_before_);
+	ROS_DEBUG("~/mask/final_puck/close: %d", final_close_);
+	ROS_DEBUG("~/mask/final_puck/open/after: %d", final_open_after_);
+	ROS_DEBUG("~/mask/final_puck/dilate: %d", final_dilate_);
+
+	ROS_DEBUG("********* Insulating Tape Area Mask Parameters **********");
+	nh_.param<int>("/robotino_vision_node/mask/insulating_tape_area/blur_size", area_blur_size_, 1);
+	nh_.param<int>("/robotino_vision_node/mask/insulating_tape_area/thresh", area_thresh_, 50);
+	nh_.param<int>("/robotino_vision_node/mask/insulating_tape_area/close", area_close_, 15);
+	nh_.param<int>("/robotino_vision_node/mask/insulating_tape_area/dilate", area_dilate_, 15);
+	ROS_DEBUG("~/mask/insulating_tape_area/blur_size: %d", area_blur_size_);
+	ROS_DEBUG("~/mask/insulating_tape_area/thresh: %d", area_thresh_);
+	ROS_DEBUG("~/mask/insulating_tape_area/close: %d", area_close_);
+	ROS_DEBUG("~/mask/insulating_tape_area/dilate: %d", area_dilate_);
 }
 /*
 
