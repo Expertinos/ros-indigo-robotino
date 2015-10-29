@@ -140,7 +140,7 @@ std::vector<colors::ColorEnum> colors::Colors::getAll()
 	std::vector<ColorEnum> colors;
 	//colors.push_back(ORANGE);
 	colors.push_back(YELLOW);
-	colors.push_back(BLUE);
+	//colors.push_back(BLUE);
 	colors.push_back(GREEN);
 	colors.push_back(RED);
 	//colors.push_back(BLACK);
