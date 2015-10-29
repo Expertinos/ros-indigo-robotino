@@ -208,6 +208,13 @@ void AlignServer::controlLoop()
 			usleep(1000);
 			laserAlignFront();
 			break;
+		case alignment_modes::LASER_RIGHT:
+			laserAlignRight();
+			usleep(1000);
+			laserAlignRight();
+			usleep(1000);
+			laserAlignRight();
+			usleep(1000);
 		case alignment_modes::LASER_RIGHT_LEFT:
 			// desenvolvido por Audeliano Li
 			laserAlignRightLeft();
@@ -446,9 +453,13 @@ void AlignServer::laserAlignFront()
 	}
 	setVelocity(0.0, 0.0, 0.0);
 	publishVelocity();
-	//criar uma rotina para comparar todos os pontos um-a-um com o ponto central.
+
 }
 
+void AlignServer::laserAlignRight()
+{
+
+}
 /**
  * Desenvolvido por Audeliano Li 
  */

@@ -18,6 +18,7 @@
 #include "Server.h"
 #include "StorePuckStates.h"
 #include "StoreModes.h"
+#include "StoreStoreNumber.h"
 #include "AlignStates.h"
 #include "AlignAlignmentModes.h"
 #include "AlignDistanceModes.h"
@@ -69,11 +70,14 @@ private:
 
 	/**  */
 	StoreMode mode_;
+	StoreStoreNumber store_number_;
+
 	bool loaded_;
 
 	void distanceSensorsCallback(const sensor_msgs::PointCloud& msg);
 	void digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg);
 	void laserScanCallback(const sensor_msgs::LaserScan& msg);
+	void laserDistanceFront(StoreStoreNumber mode);
 
 	/** Movement related Variables and Functions */
 	StorePuckState state_;
