@@ -109,26 +109,32 @@ void StorePuckServer::controlLoop()
 		robotino_motion::AlignGoal frontal_alignment, lateral_alignment;
 		frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
 		frontal_alignment.distance_mode = 1; // NORMAL distance mode
-		lateral_alignment.alignment_mode = 9; // LEFT_RIGHT_LASER alignment mode
-		lateral_alignment.distance_mode = 1; // NORMAL distance mode
+		//lateral_alignment.alignment_mode = 9; // RIGHT_LASER alignment mode
+		//lateral_alignment.distance_mode = 1; // NORMAL distance mode
 		align_client_.sendGoal(frontal_alignment);
 		state_ = store_puck_states::ALIGNING_FRONTAL;
 		align_client_.waitForResult();
+
+		laserDistanceFront(store_number_);
+
+		frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
+		frontal_alignment.distance_mode = 1; // NORMAL distance mode
+		align_client_.sendGoal(frontal_alignment);
+		state_ = store_puck_states::ALIGNING_FRONTAL;
+		align_client_.waitForResult();
+
 		resetOdometry();
 		while(getOdometry_PHI() < PI / 2)
 		{
 			setVelocity(0, 0, 0.5);
 			publishVelocity();
 		}
-		align_client_.sendGoal(lateral_alignment);
-		state_ = store_puck_states::ALIGNING_LATERAL;
-		align_client_.waitForResult();
+		frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
+		frontal_alignment.distance_mode = 1; // NORMAL distance mode
 		align_client_.sendGoal(frontal_alignment);
 		state_ = store_puck_states::ALIGNING_FRONTAL;
 		align_client_.waitForResult();
-		align_client_.sendGoal(lateral_alignment);
-		state_ = store_puck_states::ALIGNING_LATERAL;
-		align_client_.waitForResult();
+
 		state_ = store_puck_states::STORING_PUCK;
 		while(laser_front_ > 0.33)
 		{
@@ -136,19 +142,19 @@ void StorePuckServer::controlLoop()
 			publishVelocity();
 		}
 		state_ = store_puck_states::LEAVING_PUCK;
-		while(laser_front_ < 1)
+		while(laser_front_ < 0.8)
 		{
 			setVelocity(-0.1, 0, 0);
 			publishVelocity();
 		}
-		if(laser_right_ < 0.7 || laser_left_ < 0.7)
+		if(laser_right_ < 0.6 || laser_left_ < 0.6)
 		{
-			while(laser_right_ < 0.7)
+			while(laser_right_ < 0.6)
 			{
 				setVelocity(0, 0.1, 0);
 				publishVelocity();
 			}
-			while(laser_left_ < 0.7)
+			while(laser_left_ < 0.6)
 			{
 				setVelocity(0, -0.1, 0);
 				publishVelocity();
@@ -441,6 +447,43 @@ void StorePuckServer::laserScanCallback(const sensor_msgs::LaserScan& msg)
 	laser_front_ = msg.ranges[central_point];
 	laser_right_ = msg.ranges[0];
 	laser_left_ = msg.ranges[extreme_point];
+	ROS_INFO("Laser_Front: %f", laser_front_);
+}
+
+void StorePuckServer::laserDistanceFront(StoreStoreNumber mode)
+{
+	if (mode == store_store_numbers::NEAR)
+	{
+		while(laser_front_ > 0.13)
+		{
+			setVelocity(0.1, 0, 0);
+			publishVelocity();
+		}
+		setVelocity(0.0, 0.0, 0.0);
+		publishVelocity();
+	}
+	if (mode == store_store_numbers::MIDDLE)
+	{
+		while(laser_front_ > 0.78)
+		{
+			setVelocity(0.1, 0, 0);
+			publishVelocity();
+		}
+		setVelocity(0.0, 0.0, 0.0);
+		publishVelocity();
+	}
+	if (mode == store_store_numbers::FAR_AWAY)
+	{
+		while(laser_front_ > 1.43)
+		{
+			setVelocity(0.1, 0, 0);
+			publishVelocity();
+		}
+		setVelocity(0.0, 0.0, 0.0);
+		publishVelocity();
+	}
+
+
 }
 
 /**

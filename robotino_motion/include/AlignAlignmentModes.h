@@ -27,6 +27,7 @@ namespace alignment_modes
 		BACK_RIGHT,
 		BACK_LEFT,
 		LASER_FRONT,
+		LASER_RIGHT,
 		LASER_RIGHT_LEFT,
 		NONE
 	} AlignmentModeEnum;
