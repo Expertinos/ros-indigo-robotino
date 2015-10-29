@@ -22,9 +22,9 @@ def verificandoObjeto(area, color):
 			objeto[0] = 'AZUL_TRES'
 			if objeto[2] == 2:
 				objeto[2] = 3
-		elif objeto[2] == 4 or objeto[2] == 5:
+		elif objeto[2] == 4 or objeto[2] >= 5:
 			objeto[0] = 'AZUL_CINCO'
-			if objeto[2] == 4:
+			if objeto[2] != 5:
 				objeto[2] = 5
 		atualizaArea(area, objeto)
 		ligandoLeds2([color, color], False, objeto[2])
@@ -38,9 +38,9 @@ def verificandoObjeto(area, color):
 			objeto[0] = 'VERMELHO_TRES'
 			if objeto[2] == 2:
 				objeto[2] = 3
-		elif objeto[2] == 4 or objeto[2] == 5:
+		elif objeto[2] == 4 or objeto[2] >= 5:
 			objeto[0] = 'VERMELHO_CINCO'
-			if objeto[2] == 4:
+			if objeto[2] != 5:
 				objeto[2] = 5
 		atualizaArea(area, objeto)
 		ligandoLeds2([color, color], False, objeto[2])
