@@ -115,7 +115,49 @@ void StorePuckServer::controlLoop()
 		state_ = store_puck_states::ALIGNING_FRONTAL;
 		align_client_.waitForResult();
 
-		laserDistanceFront(store_number_);
+		ROS_INFO("Store_number_: %s", StoreStoreNumbers::toString(store_number_).c_str());
+		switch(store_number_)
+		{
+			case store_store_numbers::NEAR:
+				{
+				while(laser_front_ > 0.13)
+					{
+						setVelocity(0.1, 0, 0);
+						publishVelocity();
+					}
+				//setVelocity(0.0, 0.0, 0.0);
+				//publishVelocity();
+				}
+				break;
+			case store_store_numbers::MIDDLE:
+				{
+					printf("entrou no MIDDLE");
+					while(laser_front_ > 0.78)
+					{
+						setVelocity(0.1, 0, 0);
+						publishVelocity();
+					}
+				//setVelocity(0.0, 0.0, 0.0);
+				//publishVelocity();
+				}
+				break;
+			case store_store_numbers::FAR_AWAY:
+				{
+					printf("entrou no FAR_AWAY");
+					while(laser_front_ > 1.43)
+					{
+						setVelocity(0.1, 0, 0);
+						publishVelocity();
+					}
+					//setVelocity(0.0, 0.0, 0.0);
+					//publishVelocity();
+				}
+				break;
+			default:
+				ROS_ERROR("Store Number not supported yet!!!");
+		}
+
+		//laserDistanceFront(store_number_);
 
 		frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
 		frontal_alignment.distance_mode = 1; // NORMAL distance mode
@@ -374,12 +416,21 @@ bool StorePuckServer::validateNewGoal(const robotino_motion::StorePuckGoalConstP
 		//return false;
 	}
 	mode_ = StoreModes::newInstance(goal->mode);
+	store_number_ = StoreStoreNumbers::newInstance(goal->store_number);
 	if (mode_ == store_modes::NONE)
-	{	
+	{
 		result_.goal_achieved = false;
 		result_.message = "Invalid storage mode code!!!";
 		server_.setAborted(result_, result_.message);
 		ROS_ERROR("Invalid storage mode code: %d!!!", goal->mode);
+		return false;
+	}
+	if (store_number_ == store_store_numbers::NONE)
+	{	
+		result_.goal_achieved = false;
+		result_.message = "Invalid storage number code!!!";
+		server_.setAborted(result_, result_.message);
+		ROS_ERROR("Invalid storage number code: %d!!!", goal->store_number);
 		return false;
 	}
 	// seria bom verificar se tem peça na área (se a area é muito pequena)
@@ -447,11 +498,12 @@ void StorePuckServer::laserScanCallback(const sensor_msgs::LaserScan& msg)
 	laser_front_ = msg.ranges[central_point];
 	laser_right_ = msg.ranges[0];
 	laser_left_ = msg.ranges[extreme_point];
-	ROS_INFO("Laser_Front: %f", laser_front_);
+	//ROS_INFO("Laser_Front: %f", laser_front_);
 }
 
 void StorePuckServer::laserDistanceFront(StoreStoreNumber mode)
 {
+	printf("Entrou no laserDistanceFront!!!!");
 	if (mode == store_store_numbers::NEAR)
 	{
 		while(laser_front_ > 0.13)
@@ -464,6 +516,7 @@ void StorePuckServer::laserDistanceFront(StoreStoreNumber mode)
 	}
 	if (mode == store_store_numbers::MIDDLE)
 	{
+		printf("entrou no MIDDLE");
 		while(laser_front_ > 0.78)
 		{
 			setVelocity(0.1, 0, 0);
@@ -474,6 +527,7 @@ void StorePuckServer::laserDistanceFront(StoreStoreNumber mode)
 	}
 	if (mode == store_store_numbers::FAR_AWAY)
 	{
+		printf("entrou no FAR_AWAY");
 		while(laser_front_ > 1.43)
 		{
 			setVelocity(0.1, 0, 0);

@@ -1,12 +1,12 @@
 module: A
 
-area1_x: 0.696
-area1_y: -2.076
-area1_orientation: -2.491
+area1_x: 0.745
+area1_y: -2.112
+area1_orientation: -2.672
 
-area2_x: 0.503
-area2_y: -2.005
-area2_orientation: 2.898
+area2_x: 0.398
+area2_y: -1.727
+area2_orientation: -2.635
 
 area3_x: 0.076
 area3_y: -1.138
@@ -16,13 +16,13 @@ area4_x: 0.658
 area4_y: -2.278
 area4_orientation: 0.514
 
-area5_x: 0.458
-area5_y: -2.057
-area5_orientation: 1.191
+area5_x: 0.370
+area5_y: -1.730
+area5_orientation: 0.552
 
-area6_x: 0.092
-area6_y: -1.202
-area6_orientation: 0.483
+area6_x: -0.103
+area6_y: -1.251
+area6_orientation: 0.517
 
 casa_x: 2.120
 casa_y: -1.478
@@ -32,25 +32,25 @@ deposito1_x: 2.694
 deposito1_y: -0.213
 deposito1_orientation: 2.105
 
-deposito2_x: 2.142
-deposito2_y: -0.563
-deposito2_orientation: 2.121
+deposito2_x: 2.022
+deposito2_y: -0.576
+deposito2_orientation: 2.171
 
-deposito3_x: 1.526
-deposito3_y: -0.828
-deposito3_orientation: 2.098
+deposito3_x: 1.503
+deposito3_y: -1.024
+deposito3_orientation: 2.097
 
-store_deposito1_x: 2.707
-store_deposito1_y: -0.407
-store_deposito1_orientation: 0.553
+store_deposito1_x: 2.464
+store_deposito1_y: -0.510
+store_deposito1_orientation: 0.534
 
-store_deposito2_x: 2.150
-store_deposito2_y: -0.732
-store_deposito2_orientation: 0.534
+store_deposito2_x: 2.012
+store_deposito2_y: -0.816
+store_deposito2_orientation: 0.526
 
-store_deposito3_x: 1.506
-store_deposito3_y: -1.013
-store_deposito3_orientation: 0.523
+store_deposito3_x: 1.385
+store_deposito3_y: -1.136
+store_deposito3_orientation: 0.543
 
 pedido_x: 2.612
 pedido_y: -1.134
