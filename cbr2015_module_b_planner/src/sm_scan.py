@@ -9,6 +9,8 @@ global areas
 global objeto
 global terminou
 global cores
+global new_order
+new_order = False
 from indo_para_area import *
 from verificando_objeto import *
 from ligando_leds import *
@@ -18,6 +20,10 @@ areas = [Areas.A3, Areas.A1, Areas.A2, Areas.A4, Areas.B2, Areas.B4, Areas.B3, A
 cores = [1, 2, 3, 4]
 i = 0
 terminou = False
+
+def seta_order(req):
+	global new_order
+	new_order = True
 
 # define state EstouNaAreaScan
 class EstouNaAreaScan(smach.State):   
@@ -29,10 +35,16 @@ class EstouNaAreaScan(smach.State):
     def execute(self, userdata):
 	global terminou
 	global areas
+	global new_order
+	rospy.logwarn('Terminou: %s', terminou)
 	if userdata.area[0] == Areas.CASA[0] and terminou:
 		rospy.logwarn('Terminei de verificar os Objetos')
+		atualizaParams()
+		rospy.logwarn('Terminou: %s', terminou)
 		return 'finaliza_scan'
 	elif userdata.area[0] == Areas.CASA[0]:
+		while new_order == False:
+			rospy.logwarn("Esperando comando para iniciar")
 		userdata.prox_area = areas.pop(0)
 		return 'comeca_scan'
 	rospy.logwarn('Vou verificar Objeto')
@@ -53,21 +65,21 @@ class VerificandoObjeto(smach.State):
 	rospy.logwarn('Objeto Desatualizado: %s', userdata.area)
 	
 	if i == 0:
-		objeto = Objetos.VERMELHO_UM
-	if i == 1:
 		objeto = Objetos.AZUL_TRES
+	if i == 1:
+		objeto = Objetos.VERMELHO_UM
 	if i == 2:
 		objeto = Objetos.AZUL_UM
 	if i == 3:
 		objeto = Objetos.VERMELHO_CINCO
 	if i == 4:
-		objeto = Objetos.AZUL_TRES
+		objeto = Objetos.VERMELHO_TRES
 	if i == 5:
-		objeto = Objetos.VERMELHO_TRES
+		objeto = Objetos.AZUL_TRES
 	if i == 6:
-		objeto = Objetos.AZUL_CINCO
-	if i == 7:
 		objeto = Objetos.VERMELHO_TRES
+	if i == 7:
+		objeto = Objetos.AZUL_CINCO
 	i += 1
 	atualizaArea(userdata.area,objeto)
 
@@ -81,3 +93,11 @@ class VerificandoObjeto(smach.State):
 	rospy.logwarn('Atualizei Objeto: %s, Terminou = %s', userdata.area, terminou)
 	userdata.prox_area = areas.pop(0)
 	return 'verificou'
+
+def atualizaParams():
+	global areas
+	global terminou
+	global new_order
+	areas = [Areas.A3, Areas.A1, Areas.A2, Areas.A4, Areas.B2, Areas.B4, Areas.B3, Areas.B1, Areas.CASA]
+	terminou = False
+	new_order = False

@@ -35,7 +35,7 @@
 #include "robotino_vision/SetCalibration.h"
 
 #define MAX_NUMBER_OF_PUCKS 2
-#define MIN_AREA 500 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
+#define MIN_AREA 1000 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
 #define PI 3.14159
 
 static const std::string ALL_MARKERS_WINDOW = "All Markers Window";

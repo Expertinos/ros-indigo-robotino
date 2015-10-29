@@ -8,10 +8,10 @@ pucks/thresh: 70
 pucks/close: 2
 pucks/open: 2
 
-color/blur_size: 3
-color/dilate: 2
-color/open: 2
-color/close: 5
+color/blur_size: 8
+color/dilate: 3
+color/open: 8
+color/close: 9
 
 final_puck/open/before: 2
 final_puck/close: 2

@@ -38,6 +38,7 @@ add_action_files(
 	      GrabPuck.action	
 	      Move.action	
 	      StorePuck.action	
+	      ReadOrder.action
 	)
 
 generate_messages(
@@ -69,6 +70,27 @@ target_link_libraries(align_server_node
 	)
 
 add_dependencies(align_server_node
+	robotino_motion_gen_cpp
+	robotino_msgs_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(read_order_server_node 
+	src/servers/read_order_server_node.cpp
+	src/Server.cpp
+	src/ReadOrderServer.cpp
+	src/Colors.cpp
+	src/ReadOrderStates.cpp
+	src/AlignAlignmentModes.cpp
+	src/AlignDistanceModes.cpp
+	)
+
+target_link_libraries(read_order_server_node
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
+	)
+
+add_dependencies(read_order_server_node
 	robotino_motion_gen_cpp
 	robotino_msgs_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
@@ -146,6 +168,19 @@ target_link_libraries(align_client_node
 	)
 
 add_dependencies(align_client_node
+	robotino_motion_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(read_order_client_node 
+	src/clients/read_order_client_node.cpp
+	)
+
+target_link_libraries(read_order_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(read_order_client_node
 	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)

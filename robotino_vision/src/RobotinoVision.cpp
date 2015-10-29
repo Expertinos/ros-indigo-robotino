@@ -29,7 +29,7 @@ RobotinoVision::RobotinoVision():
 	setColor();	
 	contours_window_name_ = CONTOURS_WINDOW + ": " + Colors::toString(color_);		
 
-	calibration_ = true;
+	calibration_ = false;
 	
 	verify_markers_ = true;
 	specific_number_of_markers_ = -1;
