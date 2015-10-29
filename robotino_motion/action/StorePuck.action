@@ -15,6 +15,11 @@ int8 mode
 # 0 for VISION mode
 # 1 for LASER_SCAN mode
 
+int8 store_number
+# 1 for area NEAR the wall
+# 2 for MIDDLE area
+# 3 for area FAR_AWAY the wall 
+
 ---
 
 ## ----------------- result definition ----------------- ##

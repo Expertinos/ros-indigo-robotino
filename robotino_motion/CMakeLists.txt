@@ -143,6 +143,7 @@ add_executable(store_server_node
 	src/StorePuckServer.cpp
 	src/StorePuckStates.cpp
 	src/StoreModes.cpp
+	src/StoreStoreNumber.cpp
 	)
 
 target_link_libraries(store_server_node

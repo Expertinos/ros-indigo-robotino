@@ -59,6 +59,7 @@ private:
 
 	void laserAlignFront();
 	void laserAlignRightLeft();
+	void laserAlignRight();
 
 	void distanceSensorsCallback(const sensor_msgs::PointCloud& msg);
 	void laserScanCallback(const sensor_msgs::PointCloud& msg);
