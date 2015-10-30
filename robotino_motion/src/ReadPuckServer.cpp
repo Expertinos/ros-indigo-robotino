@@ -15,7 +15,8 @@
  */
 ReadPuckServer::ReadPuckServer(ros::NodeHandle nh) : 
 	Server(nh, "Read Puck"),
-	server_(nh, "read_puck", boost::bind(&ReadPuckServer::executeCallback, this, _1), false)
+	server_(nh, "read_puck", boost::bind(&ReadPuckServer::executeCallback, this, _1), false),
+	align_client_("align", true)
 {
 	readParameters();
 	find_objects_cli_ = nh_.serviceClient<robotino_vision::FindObjects>("find_objects");
@@ -24,7 +25,6 @@ ReadPuckServer::ReadPuckServer(ros::NodeHandle nh) :
 	percentage_ = 0;
 
 	verify_markers_ = false;
-	final_color_index_ = -1;
 }
 
 /**
@@ -80,158 +80,126 @@ void ReadPuckServer::stop()
  */
 void ReadPuckServer::controlLoop()
 {
-	double percentage = 0;
-	/*double vel_x = 0, vel_y = 0, vel_phi = 0;
+	double vel_x = 0, vel_y = 0, vel_phi = 0;
 	ROS_DEBUG("%s", ReadPuckStates::toString(state_).c_str());
-	
-	if (!loaded_)
+	double percentage = 0;
+
+	if (state_ == read_puck_states::ALIGNING_FRONTAL)
 	{
-		robotino_vision::FindObjects srv;
-		srv.request.color = Colors::toCode(color_);
-		if (!find_objects_cli_.call(srv))
-		{	
-			ROS_ERROR("Puck not found!!!");
-			state_ = read_puck_states::LOST;
-			return;
-		}
-		std::vector<float> distances = srv.response.distances;
-		std::vector<float> directions = srv.response.directions; 
-		int num_objects = srv.response.distances.size();
-		if (num_objects > 0 && state_ != read_puck_states::GRABBING_PUCK)
+/////////////////////////////ALINHAR COM A FRENTE NEM SEMPRE É BOM
+		robotino_motion::AlignGoal frontal_alignment;
+		frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
+		frontal_alignment.distance_mode = 1; // NORMAL distance mode
+		align_client_.sendGoal(frontal_alignment);
+		align_client_.waitForResult(ros::Duration(1.0));
+		state_ = read_puck_states::HEADING_TOWARD_PUCK;
+	}
+	else if (state_ == read_puck_states::HEADING_TOWARD_PUCK ||state_ == read_puck_states::HEADING_BACKWARD_PUCK)
+	{
+		if (state_ == read_puck_states::HEADING_TOWARD_PUCK)
 		{
-			int closest_index = 0;
-			for (int i = 0; i < num_objects; i++)
+			vel_x = .1;
+		}
+		else
+		{
+			vel_x = -.1;
+		}
+		robotino_vision::FindObjects srv;
+		srv.request.specific_number_of_markers = 0;
+		if (verify_markers_)
+		{
+			srv.request.verify_markers = true;
+		}
+		else
+		{
+			srv.request.verify_markers = false;
+		}	
+		for (int i = 0; i < valid_colors_.size(); i++)
+		{
+			srv.request.color = valid_colors_[i];
+			find_objects_cli_.waitForExistence();
+			Color color = Colors::toColor(valid_colors_[i]);
+			if (!find_objects_cli_.call(srv))
+			{	
+				ROS_WARN("There is no %s object", Colors::toString(color).c_str());
+				continue;
+			}
+			std::vector<int> number_of_markers;		
+			for (int j = 0; j < srv.response.number_of_markers.size(); j++)
 			{
-				if (distances[i] < distances[closest_index])
+				number_of_markers.push_back(srv.response.number_of_markers[i]);
+			}
+			if (!number_of_markers.empty())
+			{
+				for (int j = 0; j < number_of_markers.size(); i++)
 				{
-					closest_index = i;
+					Puck puck;
+					puck.color = color;
+					puck.number_of_markers = number_of_markers[j];
+					updatePucks(puck);		
 				}
 			}
-			double max_error_lateral = 50, max_error_frontal = 40;
-			double error_lateral = directions[closest_index];
-			if (error_lateral > max_error_lateral)
-			{
-				 error_lateral = max_error_lateral;
-			}
-			double error_frontal = distances[closest_index];
-			if (error_frontal > max_error_frontal)
-			{
-				 error_frontal = max_error_frontal;
-			}
-			float tolerance_lateral = 0.1, tolerance_frontal = 35;
-			double K_error_lateral = 0.3, K_error_frontal = 0.005;
-			double percentage_f, percentage_0, tolerance, max_error, error;
-			if (fabs(error_lateral) > tolerance_lateral) // 0% a 49%
-			{
-				state_ = read_puck_states::ALIGNING_LATERAL;
-				vel_y = -K_error_lateral * error_lateral;
-				percentage_0 = 0;
-				percentage_f = 49;
-				tolerance = tolerance_lateral;
-				max_error = max_error_lateral;
-				error = fabs(error_lateral);
-			}
-			else if (fabs(error_frontal) > tolerance_frontal) // 50% a 69%
-			{
-				state_ = read_puck_states::HEADING_TOWARD_PUCK;
-				vel_x = K_error_frontal * error_frontal;
-				percentage_0 = 50;
-				percentage_f = 69;
-				tolerance = tolerance_frontal;
-				max_error = max_error_frontal;
-				error = fabs(error_frontal);
-			}
-			else 
-			{
-				vel_x = .14;
-				state_ = read_puck_states::GRABBING_PUCK;
-				readbing_start_ = ros::Time::now();
-			}
-			percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
 		}
-		else if (state_ == read_puck_states::GRABBING_PUCK) // 70% a 79%
-		{
-			state_ = read_puck_states::GRABBING_PUCK;
-			vel_x = .14;
-			double percentage_0 = 70, percentage_f = 79;
-			double elapsed_time = (ros::Time::now() - readbing_start_).toSec();
-			if (elapsed_time > GRABBING_DEADLINE)
-			{
-				state_ = read_puck_states::LOST;
-				ROS_ERROR("Readbing state deadline expired!!!");
-			}
-			percentage = percentage_0 + (percentage_f - percentage_0) * elapsed_time / GRABBING_DEADLINE;
-		}		
 	}
-	else 
-	{		
-		if (state_ == read_puck_states::GRABBING_PUCK)
-		{
-			delta_x_ = -getOdometry_X();
-			resetOdometry();
-			state_ = read_puck_states::ROTATING;
-			percentage_ = 79;
-		}
-		double max_error_linear = 1.25;
-		double error_linear = getOdometry_X() - delta_x_;
-		if (error_linear > max_error_linear)
-		{
-			 error_linear = max_error_linear;
-		}
-		double max_error_angular = PI;
-		double error_angular = PI - getOdometry_PHI();
-		if (error_angular > max_error_angular)
-		{
-			 error_angular = max_error_angular;
-		}
-		float tolerance_linear = 0.1, tolerance_angular = 0.1;
-		double K_error_linear = 1.2, K_error_angular = 0.8;
-		double percentage_f, percentage_0, tolerance, max_error, error;
-		if (fabs(error_angular) > tolerance_angular) // 80% a 89%
-		{
-			state_ = read_puck_states::ROTATING;
-			vel_phi = K_error_angular * error_angular;
-			percentage_0 = 80;
-			percentage_f = 89;
-			tolerance = tolerance_angular;
-			max_error = max_error_angular;
-			error = fabs(error_angular);
-			
-		}
-		else if (fabs(error_linear) > tolerance_linear) // 90% a 99%
-		{
-			state_ = read_puck_states::GOING_BACK_TO_ORIGIN;
-			vel_x = K_error_linear * error_linear;
-			percentage_0 = 91;
-			percentage_f = 99;
-			tolerance = tolerance_linear;
-			max_error = max_error_linear;
-			error = fabs(error_linear);			
-		}
-		percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
-	}
-	if (vel_x == 0 && vel_y == 0 && vel_phi == 0) // 100%
+	if ((ros::Time::now() - reading_start_).toSec() > READING_DEADLINE) // 100%
 	{
-		state_ = read_puck_states::FINISHED;
-		percentage_ = 100;
+		if (state_ == read_puck_states::HEADING_TOWARD_PUCK)
+		{
+			reading_start_ = ros::Time::now();
+			state_ == read_puck_states::HEADING_BACKWARD_PUCK;
+		}
+		else 
+		{
+			vel_x = 0;
+			if (state_ == read_puck_states::HEADING_TOWARD_PUCK && pucks_.empty())
+			{
+				result_.goal_achieved = false;
+				result_.message = "No puck!!!";
+				server_.setAborted(result_, result_.message);
+				ROS_ERROR("%s", result_.message.c_str());
+				return;
+			}
+			int sum_parts = 0;
+			int sum_total = 0;
+			for (int i = 0; i < pucks_.size(); i++)
+			{
+				ROS_INFO("Index: %d, Counter: %d", i, pucks_[i].counter);
+				sum_parts += i * pucks_[i].counter;
+				sum_total += pucks_[i].counter;
+			}
+			int index = round(sum_parts / sum_total);
+			result_.color = Colors::toCode(pucks_[index].color);
+			result_.number_of_markers = pucks_[index].number_of_markers;
+			ROS_INFO("----------------------------");
+			ROS_INFO("Final Puck:/n Color:%s, Number_of_markers: %d", Colors::toString(pucks_[index].color).c_str(), pucks_[index].number_of_markers);
+			state_ = read_puck_states::FINISHED;
+			percentage_ = 100;
+
+		}
 	}
 	if (percentage > percentage_)
 	{
 		percentage_ = percentage;
 	}
 	setVelocity(vel_x, vel_y, vel_phi);
-	publishVelocity();*/
-	
-	if ((ros::Time::now() - reading_start_).toSec() > READING_DEADLINE) // 100%
+	publishVelocity();
+}
+
+/**
+ *
+ */
+void ReadPuckServer::updatePucks(Puck puck)
+{
+	for (int i = 0; i < pucks_.size(); i++)
 	{
-		state_ = read_puck_states::FINISHED;
-		percentage_ = 100;
+		if (puck.color == pucks_[i].color && puck.number_of_markers == pucks_[i].number_of_markers)
+		{
+			pucks_[i].counter++;
+			return;
+		}
 	}
-	if (percentage > percentage_)
-	{
-		percentage_ = percentage;
-	}
-	publishFeedback();
+	puck.counter = 1;
+	pucks_.push_back(puck);
 }
 
 /**
@@ -358,6 +326,10 @@ bool ReadPuckServer::validateNewGoal(const robotino_motion::ReadPuckGoalConstPtr
 		return false;
 	}
 	verify_markers_ = goal->verify_markers;
+	for (int i = 0; i < goal->valid_number_of_markers.size(); i++)
+	{
+		valid_number_of_markers_.push_back(goal->valid_number_of_markers[i]);
+	}
 	/*robotino_vision::FindObjects srv;
 	srv.request.color = Colors::toCode(color_);
 	if (!find_objects_cli_.call(srv))
@@ -369,10 +341,6 @@ bool ReadPuckServer::validateNewGoal(const robotino_motion::ReadPuckGoalConstPtr
 		return false;
 	}*/
 	reading_start_ = ros::Time::now();
-	final_color_index_ = -1;
-	colors_.clear();
-	number_of_markers_.clear();
-	counters_.clear();
 	percentage_ = 0;
 	resetOdometry();
 	//state_ = read_puck_states::ALIGNING_LATERAL;
