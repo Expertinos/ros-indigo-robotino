@@ -15,9 +15,16 @@
 	<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen">
 		<param name="publish_frequency" type="double" value="20.0" />
 	</node>	
-	<node name="robotino_camera_node" pkg="robotino_node" type="robotino_camera_node">
+
+	<node name="robotino_camera0_node" pkg="robotino_node" type="robotino_camera_node">
     		<param name="hostname" value="$(arg hostname)" />
     		<param name="cameraNumber" value="0" />
+	</node>
+
+	<node name="robotino_camera1_node" pkg="robotino_node" type="robotino_camera_node">
+    		<param name="hostname" value="$(arg hostname)" />
+    		<param name="cameraNumber" value="1" />
+
 	</node>
 
 	<node name="robotino_laserrangefinder_node" pkg="robotino_node" type="robotino_laserrangefinder_node">
@@ -31,4 +38,13 @@
 	<node pkg="laser_to_pcl" type="laser_to_pcl" name="laser_to_pcl" />
 
 	<param name="robot_description" textfile="$(find robotino_description)/urdf/robotino.urdf" />
+
+	<node pkg="image_view" type="image_view" name="robotino_viewer_0">
+    		<remap from="image" to="image_raw"/>
+	</node>
+
+	<node pkg="image_view" type="image_view" name="robotino_viewer_1">
+    		<remap from="image" to="image_raw1"/>
+	</node>
+
 </launch>
