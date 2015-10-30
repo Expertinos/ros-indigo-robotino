@@ -74,6 +74,7 @@ private:
 	bool flag_aux_;
 
 	bool loaded_;
+	bool loaded_ramp_;
 
 	void distanceSensorsCallback(const sensor_msgs::PointCloud& msg);
 	void digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg);
