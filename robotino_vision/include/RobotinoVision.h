@@ -35,7 +35,7 @@
 #include "robotino_vision/SetCalibration.h"
 
 #define MAX_NUMBER_OF_PUCKS 2
-#define MIN_AREA 500 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
+#define MIN_AREA 1000 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
 #define PI 3.14159
 
 static const std::string POST_MASK_WINDOW = "Post Mask Window";
@@ -134,6 +134,7 @@ private:
 	bool setCalibration(robotino_vision::SetCalibration::Request &req, robotino_vision::SetCalibration::Response &res);
 
 	bool readImage(std::string image_name);
+	void updateParameters();
 	std::vector<cv::Point2f> processColor();
 	std::vector<cv::Point2f> processColor(Color color);
 	std::vector<cv::Point2f> getContours(cv::Mat &input);
