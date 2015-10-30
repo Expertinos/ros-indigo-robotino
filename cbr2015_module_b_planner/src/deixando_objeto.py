@@ -20,5 +20,5 @@ def deixandoObjeto(area, objeto):
         client.wait_for_result()
 	
 	rospy.logwarn("Entregando Produto")
-
+	
 	atualizaArea(area, objeto)

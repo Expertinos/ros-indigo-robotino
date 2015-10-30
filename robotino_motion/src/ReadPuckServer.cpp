@@ -94,7 +94,7 @@ void ReadPuckServer::controlLoop()
 		align_client_.waitForResult(ros::Duration(1.0));
 		state_ = read_puck_states::HEADING_TOWARD_PUCK;
 	}
-	else if (state_ == read_puck_states::HEADING_TOWARD_PUCK ||state_ == read_puck_states::HEADING_BACKWARD_PUCK)
+	else if (state_ == read_puck_states::HEADING_TOWARD_PUCK || state_ == read_puck_states::HEADING_BACKWARD_PUCK)
 	{
 		if (state_ == read_puck_states::HEADING_TOWARD_PUCK)
 		{
