@@ -149,7 +149,7 @@ bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, rob
 	{
 		res.distances.push_back(positions[k].x);
 		res.directions.push_back(positions[k].y);
-		//res.number_of_markers.push_back(number_of_markers_[k]);
+		res.number_of_markers.push_back(number_of_markers_[k]);
 	}
 	return true;
 }
@@ -402,6 +402,54 @@ float RobotinoVision::getClosestObjectDistance(Color color)
 /**
  *
  */
+void RobotinoVision::updateParameters()
+{
+	std::string contours_window_name = CONTOURS_WINDOW + ": " + Colors::toString(color_);
+	if (contours_window_name != contours_window_name_) 
+	{
+		contours_window_name_ = contours_window_name;
+		without_markers_window_name_ = Colors::toString(color_) + " " + PUCK_WITHOUT_MARKERS_WINDOW;
+		setImagesWindows();
+	}	
+
+	cv::createTrackbar("Blur: ", POST_MASK_WINDOW, &post_blur_size_, 20);
+	cv::createTrackbar("Threshold: ", POST_MASK_WINDOW, &post_thresh_, 255);
+	cv::createTrackbar("Range: ", POST_MASK_WINDOW, &post_range_, 255);
+	cv::createTrackbar("Open: ", POST_MASK_WINDOW, &post_open_, 20);
+	cv::createTrackbar("Close: ", POST_MASK_WINDOW, &post_close_, 20);
+	cv::createTrackbar("Dilate: ", POST_MASK_WINDOW, &post_dilate_, 20);
+
+	cv::createTrackbar("Blur: ", ALL_MARKERS_WINDOW, &markers_blur_size_, 20);
+	cv::createTrackbar("Threshold: ", ALL_MARKERS_WINDOW, &markers_thresh_, 255);
+	cv::createTrackbar("Open: ", ALL_MARKERS_WINDOW, &markers_open_, 20);
+
+	cv::createTrackbar("Blur: ", PUCKS_MASK_WINDOW, &pucks_blur_size_, 40);
+	cv::createTrackbar("Dilate: ", PUCKS_MASK_WINDOW, &pucks_dilate_, 40);
+	cv::createTrackbar("Threshold: ", PUCKS_MASK_WINDOW, &pucks_thresh_, 255);
+	cv::createTrackbar("Close: ", PUCKS_MASK_WINDOW, &pucks_close_, 40);
+	cv::createTrackbar("Open: ", PUCKS_MASK_WINDOW, &pucks_open_, 40);
+
+	cv::createTrackbar("Initial range value: ", COLOR_MASK_WINDOW, &color_params_.initial_range_value, 255);
+	cv::createTrackbar("Range width: ", COLOR_MASK_WINDOW, &color_params_.range_width, 255);
+	cv::createTrackbar("Blur: ", COLOR_MASK_WINDOW, &color_blur_size_, 40);
+	cv::createTrackbar("Dilate: ", COLOR_MASK_WINDOW, &color_dilate_, 40);
+	cv::createTrackbar("Open: ", COLOR_MASK_WINDOW, &color_open_, 40);
+	cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &color_close_, 40);
+
+	cv::createTrackbar("Open(before): ", FINAL_MASK_WINDOW, &final_open_before_, 20);
+	cv::createTrackbar("Close: ", FINAL_MASK_WINDOW, &final_close_, 20);
+	cv::createTrackbar("Open(after): ", FINAL_MASK_WINDOW, &final_open_after_, 20);
+	cv::createTrackbar("Dilate: ", FINAL_MASK_WINDOW, &final_dilate_, 20);
+
+	cv::createTrackbar("Blur: ", INSULATING_TAPE_WINDOW, &area_blur_size_, 50);
+	cv::createTrackbar("Threshold: ", INSULATING_TAPE_WINDOW, &area_thresh_, 255);
+	cv::createTrackbar("Close: ", INSULATING_TAPE_WINDOW, &area_close_, 50);
+	cv::createTrackbar("Dilate: ", INSULATING_TAPE_WINDOW, &area_dilate_, 50);
+}
+
+/**
+ *
+ */
 std::vector<cv::Point2f> RobotinoVision::processColor(Color color) 
 {
 	setColor(color);
@@ -418,6 +466,7 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	{
 		return points;
 	}
+
 	//ROS_DEBUG("Getting Lamp Post Mask!!!");
 	//cv::Mat post_mask = getLampPostMask();
 	ROS_DEBUG("Getting Pucks Mask!!!");
@@ -432,63 +481,15 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	cv::Mat puck_markers = getPuckMarkers(all_markers, pucks_mask);
 	ROS_DEBUG("Getting Puck without Markers!!!");
 	cv::Mat puck_without_markers = getPuckWithoutMarkers(final_mask, puck_markers);
-	//ROS_DEBUG("Getting Contours based on Final Mask!!!");
-	//cv::Mat area = getInsulatingTapeArea();
-	
-	cv::createTrackbar("Blur: ", POST_MASK_WINDOW, &post_blur_size_, 20);
-	cv::createTrackbar("Threshold: ", POST_MASK_WINDOW, &post_thresh_, 255);
-	cv::createTrackbar("Range: ", POST_MASK_WINDOW, &post_range_, 255);
-	cv::createTrackbar("Open: ", POST_MASK_WINDOW, &post_open_, 20);
-	cv::createTrackbar("Close: ", POST_MASK_WINDOW, &post_close_, 20);
-	cv::createTrackbar("Dilate: ", POST_MASK_WINDOW, &post_dilate_, 20);
-	
+	ROS_DEBUG("Getting Contours based on Final Mask!!!");
+	cv::Mat area = getInsulatingTapeArea();
+
 	if (calibration_)
 	{
-		std::string contours_window_name = CONTOURS_WINDOW + ": " + Colors::toString(color_);
-		if (contours_window_name != contours_window_name_) 
-		{
-			contours_window_name_ = contours_window_name;
-			without_markers_window_name_ = Colors::toString(color_) + " " + PUCK_WITHOUT_MARKERS_WINDOW;
-			//setImagesWindows();
-		}	
-/*
-		cv::createTrackbar("Blur: ", POST_MASK_WINDOW, &post_blur_size_, 20);
-		cv::createTrackbar("Threshold: ", POST_MASK_WINDOW, &post_thresh_, 255);
-		cv::createTrackbar("Range: ", POST_MASK_WINDOW, &post_range_, 255);
-		cv::createTrackbar("Open: ", POST_MASK_WINDOW, &post_open_, 20);
-		cv::createTrackbar("Close: ", POST_MASK_WINDOW, &post_close_, 20);
-		cv::createTrackbar("Dilate: ", POST_MASK_WINDOW, &post_dilate_, 20);*/
 
-		cv::createTrackbar("Blur: ", ALL_MARKERS_WINDOW, &markers_blur_size_, 20);
-		cv::createTrackbar("Threshold: ", ALL_MARKERS_WINDOW, &markers_thresh_, 255);
-		cv::createTrackbar("Open: ", ALL_MARKERS_WINDOW, &markers_open_, 20);
-
-		cv::createTrackbar("Blur: ", PUCKS_MASK_WINDOW, &pucks_blur_size_, 40);
-		cv::createTrackbar("Dilate: ", PUCKS_MASK_WINDOW, &pucks_dilate_, 40);
-		cv::createTrackbar("Threshold: ", PUCKS_MASK_WINDOW, &pucks_thresh_, 255);
-		cv::createTrackbar("Close: ", PUCKS_MASK_WINDOW, &pucks_close_, 40);
-		cv::createTrackbar("Open: ", PUCKS_MASK_WINDOW, &pucks_open_, 40);
-	
-		cv::createTrackbar("Initial range value: ", COLOR_MASK_WINDOW, &color_params_.initial_range_value, 255);
-		cv::createTrackbar("Range width: ", COLOR_MASK_WINDOW, &color_params_.range_width, 255);
-		cv::createTrackbar("Blur: ", COLOR_MASK_WINDOW, &color_blur_size_, 40);
-		cv::createTrackbar("Dilate: ", COLOR_MASK_WINDOW, &color_dilate_, 40);
-		cv::createTrackbar("Open: ", COLOR_MASK_WINDOW, &color_open_, 40);
-		cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &color_close_, 40);
-	
-		cv::createTrackbar("Open(before): ", FINAL_MASK_WINDOW, &final_open_before_, 20);
-		cv::createTrackbar("Close: ", FINAL_MASK_WINDOW, &final_close_, 20);
-		cv::createTrackbar("Open(after): ", FINAL_MASK_WINDOW, &final_open_after_, 20);
-		cv::createTrackbar("Dilate: ", FINAL_MASK_WINDOW, &final_dilate_, 20);
-
-		/*cv::createTrackbar("Blur: ", INSULATING_TAPE_WINDOW, &area_blur_size_, 50);
-		cv::createTrackbar("Threshold: ", INSULATING_TAPE_WINDOW, &area_thresh_, 255);
-		cv::createTrackbar("Close: ", INSULATING_TAPE_WINDOW, &area_close_, 50);
-		cv::createTrackbar("Dilate: ", INSULATING_TAPE_WINDOW, &area_dilate_, 50);
-		cv::imshow(INSULATING_TAPE_WINDOW, area);*/
-	
+		updateParameters();
+		cv::imshow(INSULATING_TAPE_WINDOW, area);
 		cv::imshow(PUCK_MARKERS_WINDOW, puck_markers);
-	
 		showImageBGRwithMask(final_mask);
 	}
 
@@ -498,11 +499,11 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	color_mask.release();
 	puck_markers.release();
 
-	points = getContours(final_mask);//puck_without_markers);
+	points = getContours(puck_without_markers);//final_mask);
 
 	final_mask.release();
 	puck_without_markers.release();
-	//area.release();
+	area.release();
 	
 	cv::waitKey(30);
 
@@ -947,7 +948,7 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 		else if (verify_markers_ && area > 25)
 		{
 			bool has_parent = hierarchy[i][3] != -1;
-			if (!has_parent)
+			if (!has_parent && area > MIN_AREA)
 			{
 				contours.push_back(initial_contours[i]);
 				number_of_markers_.push_back(0);
@@ -986,6 +987,14 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 	std::vector<cv::Moments> mu(contours.size());
 	for(int i = 0; i < contours.size(); i++)
 	{
+		/*if (area < MIN_AREA)
+		{
+			contours.erase(contours.begin() + i);
+			if (verify_markers_)
+			{
+				number_of_markers_.erase(number_of_markers_.begin() + i);
+			}
+		}*/
 		if (verify_markers_)
 		{
 			ROS_DEBUG("Contour %d has %d markers", i, number_of_markers_[i]);
@@ -1016,7 +1025,7 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 	{
 		contours_window_name_ = contours_window_name;
 		without_markers_window_name_ = Colors::toString(color_) + " " + PUCK_WITHOUT_MARKERS_WINDOW;
-		//setImagesWindows();
+		setImagesWindows();
 	}
 	cv::imshow(contours_window_name_.c_str(), drawing);
 
@@ -1138,11 +1147,11 @@ void RobotinoVision::setImagesWindows()
 	cv::moveWindow(ALL_MARKERS_WINDOW, 0.5 * width_, 0 * height_);
 	cv::moveWindow(PUCKS_MASK_WINDOW, 1.5 * width_, 0 * height_);
 	cv::moveWindow(COLOR_MASK_WINDOW, 2.5 * width_, 0 * height_);
-	cv::moveWindow(FINAL_MASK_WINDOW, 3.5 * width_, 0 * height_);
+	cv::moveWindow(FINAL_MASK_WINDOW, 3.5 * width_, 0 * height_);	
+	cv::moveWindow(INSULATING_TAPE_WINDOW, 4.5 * width_, 0 * height_);
 	cv::moveWindow(PUCK_MARKERS_WINDOW, 0.5 * width_, 3 * height_);
-	cv::moveWindow(contours_window_name_.c_str(), 1.5 * width_, 3 * height_);	
-	cv::moveWindow(INSULATING_TAPE_WINDOW, 2.5 * width_, 3 * height_);
-	cv::moveWindow(BGR_WINDOW, 3.5 * width_, 3 * height_);
+	cv::moveWindow(contours_window_name_.c_str(), 1.5 * width_, 3 * height_);
+	cv::moveWindow(BGR_WINDOW, 2.5 * width_, 3 * height_);
 }
 
 /**

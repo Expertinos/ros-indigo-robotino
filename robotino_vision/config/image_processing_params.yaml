@@ -1,5 +1,5 @@
-markers/blur_size: 1
-markers/thresh: 220
+markers/blur_size: 2
+markers/thresh: 130 #87
 markers/open: 2
 
 pucks/blur_size: 4
@@ -8,15 +8,15 @@ pucks/thresh: 70
 pucks/close: 2
 pucks/open: 2
 
-color/blur_size: 8
+color/blur_size: 10
 color/dilate: 3
-color/open: 8
+color/open: 11
 color/close: 9
 
-final_puck/open/before: 2
+final_puck/open/before: 12
 final_puck/close: 2
 final_puck/open/after: 7
-final_puck/dilate: 2
+final_puck/dilate: 1
 
 insulating_tape_area/blur_size: 1
 insulating_tape_area/thresh: 50
