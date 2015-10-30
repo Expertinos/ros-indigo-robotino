@@ -71,6 +71,7 @@ private:
 	/**  */
 	StoreMode mode_;
 	StoreStoreNumber store_number_;
+	bool flag_aux_;
 
 	bool loaded_;
 

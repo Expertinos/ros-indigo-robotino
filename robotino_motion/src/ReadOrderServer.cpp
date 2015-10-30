@@ -24,8 +24,6 @@ ReadOrderServer::ReadOrderServer(ros::NodeHandle nh) :
 	state_ = read_order_states::UNINITIALIZED;
 	percentage_ = 0;
 	final_list_index_ = -1;
-	server_.start(); //TIRARRRRRR
-	state_ = read_order_states::IDLE; ///TAMBEM
 	
 }
 
@@ -88,11 +86,98 @@ void ReadOrderServer::stop()
  */
 void ReadOrderServer::controlLoop()
 {
-/*
+
 	double vel_x = 0, vel_y = 0, vel_phi = 0;
 	ROS_DEBUG("%s", ReadOrderStates::toString(state_).c_str());
 	double percentage = 0;
-	if (!loaded_)
+
+	if (state_ == read_order_states::ALIGNING_FRONTAL)
+	{
+		robotino_motion::AlignGoal frontal_alignment;
+		frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
+		frontal_alignment.distance_mode = 1; // NORMAL distance mode
+		align_client_.sendGoal(frontal_alignment);
+		align_client_.waitForResult(ros::Duration(1.0));
+		state_ = read_order_states::HEADING_TOWARD_PUCK;
+	}
+	else if (state_ == read_order_states::HEADING_TOWARD_PUCK)
+	{
+		vel_x = .1;
+		robotino_vision::GetObjectsList srv;
+		get_list_cli_.waitForExistence();
+		if (!get_list_cli_.call(srv))
+		{	
+			ROS_WARN("There is no order!!!");
+			return;
+		}
+		std::vector<Color> read_list;
+		for (int i = 0; i < srv.response.objects.size(); i++)
+		{
+			Color color = Colors::toColor(srv.response.objects[i]);
+			read_list.push_back(color);
+		}
+		if (!containList(read_list))
+		{
+			if (read_list.size() == valid_number_of_objects_)
+			{
+				if (allDifferentObjects(read_list))
+				{
+					lists_.push_back(read_list);
+					counters_.push_back(1);
+				}
+			}
+			//lists_.push_back(read_list);
+			//counters_.push_back(1);
+		}
+		else
+		{
+			int index = getListIndex(read_list);
+			counters_[index]++;
+		}
+	}
+	float t = (ros::Time::now() - reading_start_).toSec();
+	ROS_INFO("Time: %f", t);
+	if (t > READING_DEADLINE) // 100%
+	{
+		vel_x = 0;
+		if (counters_.empty())
+		{
+			reading_start_ = ros::Time::now();
+			return;
+			/*result_.goal_achieved = false;
+			result_.message = "No order!!!";
+			server_.setAborted(result_, result_.message);
+			ROS_ERROR("%s", result_.message.c_str());
+			return;*/
+		}
+		int sum_parts = 0;
+		int sum_total = 0;
+		for (int i = 0; i < counters_.size(); i++)
+		{
+			ROS_INFO("Index: %d, Counter: %d", i, counters_[i]);
+			sum_parts += i * counters_[i];
+			sum_total += counters_[i];
+		}
+		int index = round(sum_parts / sum_total);
+		std::vector<Color> list = lists_[index];
+		ROS_INFO("----------------------------");
+		ROS_INFO("Final Index: %d", index);
+		for (int i = 0; i < list.size(); i++)
+		{
+			ROS_INFO("%s", Colors::toString(list[i]).c_str());
+			result_.colors.push_back(Colors::toCode(list[i]));
+		}
+		state_ = read_order_states::FINISHED;
+		percentage_ = 100;
+	}
+	if (percentage > percentage_)
+	{
+		percentage_ = percentage;
+	}
+	setVelocity(vel_x, vel_y, vel_phi);
+	publishVelocity();
+	//publishFeedback();
+	/*if (!loaded_)
 	{
 		robotino_vision::FindObjects srv;
 		srv.request.color = Colors::toCode(color_);
@@ -230,7 +315,7 @@ void ReadOrderServer::controlLoop()
 	setVelocity(vel_x, vel_y, vel_phi);
 	publishVelocity();
 */
-	int percentage = 0;
+	/*int percentage = 0;
 	robotino_vision::GetObjectsList srv;
 	get_list_cli_.waitForExistence();
 	if (!get_list_cli_.call(srv))
@@ -296,8 +381,7 @@ void ReadOrderServer::controlLoop()
 	if (percentage > percentage_)
 	{
 		percentage_ = percentage;
-	}
-	publishFeedback();
+	}*/
 }
 
 /**
@@ -509,7 +593,7 @@ bool ReadOrderServer::validateNewGoal(const robotino_motion::ReadOrderGoalConstP
 	counters_.clear();
 	percentage_ = 0;
 	resetOdometry();
-	//state_ = read_order_states::ALIGNING_LATERAL;
+	state_ = read_order_states::ALIGNING_FRONTAL;
 	ROS_INFO("Goal accepted, reading order!!!");
 	return true;
 }

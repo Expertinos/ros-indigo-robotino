@@ -22,6 +22,7 @@
 #include "robotino_vision/FindObjects.h"
 
 #define GRABBING_DEADLINE 7 // seconds
+#define LOADED_DELAY 0.5
 	
 class GrabPuckServer : public Server
 {
@@ -57,6 +58,7 @@ private:
 
 	/**  */
 	bool loaded_;
+	ros::Time loaded_delay_;
 
 	void digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg);
 

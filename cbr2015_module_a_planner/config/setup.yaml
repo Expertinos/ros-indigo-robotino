@@ -1,28 +1,28 @@
 module: A
 
-area1_x: 0.745
-area1_y: -2.112
-area1_orientation: -2.672
+area1_x: 0.679
+area1_y: -2.148
+area1_orientation: -2.600
 
-area2_x: 0.398
-area2_y: -1.727
-area2_orientation: -2.635
+area2_x: 0.422
+area2_y: -1.432
+area2_orientation: -2.097
 
-area3_x: 0.076
-area3_y: -1.138
-area3_orientation: -2.406
+area3_x: 0.206
+area3_y: -1.142
+area3_orientation: -2.574
 
-area4_x: 0.658
-area4_y: -2.278
-area4_orientation: 0.514
+area4_x: 0.674
+area4_y: -2.302
+area4_orientation: 0.464
 
-area5_x: 0.370
-area5_y: -1.730
-area5_orientation: 0.552
+area5_x: 0.288
+area5_y: -1.577
+area5_orientation: 0.121
 
-area6_x: -0.103
-area6_y: -1.251
-area6_orientation: 0.517
+area6_x: 0.208
+area6_y: -1.437
+area6_orientation: 0.651
 
 casa_x: 2.120
 casa_y: -1.478
@@ -36,9 +36,9 @@ deposito2_x: 2.022
 deposito2_y: -0.576
 deposito2_orientation: 2.171
 
-deposito3_x: 1.503
-deposito3_y: -1.024
-deposito3_orientation: 2.097
+deposito3_x: 1.620
+deposito3_y: -1.029
+deposito3_orientation: 2.119
 
 store_deposito1_x: 2.464
 store_deposito1_y: -0.510
@@ -52,6 +52,6 @@ store_deposito3_x: 1.385
 store_deposito3_y: -1.136
 store_deposito3_orientation: 0.543
 
-pedido_x: 2.612
-pedido_y: -1.134
-pedido_orientation: 0.532
+pedido_x: 2.431
+pedido_y: -1.152
+pedido_orientation: 0.542

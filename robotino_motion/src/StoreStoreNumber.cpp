@@ -27,6 +27,9 @@ std::string store_store_numbers::StoreStoreNumbers::toString(store_store_numbers
 		case FAR_AWAY:
 			mode_name = "FAR_AWAY";
 			break;
+		case VOLTAR_PRA_CASA:
+			mode_name = "VOLTAR_PRA_CASA";
+			break;
 		default: 
 			mode_name = "Nonexistent store number";
 	}
@@ -49,6 +52,9 @@ store_store_numbers::StoreStoreNumberEnum store_store_numbers::StoreStoreNumbers
 			break;
 		case 2:
 			mode = store_store_numbers::FAR_AWAY;
+			break;
+		case 5:
+			mode = store_store_numbers::VOLTAR_PRA_CASA;
 			break;
 		default:
 			mode = store_store_numbers::NONE;
