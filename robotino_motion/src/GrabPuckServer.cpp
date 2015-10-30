@@ -25,6 +25,7 @@ GrabPuckServer::GrabPuckServer(ros::NodeHandle nh) :
 	percentage_ = 0;
 
 	loaded_ = false;
+	loaded_ramp_ = false;
 	loaded_delay_ = ros::Time::now();
 }
 
@@ -215,8 +216,18 @@ void GrabPuckServer::controlLoop()
 	}
 	if (vel_x == 0 && vel_y == 0 && vel_phi == 0) // 100%
 	{
-		state_ = grab_puck_states::FINISHED;
-		percentage_ = 100;
+		if(!loaded_ramp_)
+		{
+			result_.goal_achieved = false;
+			result_.message = "Grab fail!!!";
+			server_.setAborted(result_, result_.message);
+			ROS_ERROR("%s", result_.message.c_str());
+		}
+		else
+		{
+			state_ = grab_puck_states::FINISHED;
+			percentage_ = 100;
+		}
 	}
 	if (percentage > percentage_)
 	{
@@ -336,6 +347,7 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
 		ROS_ERROR("%s", result_.message.c_str());
 		return false;
 	}
+	loaded_ramp_ = false;
 	percentage_ = 0;
 	resetOdometry();
 	state_ = grab_puck_states::ALIGNING_LATERAL;
@@ -359,18 +371,10 @@ void GrabPuckServer::publishFeedback()
  */
 void GrabPuckServer::digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg)
 {
-	/*if (msg.values.at(0))
+	if (!loaded_ && msg.values.at(0))
 	{
-		loaded_delay_ = ros::Time::now();
+			loaded_ramp_ = true;
 	}
-	else
-	{
-		loaded_delay_ = 0;
-	}
-	if ((ros::Time::now() - loaded_puck_).toSec() > LOADED_DELAY)
-	{
-		loaded_ = true;
-	}*/
 	loaded_ = !msg.values.at(0);
 }
 
