@@ -1,0 +1,23 @@
+<launch>
+  	<arg name="hostname" default="192.168.0.171:12080" />
+	<include file="$(find robotino_node)/launch/robotino_node.launch">
+		<arg name="hostname" value="$(arg hostname)" />
+	</include>	
+
+	<node pkg="image_view" type="image_view" name="robotino_viewer_0">
+    		<remap from="image" to="image_raw"/>
+	</node>
+
+	<include file="$(find robotino_vision)/launch/robotino_vision.launch">
+		<arg name="color_params" value="$(find robotino_vision)/config/module_B_color_params.yaml" />
+	</include>
+	<include file="$(find robotino_leds)/launch/robotino_leds.launch" />
+	<include file="$(find robotino_navigation)/launch/navigation.launch" >
+		<arg name="map_file" value="$(find robotino_navigation)/maps/module_B.yaml" />
+	</include>	
+	<node name="align_server_node" pkg="robotino_motion" type="align_server_node" output="screen" />
+	<node name="grab_server_node" pkg="robotino_motion" type="grab_server_node" output="screen" />
+	<!-- <node name="move_puck_server" pkg="robotino_motion" type="move_server_node" output="screen" /> -->
+	<node name="store_puck_server" pkg="robotino_motion" type="store_server_node" output="screen" />
+	<!--include file="$(find cbr2015_module_b_planner)/launch/module_B.launch" /-->
+</launch>

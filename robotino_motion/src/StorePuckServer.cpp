@@ -28,6 +28,7 @@ StorePuckServer::StorePuckServer(ros::NodeHandle nh) :
 	percentage_ = 0;
 
 	loaded_ = false;
+	loaded_ramp_ = false;
 	flag_aux_ = false;
 	left_index_ = 0;
 	right_index_ = 0;
@@ -115,7 +116,7 @@ void StorePuckServer::controlLoop()
 		state_ = store_puck_states::ALIGNING_FRONTAL;
 		align_client_.waitForResult();
 
-		ROS_INFO("Store_number_: %s", StoreStoreNumbers::toString(store_number_).c_str());
+		//ROS_INFO("Store_number_: %s", StoreStoreNumbers::toString(store_number_).c_str());
 		switch(store_number_)
 		{
 			case store_store_numbers::NEAR:
@@ -125,8 +126,6 @@ void StorePuckServer::controlLoop()
 						setVelocity(0.15, 0, 0);
 						publishVelocity();
 					}
-				//setVelocity(0.0, 0.0, 0.0);
-				//publishVelocity();
 				}
 				break;
 			case store_store_numbers::MIDDLE:
@@ -137,8 +136,6 @@ void StorePuckServer::controlLoop()
 						setVelocity(0.15, 0, 0);
 						publishVelocity();
 					}
-				//setVelocity(0.0, 0.0, 0.0);
-				//publishVelocity();
 				}
 				break;
 			case store_store_numbers::FAR_AWAY:
@@ -149,8 +146,6 @@ void StorePuckServer::controlLoop()
 						setVelocity(0.15, 0, 0);
 						publishVelocity();
 					}
-					//setVelocity(0.0, 0.0, 0.0);
-					//publishVelocity();
 				}
 				break;
 			case store_store_numbers::VOLTAR_PRA_CASA:
@@ -161,24 +156,29 @@ void StorePuckServer::controlLoop()
 					state_ = store_puck_states::ALIGNING_FRONTAL;
 					align_client_.waitForResult();
 
-					while(laser_front_ > 0.13)
+					while(laser_front_ > 0.25)
 					{
 						setVelocity(0.15, 0, 0);
 						publishVelocity();
 					}
-					while(laser_left_ > 0.3)
+					while(laser_left_ > 0.32)
 					{
 						setVelocity(0, 0.1, 0);
 						publishVelocity();
 					}
+
+					frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
+					frontal_alignment.distance_mode = 1; // NORMAL distance mode
+					align_client_.sendGoal(frontal_alignment);
+					state_ = store_puck_states::ALIGNING_FRONTAL;
+					align_client_.waitForResult();
+
 					flag_aux_ = true;
 				}
 				break;
 			default:
 				ROS_ERROR("Store Number not supported yet!!!");
 		}
-
-		//laserDistanceFront(store_number_);
 
 		if(flag_aux_ == false)
 		{
@@ -345,8 +345,18 @@ void StorePuckServer::controlLoop()
 	}
 	if (vel_x == 0 && vel_y == 0 && vel_phi == 0) // 100%
 	{
-		state_ = store_puck_states::FINISHED;
-		percentage_ = 100;
+		if(!loaded_ramp_)
+		{
+			result_.goal_achieved = false;
+			result_.message = "Store fail!!!";
+			server_.setAborted(result_, result_.message);
+			ROS_ERROR("%s", result_.message.c_str());
+		}
+		else
+		{
+			state_ = store_puck_states::FINISHED;
+			percentage_ = 100;
+		}
 	}
 	if (percentage > percentage_)
 	{
@@ -492,6 +502,10 @@ void StorePuckServer::publishFeedback()
  */
 void StorePuckServer::digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg)
 {
+	if (!loaded_ && msg.values.at(0))
+	{
+			loaded_ramp_ = true;
+	}
 	loaded_ = !msg.values.at(0);
 }
 
@@ -527,7 +541,7 @@ void StorePuckServer::laserScanCallback(const sensor_msgs::LaserScan& msg)
 
 void StorePuckServer::laserDistanceFront(StoreStoreNumber mode)
 {
-	printf("Entrou no laserDistanceFront!!!!");
+	//printf("Entrou no laserDistanceFront!!!!");
 	if (mode == store_store_numbers::NEAR)
 	{
 		while(laser_front_ > 0.13)

@@ -58,6 +58,7 @@ private:
 
 	/**  */
 	bool loaded_;
+	bool loaded_ramp_;
 	ros::Time loaded_delay_;
 
 	void digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg);
