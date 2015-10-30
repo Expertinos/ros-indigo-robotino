@@ -1,6 +1,6 @@
 markers/blur_size: 2
 markers/thresh: 130 #87
-markers/open: 2
+markers/open: 1
 
 pucks/blur_size: 4
 pucks/dilate: 6
@@ -22,3 +22,12 @@ insulating_tape_area/blur_size: 1
 insulating_tape_area/thresh: 50
 insulating_tape_area/close: 15
 insulating_tape_area/dilate: 15
+
+lighting_lamp/close: 5
+lighting_lamp/blur_size: 2
+lighting_lamp/thresh: 235
+lighting_lamp/open: 7
+lighting_lamp/dilate: 3
+
+color_lamp/dilate: 5
+color_lamp/close: 3
