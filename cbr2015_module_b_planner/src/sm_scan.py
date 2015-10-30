@@ -65,21 +65,21 @@ class VerificandoObjeto(smach.State):
 	rospy.logwarn('Objeto Desatualizado: %s', userdata.area)
 	
 	if i == 0:
-		objeto = Objetos.AZUL_TRES
-	if i == 1:
 		objeto = Objetos.VERMELHO_UM
+	if i == 1:
+		objeto = Objetos.AZUL_CINCO
 	if i == 2:
-		objeto = Objetos.AZUL_UM
-	if i == 3:
 		objeto = Objetos.VERMELHO_CINCO
+	if i == 3:
+		objeto = Objetos.AZUL_UM
 	if i == 4:
-		objeto = Objetos.VERMELHO_TRES
+		objeto = Objetos.AZUL_TRES
 	if i == 5:
 		objeto = Objetos.AZUL_TRES
 	if i == 6:
 		objeto = Objetos.VERMELHO_TRES
 	if i == 7:
-		objeto = Objetos.AZUL_CINCO
+		objeto = Objetos.VERMELHO_TRES
 	i += 1
 	atualizaArea(userdata.area,objeto)
 
