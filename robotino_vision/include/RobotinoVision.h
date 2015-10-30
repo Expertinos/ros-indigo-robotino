@@ -35,10 +35,11 @@
 #include "robotino_vision/SetCalibration.h"
 
 #define MAX_NUMBER_OF_PUCKS 2
-#define MIN_AREA 1000 //1000 //a fim de eliminar os chofiscos no final do processamento das imagens
+#define MIN_AREA 1000 //a fim de eliminar os chofiscos no final do processamento das imagens
 #define PI 3.14159
 
-static const std::string POST_MASK_WINDOW = "Post Mask Window";
+static const std::string LIGHTING_MASK_WINDOW = "Lighting Lamp Mask Window";
+static const std::string COLOR_LAMP_MASK_WINDOW = "Lighting Color Lamp Mask Window";
 static const std::string ALL_MARKERS_WINDOW = "All Markers Window";
 static const std::string PUCKS_MASK_WINDOW = "Pucks Mask Window";
 static const std::string COLOR_MASK_WINDOW = "Color Mask Window";
@@ -114,8 +115,8 @@ private:
 	int color_blur_size_, color_dilate_, color_open_, color_close_;
 	int final_open_before_, final_close_, final_open_after_, final_dilate_;
 	int area_blur_size_, area_thresh_, area_close_, area_dilate_;
-	int post_blur_size_, post_thresh_, post_range_, post_open_, post_close_, post_dilate_;
-	int lighting_blur_size_, lighting_thresh_, lighting_dilate_;
+	int lighting_close_, lighting_blur_size_, lighting_thresh_, lighting_open_, lighting_dilate_;
+	int color_lamp_close_, color_lamp_dilate_;
 
 	bool calibration_;
 	std::string contours_window_name_;
@@ -138,8 +139,8 @@ private:
 	std::vector<cv::Point2f> processColor();
 	std::vector<cv::Point2f> processColor(Color color);
 	std::vector<cv::Point2f> getContours(cv::Mat &input);
-	cv::Mat getLampPostMask();
-	cv::Mat getLightingLamps();
+	cv::Mat getLightingLampsMask();
+	cv::Mat getLightingColorLampsMask(cv::Mat &lighting_mask, cv::Mat & color_mask);
 	cv::Mat getAllMarkers(cv::Mat &pucks_mask);
 	cv::Mat getInsulatingTapeArea();
 	cv::Mat getPucksMask();

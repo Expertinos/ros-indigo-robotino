@@ -72,12 +72,8 @@ RobotinoVision::RobotinoVision():
 	lamp_posts_[7].left.red = true; lamp_posts_[7].right.red = false;
 	srand(time(NULL));
 
-	post_blur_size_ = 3;
-	post_thresh_ = 80;
-	post_range_ = 150;
-	post_open_ = 0;
-	post_close_ = 0;
-	post_dilate_ = 0;
+	color_lamp_dilate_ = 6;
+	color_lamp_close_ = 4;
 }
 
 /**
@@ -147,7 +143,6 @@ bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, rob
 	int number_of_objects = positions.size();
 	for (int k = 0; k < number_of_objects; k++)
 	{
-		ROS_INFO("Tamanho: Positions: %d, number: %d", positions.size(), number_of_markers_.size());
 		res.distances.push_back(positions[k].x);
 		res.directions.push_back(positions[k].y);
 		if (!number_of_markers_.empty())
@@ -416,12 +411,11 @@ void RobotinoVision::updateParameters()
 		setImagesWindows();
 	}	
 
-	cv::createTrackbar("Blur: ", POST_MASK_WINDOW, &post_blur_size_, 20);
-	cv::createTrackbar("Threshold: ", POST_MASK_WINDOW, &post_thresh_, 255);
-	cv::createTrackbar("Range: ", POST_MASK_WINDOW, &post_range_, 255);
-	cv::createTrackbar("Open: ", POST_MASK_WINDOW, &post_open_, 20);
-	cv::createTrackbar("Close: ", POST_MASK_WINDOW, &post_close_, 20);
-	cv::createTrackbar("Dilate: ", POST_MASK_WINDOW, &post_dilate_, 20);
+	cv::createTrackbar("Close: ", LIGHTING_MASK_WINDOW, &lighting_close_, 20);
+	cv::createTrackbar("Blur: ", LIGHTING_MASK_WINDOW, &lighting_blur_size_, 20);
+	cv::createTrackbar("Threshold: ", LIGHTING_MASK_WINDOW, &lighting_thresh_, 255);
+	cv::createTrackbar("Open: ", LIGHTING_MASK_WINDOW, &lighting_open_, 20);
+	cv::createTrackbar("Dilate: ", LIGHTING_MASK_WINDOW, &lighting_dilate_, 20);
 
 	cv::createTrackbar("Blur: ", ALL_MARKERS_WINDOW, &markers_blur_size_, 20);
 	cv::createTrackbar("Threshold: ", ALL_MARKERS_WINDOW, &markers_thresh_, 255);
@@ -471,12 +465,14 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		return points;
 	}
 
-	//ROS_DEBUG("Getting Lamp Post Mask!!!");
-	//cv::Mat post_mask = getLampPostMask();
+	ROS_DEBUG("Getting Lighting Lamp Mask!!!");
+	cv::Mat lighting_mask = getLightingLampsMask();
 	ROS_DEBUG("Getting Pucks Mask!!!");
 	cv::Mat pucks_mask = getPucksMask();
 	ROS_DEBUG("Getting Color Mask!!!");
 	cv::Mat color_mask = getColorMask();
+	ROS_DEBUG("Getting Lighting Lamp Mask!!!");
+	cv::Mat color_lamp_mask = getLightingColorLampsMask(lighting_mask, color_mask);
 	ROS_DEBUG("Getting Final Puck Mask!!!");
 	cv::Mat final_mask = getFinalMask(pucks_mask, color_mask);
 	ROS_DEBUG("Getting All Markers!!!");
@@ -490,17 +486,36 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 
 	if (calibration_)
 	{
-
 		updateParameters();
 		cv::imshow(INSULATING_TAPE_WINDOW, area);
 		cv::imshow(PUCK_MARKERS_WINDOW, puck_markers);
 		showImageBGRwithMask(final_mask);
 	}
 
-	//post_mask.release();
+	cv::createTrackbar("Blur: ", LIGHTING_MASK_WINDOW, &lighting_blur_size_, 20);
+	cv::createTrackbar("Threshold: ", LIGHTING_MASK_WINDOW, &lighting_thresh_, 255);
+	cv::createTrackbar("Open: ", LIGHTING_MASK_WINDOW, &lighting_open_, 20);
+	cv::createTrackbar("Close: ", LIGHTING_MASK_WINDOW, &lighting_close_, 20);
+	cv::createTrackbar("Dilate: ", LIGHTING_MASK_WINDOW, &lighting_dilate_, 20);
+	cv::imshow(LIGHTING_MASK_WINDOW, lighting_mask);
+
+	cv::createTrackbar("Dilate: ", COLOR_LAMP_MASK_WINDOW, &color_lamp_dilate_, 40);
+	cv::createTrackbar("Close: ", COLOR_LAMP_MASK_WINDOW, &color_lamp_close_, 20);
+	cv::imshow(COLOR_LAMP_MASK_WINDOW, color_lamp_mask);
+
+	cv::createTrackbar("Initial range value: ", COLOR_MASK_WINDOW, &color_params_.initial_range_value, 255);
+	cv::createTrackbar("Range width: ", COLOR_MASK_WINDOW, &color_params_.range_width, 255);
+	cv::createTrackbar("Blur: ", COLOR_MASK_WINDOW, &color_blur_size_, 40);
+	cv::createTrackbar("Dilate: ", COLOR_MASK_WINDOW, &color_dilate_, 40);
+	cv::createTrackbar("Open: ", COLOR_MASK_WINDOW, &color_open_, 40);
+	cv::createTrackbar("Close: ", COLOR_MASK_WINDOW, &color_close_, 40);
+	cv::imshow(COLOR_MASK_WINDOW, color_mask);
+
+	lighting_mask.release();
 	all_markers.release();
 	pucks_mask.release();
 	color_mask.release();
+	color_lamp_mask.release();
 	puck_markers.release();
 
 	points = getContours(puck_without_markers);//final_mask);
@@ -517,9 +532,9 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 /**
  *
  */
-cv::Mat RobotinoVision::getLampPostMask() 
+cv::Mat RobotinoVision::getLightingLampsMask() 
 {
-	cv::Mat lamp_post_mask;
+	cv::Mat  lighting_mask;
 
 	// convertendo de RGB para HLS
 	cv::Mat imgHLS;
@@ -528,68 +543,29 @@ cv::Mat RobotinoVision::getLampPostMask()
 	// separando a HLS 
 	cv::Mat splitted[3];
 	cv::split(imgHLS, splitted);
-	lamp_post_mask = splitted[2];
-/*
-	cv::medianBlur(lamp_post_mask, lamp_post_mask, 2 * post_blur_size_ + 1);
-	cv::imshow("HLS_2", lamp_post_mask);
-
-	// truncando imagem
-	cv::threshold(lamp_post_mask, lamp_post_mask, post_range_, 255, cv::THRESH_TRUNC);
-	cv::imshow("HLS_2 truncate", lamp_post_mask);
-
-	// define o intervalo da cor
-	cv::threshold(lamp_post_mask, lamp_post_mask, post_thresh_, 255, cv::THRESH_BINARY);
-	cv::imshow("HLS_2 thresh", lamp_post_mask);
-
-	// filtrando particulas pequenas
-	cv::Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * post_open_ + 1, 2 * post_open_ + 1), cv::Point(post_open_, post_open_));
-	cv::morphologyEx(lamp_post_mask, lamp_post_mask, cv::MORPH_OPEN, element);
+	 lighting_mask = splitted[2];
 
 	// fechando buracos na area
-	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * post_close_ + 1, 2 * post_close_ + 1), cv::Point(post_close_, post_close_));
-	cv::morphologyEx(lamp_post_mask, lamp_post_mask, cv::MORPH_CLOSE, element);
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * lighting_close_ + 1, 2 * lighting_close_ + 1), cv::Point(lighting_close_, lighting_close_));
+	cv::morphologyEx( lighting_mask,  lighting_mask, cv::MORPH_CLOSE, element);
 
-	// fazendo dilatação na imagem acima
-	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * post_dilate_ + 1, 2 * post_dilate_ + 1), cv::Point(post_dilate_, post_dilate_));
-	cv::dilate(lamp_post_mask, lamp_post_mask, element);
-
-	cv::imshow(POST_MASK_WINDOW, lamp_post_mask);
-*/
-	imgHLS.release();
-	splitted[0].release();
-	splitted[1].release();
-	splitted[2].release();
-	//element.release();
-
-	return lamp_post_mask;
-}
-
-/**
- *
- */
-cv::Mat RobotinoVision::getLightingLamps()
-{
-	cv::Mat lighting_lamps_mask;
-
-	// convertendo de RGB para HLS
-	cv::Mat imgHLS;
-	cv::cvtColor(imgRGB_, imgHLS, CV_RGB2HLS);
-
-	// separando a HLS 
-	cv::Mat splitted[3];
-	cv::split(imgHLS, splitted);
-	lighting_lamps_mask = splitted[2];
-
-	cv::medianBlur(lighting_lamps_mask, lighting_lamps_mask, 2 * lighting_blur_size_ + 1);
-	//cv::imshow("HLS_2", lighting_lamps_mask);
+	cv::medianBlur(lighting_mask, lighting_mask, 2 * lighting_blur_size_ + 1);
 
 	// define o intervalo da cor
-	cv::threshold(lighting_lamps_mask, lighting_lamps_mask, lighting_thresh_, 255, cv::THRESH_BINARY);
-	//cv::imshow("HLS_2 thresh", lighting_lamps_mask);
+	cv::threshold(lighting_mask, lighting_mask, lighting_thresh_, 255, cv::THRESH_BINARY);
+
+	// filtrando particulas pequenas
+	element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * lighting_open_ + 1, 2 * lighting_open_ + 1), cv::Point(lighting_open_, lighting_open_));
+	cv::morphologyEx( lighting_mask,  lighting_mask, cv::MORPH_OPEN, element);
 
 	// fazendo dilatação na imagem acima
-	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * lighting_dilate_ + 1, 2 * lighting_dilate_ + 1), cv::Point(lighting_dilate_, lighting_dilate_));
-	cv::dilate(lighting_lamps_mask, lighting_lamps_mask, element);
+	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * lighting_dilate_ + 1, 2 * lighting_dilate_ + 1), cv::Point(lighting_dilate_, lighting_dilate_));
+	cv::dilate(lighting_mask, lighting_mask, element);
+
+	if (calibration_)
+	{
+		cv::imshow(LIGHTING_MASK_WINDOW,  lighting_mask);
+	}
 
 	imgHLS.release();
 	splitted[0].release();
@@ -597,7 +573,35 @@ cv::Mat RobotinoVision::getLightingLamps()
 	splitted[2].release();
 	element.release();
 
-	return lighting_lamps_mask;
+	return  lighting_mask;
+}
+
+/**
+ *
+ */	
+cv::Mat RobotinoVision::getLightingColorLampsMask(cv::Mat &lighting_mask, cv::Mat & color_mask)
+{
+	cv::Mat color_lamp_mask;
+	cv::bitwise_and(lighting_mask, color_mask, color_lamp_mask);
+	cv::imshow("Color Light Lamp", color_lamp_mask);
+
+	// fazendo dilatação na imagem acima
+	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * color_lamp_dilate_ + 1, 2 * color_lamp_dilate_ + 1), cv::Point(color_lamp_dilate_, color_lamp_dilate_));
+	cv::dilate(color_lamp_mask,  color_lamp_mask, element);
+	cv::imshow("Color Light Lamp dilate", color_lamp_mask);
+
+	// fechando buracos na area
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_lamp_close_ + 1, 2 * color_lamp_close_ + 1), cv::Point(color_lamp_close_, color_lamp_close_));
+	cv::morphologyEx(color_lamp_mask, color_lamp_mask, cv::MORPH_CLOSE, element);
+
+	if (calibration_)
+	{
+		cv::imshow(COLOR_LAMP_MASK_WINDOW, color_lamp_mask);
+	}
+
+	element.release();
+	
+	return color_lamp_mask;
 }
 
 /**
@@ -1139,7 +1143,7 @@ void RobotinoVision::setImagesWindows()
 	{
 		return;
 	}
-	cv::namedWindow(POST_MASK_WINDOW);
+	cv::namedWindow(LIGHTING_MASK_WINDOW);
 	cv::namedWindow(ALL_MARKERS_WINDOW);
 	cv::namedWindow(PUCKS_MASK_WINDOW);
 	cv::namedWindow(COLOR_MASK_WINDOW);
@@ -1271,6 +1275,18 @@ void RobotinoVision::readParameters()
 	ROS_DEBUG("~/mask/insulating_tape_area/thresh: %d", area_thresh_);
 	ROS_DEBUG("~/mask/insulating_tape_area/close: %d", area_close_);
 	ROS_DEBUG("~/mask/insulating_tape_area/dilate: %d", area_dilate_);
+
+	ROS_DEBUG("********* Lighting Lamp Mask Parameters **********");
+	nh_.param<int>("/robotino_vision_node/mask/lighting_lamp/close", lighting_close_, 5);
+	nh_.param<int>("/robotino_vision_node/mask/lighting_lamp/blur_size", lighting_blur_size_, 2);
+	nh_.param<int>("/robotino_vision_node/mask/lighting_lamp/thresh", lighting_thresh_, 235);
+	nh_.param<int>("/robotino_vision_node/mask/lighting_lamp/open", lighting_open_, 7);
+	nh_.param<int>("/robotino_vision_node/mask/lighting_lamp/dilate", lighting_dilate_, 2);
+	ROS_DEBUG("~/mask/lighting_lamp/close: %d", lighting_close_);
+	ROS_DEBUG("~/mask/lighting_lamp/blur_size: %d", lighting_blur_size_);
+	ROS_DEBUG("~/mask/lighting_lamp/thresh: %d", lighting_thresh_);
+	ROS_DEBUG("~/mask/lighting_lamp/open: %d", lighting_open_);
+	ROS_DEBUG("~/mask/lighting_lamp/dilate: %d", lighting_dilate_);
 }
 /*
 
