@@ -128,7 +128,7 @@ Visualization Manager:
       Marker Topic: /move_base/RobotinoLocalPlanner/marker
       Name: Marker
       Namespaces:
-        {}
+        waypoints: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -136,7 +136,7 @@ Visualization Manager:
       Marker Topic: /robotino_safety_node/inner_ellipse_marker
       Name: Marker
       Namespaces:
-        {}
+        inner_ellipse: true
       Queue Size: 100
       Value: true
     - Class: rviz/Axes
@@ -224,15 +224,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.819632
-        Y: 0.414193
-        Z: -2.83987
+        X: 1.31431
+        Y: -0.972321
+        Z: -2.83832
       Name: Current View
       Near Clip Distance: 0.01
       Pitch: 1.5698
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.14862
+      Yaw: 2.09361
     Saved: ~
 Window Geometry:
   Displays:
@@ -244,5 +244,5 @@ Window Geometry:
   Tool Properties:
     collapsed: false
   Width: 1301
-  X: 58
+  X: 51
   Y: 24

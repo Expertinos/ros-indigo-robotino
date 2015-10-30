@@ -1,6 +1,7 @@
 import rospy
-from robotino_motion.srv import *
+from robotino_motion.msg import *
 from robotino_vision.srv import *
+from robotino_vision.msg import *
 
 def verificarProduto(produto):
 	#alinhar = rospy.ServiceProxy('align', Align)

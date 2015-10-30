@@ -7,7 +7,6 @@ import smach_ros
 import sys
 from Casa import casa
 from LigarNavigation import ligarNavigation
-from LigarNavigation import atualizaCmdVel
 from BuscarPedido import buscarPedido
 from VerificaDeposito import verificaDeposito
 from VerificarProduto import verificarProduto
@@ -21,6 +20,8 @@ from enum import *
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Twist
 import time
+from robotino_motion.msg import StorePuckAction
+from robotino_motion.msg import StorePuckGoal
 
 global num_pedido
 global area_casa
@@ -67,6 +68,7 @@ class LigarNavigation(smach.State):
 	global areas_produtos
 	global pedidos
 	global area_numero
+	global nome_deposito
 
 	seq += 1
 
@@ -76,16 +78,19 @@ class LigarNavigation(smach.State):
 		rospy.logwarn("deposito 2 "+str(Areas.STORE_DEPOSITO2[3]))
 		rospy.logwarn("deposito 3 "+str(Areas.STORE_DEPOSITO3[3]))
 
-		if(userdata.produto in Areas.STORE_DEPOSITO1[3]):
+		if(userdata.produto == Areas.STORE_DEPOSITO1[3]):
 			rospy.logwarn("deposito1")
+			nome_deposito = "Deposito1"
 			ligarNavigation(Areas.STORE_DEPOSITO1, seq, "Deposito1")
 
-		if(userdata.produto in Areas.STORE_DEPOSITO2[3]):
+		if(userdata.produto == Areas.STORE_DEPOSITO2[3]):
 			rospy.logwarn("deposito2")
+			nome_deposito = "Deposito2"
 			ligarNavigation(Areas.STORE_DEPOSITO2, seq, "Deposito2")
 
-		if(userdata.produto in Areas.STORE_DEPOSITO3[3]):
+		if(userdata.produto == Areas.STORE_DEPOSITO3[3]):
 			rospy.logwarn("deposito3")
+			nome_deposito = "Deposito3"
 			ligarNavigation(Areas.STORE_DEPOSITO3, seq, "Deposito3")
 
 		userdata.produto = verifica_areas(userdata.produto)
@@ -101,6 +106,7 @@ class LigarNavigation(smach.State):
 
 	if len(areas_produtos) == 0 or len(pedidos) == 0:
 		ligarNavigation(Areas.CASA, seq, "Casa")
+		entregarProduto("Casa")
 		return 'voltar_casa'
 
 	rospy.logwarn("area_numero = "+str(area_numero))
@@ -152,8 +158,8 @@ class VerificaDepositos(smach.State):
 	if pos != -1:
 		ligarNavigation(areas_depositos[pos], seq, "Deposito")
 		cor = verificaDeposito()
-		areas_depositos[pos][3] = cor
-		store_areas_depositos[pos][3] = cor
+		#areas_depositos[pos][3] = cor
+		#store_areas_depositos[pos][3] = cor
 		rospy.logwarn("deposito "+str(pos)+" = "+str(areas_depositos[pos][3]))
 		pos -= 1
 		return 'verificar'
@@ -216,7 +222,9 @@ class EntregarProduto(smach.State):
 	smach.State.__init__(self, outcomes=['entregue'])
 
     def execute(self, userdata):
-	entregarProduto()
+	global nome_deposito
+	rospy.logwarn("entregar produto em : "+nome_deposito)
+	entregarProduto(nome_deposito)
         return 'entregue'
 
 class SetaDeposito(smach.State):
@@ -334,34 +342,34 @@ def seta_parametros():
     global store_areas_depositos
     store_areas_depositos = []
 
-    Areas.AREA1[0] = rospy.get_param("/cbr2015_modulo_a_node/area1_x")
-    Areas.AREA1[1] = rospy.get_param("/cbr2015_modulo_a_node/area1_y")
-    Areas.AREA1[2] = rospy.get_param("/cbr2015_modulo_a_node/area1_orientation")
+    Areas.AREA1[0] = rospy.get_param("/cbr2015_module_a_node/area1_x")
+    Areas.AREA1[1] = rospy.get_param("/cbr2015_module_a_node/area1_y")
+    Areas.AREA1[2] = rospy.get_param("/cbr2015_module_a_node/area1_orientation")
     Areas.AREA1[3] = None
 
-    Areas.AREA2[0] = rospy.get_param("/cbr2015_modulo_a_node/area2_x")
-    Areas.AREA2[1] = rospy.get_param("/cbr2015_modulo_a_node/area2_y")
-    Areas.AREA2[2] = rospy.get_param("/cbr2015_modulo_a_node/area2_orientation")
+    Areas.AREA2[0] = rospy.get_param("/cbr2015_module_a_node/area2_x")
+    Areas.AREA2[1] = rospy.get_param("/cbr2015_module_a_node/area2_y")
+    Areas.AREA2[2] = rospy.get_param("/cbr2015_module_a_node/area2_orientation")
     Areas.AREA2[3] = None
 
-    Areas.AREA3[0] = rospy.get_param("/cbr2015_modulo_a_node/area3_x")
-    Areas.AREA3[1] = rospy.get_param("/cbr2015_modulo_a_node/area3_y")
-    Areas.AREA3[2] = rospy.get_param("/cbr2015_modulo_a_node/area3_orientation")
+    Areas.AREA3[0] = rospy.get_param("/cbr2015_module_a_node/area3_x")
+    Areas.AREA3[1] = rospy.get_param("/cbr2015_module_a_node/area3_y")
+    Areas.AREA3[2] = rospy.get_param("/cbr2015_module_a_node/area3_orientation")
     Areas.AREA3[3] = None
 
-    Areas.AREA4[0] = rospy.get_param("/cbr2015_modulo_a_node/area4_x")
-    Areas.AREA4[1] = rospy.get_param("/cbr2015_modulo_a_node/area4_y")
-    Areas.AREA4[2] = rospy.get_param("/cbr2015_modulo_a_node/area4_orientation")
+    Areas.AREA4[0] = rospy.get_param("/cbr2015_module_a_node/area4_x")
+    Areas.AREA4[1] = rospy.get_param("/cbr2015_module_a_node/area4_y")
+    Areas.AREA4[2] = rospy.get_param("/cbr2015_module_a_node/area4_orientation")
     Areas.AREA4[3] = None
 
-    Areas.AREA5[0] = rospy.get_param("/cbr2015_modulo_a_node/area5_x")
-    Areas.AREA5[1] = rospy.get_param("/cbr2015_modulo_a_node/area5_y")
-    Areas.AREA5[2] = rospy.get_param("/cbr2015_modulo_a_node/area5_orientation")
+    Areas.AREA5[0] = rospy.get_param("/cbr2015_module_a_node/area5_x")
+    Areas.AREA5[1] = rospy.get_param("/cbr2015_module_a_node/area5_y")
+    Areas.AREA5[2] = rospy.get_param("/cbr2015_module_a_node/area5_orientation")
     Areas.AREA5[3] = None
 
-    Areas.AREA6[0] = rospy.get_param("/cbr2015_modulo_a_node/area6_x")
-    Areas.AREA6[1] = rospy.get_param("/cbr2015_modulo_a_node/area6_y")
-    Areas.AREA6[2] = rospy.get_param("/cbr2015_modulo_a_node/area6_orientation")
+    Areas.AREA6[0] = rospy.get_param("/cbr2015_module_a_node/area6_x")
+    Areas.AREA6[1] = rospy.get_param("/cbr2015_module_a_node/area6_y")
+    Areas.AREA6[2] = rospy.get_param("/cbr2015_module_a_node/area6_orientation")
     Areas.AREA6[3] = None
 
     areas_produtos.append(Areas.AREA1)
@@ -371,65 +379,98 @@ def seta_parametros():
     areas_produtos.append(Areas.AREA5)
     areas_produtos.append(Areas.AREA6)
 
-    Areas.CASA[0] = rospy.get_param("/cbr2015_modulo_a_node/casa_x")
-    Areas.CASA[1] = rospy.get_param("/cbr2015_modulo_a_node/casa_y")
-    Areas.CASA[2] = rospy.get_param("/cbr2015_modulo_a_node/casa_orientation")
+    Areas.CASA[0] = rospy.get_param("/cbr2015_module_a_node/casa_x")
+    Areas.CASA[1] = rospy.get_param("/cbr2015_module_a_node/casa_y")
+    Areas.CASA[2] = rospy.get_param("/cbr2015_module_a_node/casa_orientation")
 
-    Areas.DEPOSITO1[0] = rospy.get_param("/cbr2015_modulo_a_node/deposito1_x")
-    Areas.DEPOSITO1[1] = rospy.get_param("/cbr2015_modulo_a_node/deposito1_y")
-    Areas.DEPOSITO1[2] = rospy.get_param("/cbr2015_modulo_a_node/deposito1_orientation")
-    Areas.DEPOSITO1[3] = None
+    Areas.DEPOSITO1[0] = rospy.get_param("/cbr2015_module_a_node/deposito1_x")
+    Areas.DEPOSITO1[1] = rospy.get_param("/cbr2015_module_a_node/deposito1_y")
+    Areas.DEPOSITO1[2] = rospy.get_param("/cbr2015_module_a_node/deposito1_orientation")
+    Areas.DEPOSITO1[3] = 4
 
-    Areas.DEPOSITO2[0] = rospy.get_param("/cbr2015_modulo_a_node/deposito2_x")
-    Areas.DEPOSITO2[1] = rospy.get_param("/cbr2015_modulo_a_node/deposito2_y")
-    Areas.DEPOSITO2[2] = rospy.get_param("/cbr2015_modulo_a_node/deposito2_orientation")
-    Areas.DEPOSITO2[3] = None
+    Areas.DEPOSITO2[0] = rospy.get_param("/cbr2015_module_a_node/deposito2_x")
+    Areas.DEPOSITO2[1] = rospy.get_param("/cbr2015_module_a_node/deposito2_y")
+    Areas.DEPOSITO2[2] = rospy.get_param("/cbr2015_module_a_node/deposito2_orientation")
+    Areas.DEPOSITO2[3] = 1
 
-    Areas.DEPOSITO3[0] = rospy.get_param("/cbr2015_modulo_a_node/deposito3_x")
-    Areas.DEPOSITO3[1] = rospy.get_param("/cbr2015_modulo_a_node/deposito3_y")
-    Areas.DEPOSITO3[2] = rospy.get_param("/cbr2015_modulo_a_node/deposito3_orientation")
-    Areas.DEPOSITO3[3] = None
+    Areas.DEPOSITO3[0] = rospy.get_param("/cbr2015_module_a_node/deposito3_x")
+    Areas.DEPOSITO3[1] = rospy.get_param("/cbr2015_module_a_node/deposito3_y")
+    Areas.DEPOSITO3[2] = rospy.get_param("/cbr2015_module_a_node/deposito3_orientation")
+    Areas.DEPOSITO3[3] = 3
 
     areas_depositos.append(Areas.DEPOSITO1)
     areas_depositos.append(Areas.DEPOSITO2)
     areas_depositos.append(Areas.DEPOSITO3)
 
-    Areas.STORE_DEPOSITO1[0] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito1_x")
-    Areas.STORE_DEPOSITO1[1] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito1_y")
-    Areas.STORE_DEPOSITO1[2] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito1_orientation")
-    Areas.STORE_DEPOSITO1[3] = None
+    Areas.STORE_DEPOSITO1[0] = rospy.get_param("/cbr2015_module_a_node/store_deposito1_x")
+    Areas.STORE_DEPOSITO1[1] = rospy.get_param("/cbr2015_module_a_node/store_deposito1_y")
+    Areas.STORE_DEPOSITO1[2] = rospy.get_param("/cbr2015_module_a_node/store_deposito1_orientation")
+    Areas.STORE_DEPOSITO1[3] = 4
 
-    Areas.STORE_DEPOSITO2[0] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito2_x")
-    Areas.STORE_DEPOSITO2[1] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito2_y")
-    Areas.STORE_DEPOSITO2[2] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito2_orientation")
-    Areas.STORE_DEPOSITO2[3] = None
+    Areas.STORE_DEPOSITO2[0] = rospy.get_param("/cbr2015_module_a_node/store_deposito2_x")
+    Areas.STORE_DEPOSITO2[1] = rospy.get_param("/cbr2015_module_a_node/store_deposito2_y")
+    Areas.STORE_DEPOSITO2[2] = rospy.get_param("/cbr2015_module_a_node/store_deposito2_orientation")
+    Areas.STORE_DEPOSITO2[3] = 1
 
-    Areas.STORE_DEPOSITO3[0] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito3_x")
-    Areas.STORE_DEPOSITO3[1] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito3_y")
-    Areas.STORE_DEPOSITO3[2] = rospy.get_param("/cbr2015_modulo_a_node/store_deposito3_orientation")
-    Areas.STORE_DEPOSITO3[3] = None
+    Areas.STORE_DEPOSITO3[0] = rospy.get_param("/cbr2015_module_a_node/store_deposito3_x")
+    Areas.STORE_DEPOSITO3[1] = rospy.get_param("/cbr2015_module_a_node/store_deposito3_y")
+    Areas.STORE_DEPOSITO3[2] = rospy.get_param("/cbr2015_module_a_node/store_deposito3_orientation")
+    Areas.STORE_DEPOSITO3[3] = 3
 
     store_areas_depositos.append(Areas.STORE_DEPOSITO1)
     store_areas_depositos.append(Areas.STORE_DEPOSITO2)
     store_areas_depositos.append(Areas.STORE_DEPOSITO3)
 
-    Areas.PEDIDOS[0] = rospy.get_param("/cbr2015_modulo_a_node/pedido_x")
-    Areas.PEDIDOS[1] = rospy.get_param("/cbr2015_modulo_a_node/pedido_y")
-    Areas.PEDIDOS[2] = rospy.get_param("/cbr2015_modulo_a_node/pedido_orientation")
+    Areas.PEDIDOS[0] = rospy.get_param("/cbr2015_module_a_node/pedido_x")
+    Areas.PEDIDOS[1] = rospy.get_param("/cbr2015_module_a_node/pedido_y")
+    Areas.PEDIDOS[2] = rospy.get_param("/cbr2015_module_a_node/pedido_orientation")
 
 def voltar(req):
 	ligarNavigation(Areas.CASA, seq, "Casa")
-	
+	entregarProduto("Casa")
 	sys.exit()
 	
 
+def ir_areas(req):
+	global areas_produtos
+	for i in range(0, len(areas_produtos)):
+		ligarNavigation(areas_produtos[i], seq, "Produtos")
+	
+	sys.exit()
+
+def ir_depositos(req):
+	global areas_depositos
+	for i in range(0, len(areas_depositos)):
+		ligarNavigation(areas_depositos[i], seq, "Depositos")
+	
+	sys.exit()
+
+def ir_store_depositos(req):
+	global store_areas_depositos
+	for i in range(0, len(store_areas_depositos)):
+		ligarNavigation(store_areas_depositos[i], seq, "Depositos")
+	
+	sys.exit()
+
+def ir_pedidos(req):
+	global areas_pedido
+	for i in range(0, len(areas_pedido)):
+		ligarNavigation(areas_pedido[i], seq, "Pedidos")
+	
+	sys.exit()
+
+
 if __name__ == '__main__':
     rospy.init_node('cbr2015_modulo_a_node')
-    rospy.loginfo("cbr2015_modula_a node is up and running!!!")
+    rospy.loginfo("cbr2015_modulo_a node is up and running!!!")
     s = rospy.Service('voltar_para_casa', Empty, voltar)
+    s = rospy.Service('ir_para_areas', Empty, ir_areas)
+    s = rospy.Service('ir_para_depositos', Empty, ir_depositos)
+    s = rospy.Service('ir_para_pedidos', Empty, ir_pedidos)
+    s = rospy.Service('ir_para_store_depositos', Empty, ir_store_depositos)
     s = rospy.Service('new_order', Empty, seta_order)
     s = rospy.Service('finaliza_prova', Empty, finaliza_prova)
-    rospy.Subscriber("cmd_vel", Twist, atualizaCmdVel)
+    #rospy.Subscriber("cmd_vel", Twist, atualizaCmdVel)
     #s = rospy.Service('get_started', Empty, main)    
     seta_parametros()
     main()

@@ -1,5 +1,5 @@
 /**
- *  GrabPuckServer.cpp
+ *  ReadPuckServer.cpp
  *
  *  Version: 1.0.0.0
  *  Created on: 01/10/2015
@@ -8,32 +8,30 @@
  *  Maintainer: Expertinos UNIFEI (expertinos.unifei@gmail.com)
  */
 
-#include "GrabPuckServer.h"
+#include "ReadPuckServer.h"
 
 /**
  *
  */
-GrabPuckServer::GrabPuckServer(ros::NodeHandle nh) : 
-	Server(nh, "Grab Puck"),
-	server_(nh, "grab_puck", boost::bind(&GrabPuckServer::executeCallback, this, _1), false)
+ReadPuckServer::ReadPuckServer(ros::NodeHandle nh) : 
+	Server(nh, "Read Puck"),
+	server_(nh, "read_puck", boost::bind(&ReadPuckServer::executeCallback, this, _1), false)
 {
 	readParameters();
-	digital_readings_sub_ = nh_.subscribe("digital_readings", 1, &GrabPuckServer::digitalReadingsCallback, this);
 	find_objects_cli_ = nh_.serviceClient<robotino_vision::FindObjects>("find_objects");
 
-	state_ = grab_puck_states::UNINITIALIZED;
+	state_ = read_puck_states::UNINITIALIZED;
 	percentage_ = 0;
 
-	loaded_ = false;
-	loaded_delay_ = ros::Time::now();
+	verify_markers_ = false;
+	final_color_index_ = -1;
 }
 
 /**
  *
  */
-GrabPuckServer::~GrabPuckServer() 
+ReadPuckServer::~ReadPuckServer() 
 {
-	digital_readings_sub_.shutdown();
 	find_objects_cli_.shutdown();
 	server_.shutdown();
 }
@@ -41,15 +39,15 @@ GrabPuckServer::~GrabPuckServer()
 /**
  *
  */
-bool GrabPuckServer::isActing()
+bool ReadPuckServer::isActing()
 {
-	return state_ != grab_puck_states::UNINITIALIZED && state_ != grab_puck_states::IDLE;
+	return state_ != read_puck_states::UNINITIALIZED && state_ != read_puck_states::IDLE;
 }
 
 /**
  *
  */
-void GrabPuckServer::start()
+void ReadPuckServer::start()
 {
 	if (!find_objects_cli_.exists())
 	{
@@ -57,21 +55,21 @@ void GrabPuckServer::start()
 		find_objects_cli_.waitForExistence();
 	}
 	ROS_INFO("/find_objects service server is running!!!");
-	if (state_ == grab_puck_states::UNINITIALIZED)
+	if (state_ == read_puck_states::UNINITIALIZED)
 	{
 		server_.start();
-		state_ = grab_puck_states::IDLE;
+		state_ = read_puck_states::IDLE;
 	}
 }
 
 /**
  *
  */
-void GrabPuckServer::stop()
+void ReadPuckServer::stop()
 {
 	setVelocity(0, 0, 0);
 	publishVelocity();
-	state_ = grab_puck_states::IDLE;
+	state_ = read_puck_states::IDLE;
 	result_.goal_achieved = false;
 	result_.message = "Unexpected emergency stop request!!!";
 	server_.setAborted(result_, result_.message);
@@ -80,25 +78,26 @@ void GrabPuckServer::stop()
 /**
  *
  */
-void GrabPuckServer::controlLoop()
+void ReadPuckServer::controlLoop()
 {
-	double vel_x = 0, vel_y = 0, vel_phi = 0;
-	ROS_DEBUG("%s", GrabPuckStates::toString(state_).c_str());
 	double percentage = 0;
-	if (!loaded_ && (state_ == grab_puck_states::ALIGNING_LATERAL || state_ == grab_puck_states::HEADING_TOWARD_PUCK || state_ == grab_puck_states::GRABBING_PUCK))
+	/*double vel_x = 0, vel_y = 0, vel_phi = 0;
+	ROS_DEBUG("%s", ReadPuckStates::toString(state_).c_str());
+	
+	if (!loaded_)
 	{
 		robotino_vision::FindObjects srv;
 		srv.request.color = Colors::toCode(color_);
 		if (!find_objects_cli_.call(srv))
 		{	
 			ROS_ERROR("Puck not found!!!");
-			state_ = grab_puck_states::LOST;
+			state_ = read_puck_states::LOST;
 			return;
 		}
 		std::vector<float> distances = srv.response.distances;
 		std::vector<float> directions = srv.response.directions; 
 		int num_objects = srv.response.distances.size();
-		if (num_objects > 0 && state_ != grab_puck_states::GRABBING_PUCK)
+		if (num_objects > 0 && state_ != read_puck_states::GRABBING_PUCK)
 		{
 			int closest_index = 0;
 			for (int i = 0; i < num_objects; i++)
@@ -124,7 +123,7 @@ void GrabPuckServer::controlLoop()
 			double percentage_f, percentage_0, tolerance, max_error, error;
 			if (fabs(error_lateral) > tolerance_lateral) // 0% a 49%
 			{
-				state_ = grab_puck_states::ALIGNING_LATERAL;
+				state_ = read_puck_states::ALIGNING_LATERAL;
 				vel_y = -K_error_lateral * error_lateral;
 				percentage_0 = 0;
 				percentage_f = 49;
@@ -134,7 +133,7 @@ void GrabPuckServer::controlLoop()
 			}
 			else if (fabs(error_frontal) > tolerance_frontal) // 50% a 69%
 			{
-				state_ = grab_puck_states::HEADING_TOWARD_PUCK;
+				state_ = read_puck_states::HEADING_TOWARD_PUCK;
 				vel_x = K_error_frontal * error_frontal;
 				percentage_0 = 50;
 				percentage_f = 69;
@@ -144,35 +143,33 @@ void GrabPuckServer::controlLoop()
 			}
 			else 
 			{
-				vel_x = .2;
-				state_ = grab_puck_states::GRABBING_PUCK;
-				grabbing_start_ = ros::Time::now();
+				vel_x = .14;
+				state_ = read_puck_states::GRABBING_PUCK;
+				readbing_start_ = ros::Time::now();
 			}
 			percentage = percentage_0 + (percentage_f - percentage_0) * (max_error - error) / (max_error - tolerance);
 		}
-		else if (state_ == grab_puck_states::GRABBING_PUCK) // 70% a 79%
+		else if (state_ == read_puck_states::GRABBING_PUCK) // 70% a 79%
 		{
-			state_ = grab_puck_states::GRABBING_PUCK;
-			vel_x = .2;
+			state_ = read_puck_states::GRABBING_PUCK;
+			vel_x = .14;
 			double percentage_0 = 70, percentage_f = 79;
-			double elapsed_time = (ros::Time::now() - grabbing_start_).toSec();
+			double elapsed_time = (ros::Time::now() - readbing_start_).toSec();
 			if (elapsed_time > GRABBING_DEADLINE)
 			{
-				state_ = grab_puck_states::LOST;
-				ROS_ERROR("Grabbing state deadline expired!!!");
+				state_ = read_puck_states::LOST;
+				ROS_ERROR("Readbing state deadline expired!!!");
 			}
 			percentage = percentage_0 + (percentage_f - percentage_0) * elapsed_time / GRABBING_DEADLINE;
 		}		
 	}
 	else 
 	{		
-		if (state_ == grab_puck_states::GRABBING_PUCK)
+		if (state_ == read_puck_states::GRABBING_PUCK)
 		{
-			ros::Duration d(.5);
-			d.sleep();
 			delta_x_ = -getOdometry_X();
 			resetOdometry();
-			state_ = grab_puck_states::ROTATING;
+			state_ = read_puck_states::ROTATING;
 			percentage_ = 79;
 		}
 		double max_error_linear = 1.25;
@@ -187,12 +184,12 @@ void GrabPuckServer::controlLoop()
 		{
 			 error_angular = max_error_angular;
 		}
-		float tolerance_linear = 0.1, tolerance_angular = 0.2;
-		double K_error_linear = 1, K_error_angular = 0.6;
+		float tolerance_linear = 0.1, tolerance_angular = 0.1;
+		double K_error_linear = 1.2, K_error_angular = 0.8;
 		double percentage_f, percentage_0, tolerance, max_error, error;
 		if (fabs(error_angular) > tolerance_angular) // 80% a 89%
 		{
-			state_ = grab_puck_states::ROTATING;
+			state_ = read_puck_states::ROTATING;
 			vel_phi = K_error_angular * error_angular;
 			percentage_0 = 80;
 			percentage_f = 89;
@@ -203,7 +200,7 @@ void GrabPuckServer::controlLoop()
 		}
 		else if (fabs(error_linear) > tolerance_linear) // 90% a 99%
 		{
-			state_ = grab_puck_states::GOING_BACK_TO_ORIGIN;
+			state_ = read_puck_states::GOING_BACK_TO_ORIGIN;
 			vel_x = K_error_linear * error_linear;
 			percentage_0 = 91;
 			percentage_f = 99;
@@ -215,7 +212,7 @@ void GrabPuckServer::controlLoop()
 	}
 	if (vel_x == 0 && vel_y == 0 && vel_phi == 0) // 100%
 	{
-		state_ = grab_puck_states::FINISHED;
+		state_ = read_puck_states::FINISHED;
 		percentage_ = 100;
 	}
 	if (percentage > percentage_)
@@ -223,14 +220,24 @@ void GrabPuckServer::controlLoop()
 		percentage_ = percentage;
 	}
 	setVelocity(vel_x, vel_y, vel_phi);
-	publishVelocity();
+	publishVelocity();*/
+	
+	if ((ros::Time::now() - reading_start_).toSec() > READING_DEADLINE) // 100%
+	{
+		state_ = read_puck_states::FINISHED;
+		percentage_ = 100;
+	}
+	if (percentage > percentage_)
+	{
+		percentage_ = percentage;
+	}
 	publishFeedback();
 }
 
 /**
  *
  */
-void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr& goal)
+void ReadPuckServer::executeCallback(const robotino_motion::ReadPuckGoalConstPtr& goal)
 {
 	ros::Rate loop_rate(20);
 	if(!validateNewGoal(goal))
@@ -249,15 +256,15 @@ void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr
 			}
 			ROS_INFO("Cancel request!!!");
 			server_.setPreempted();
-			state_ = grab_puck_states::IDLE;
+			state_ = read_puck_states::IDLE;
 			setVelocity(0, 0, 0);
 			publishVelocity();
 			return;
 		}
 		controlLoop();
-		if(state_ == grab_puck_states::FINISHED)
+		if(state_ == read_puck_states::FINISHED)
 		{
-			state_ = grab_puck_states::IDLE;
+			state_ = read_puck_states::IDLE;
 			setVelocity(0, 0, 0);
 			publishVelocity();
 			result_.goal_achieved = true;
@@ -266,9 +273,9 @@ void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr
 			ROS_INFO("%s goal reached!!!", name_.c_str());
 			return;
 		}
-		else if (state_ == grab_puck_states::LOST)
+		else if (state_ == read_puck_states::LOST)
 		{
-			state_ = grab_puck_states::IDLE;
+			state_ = read_puck_states::IDLE;
 			setVelocity(0, 0, 0);
 			publishVelocity();
 			result_.goal_achieved = false;
@@ -280,7 +287,7 @@ void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
-	state_ = grab_puck_states::IDLE;
+	state_ = read_puck_states::IDLE;
 	setVelocity(0, 0, 0);
 	publishVelocity();
 	result_.goal_achieved = false;
@@ -291,9 +298,9 @@ void GrabPuckServer::executeCallback(const robotino_motion::GrabPuckGoalConstPtr
 /**
  *
  */
-bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr& goal)
+bool ReadPuckServer::validateNewGoal(const robotino_motion::ReadPuckGoalConstPtr& goal)
 {
-	if(state_ == grab_puck_states::UNINITIALIZED)
+	if(state_ == read_puck_states::UNINITIALIZED)
 	{
 		result_.goal_achieved = false;
 		result_.message = "Odometry not initialized yet!!!";
@@ -301,32 +308,57 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
 		ROS_ERROR("%s", result_.message.c_str());
 		return false;
 	}
-	if(loaded_)
+	valid_colors_.clear();
+	for (int i = 0; i < goal->valid_colors.size(); i++)
+	{
+		int counter = 0;
+		Color color = Colors::toColor(goal->valid_colors[i]);
+		if (color == colors::NONE)
+		{	
+			result_.goal_achieved = false;
+			result_.message = "Invalid color code!!!";
+			server_.setAborted(result_, result_.message);
+			ROS_ERROR("Invalid color code: %d!!!", color);
+			return false;
+		}
+		if (color != colors::YELLOW && color != colors::BLUE && color != colors::GREEN && color != colors::RED)
+		{
+			result_.goal_achieved = false;
+			result_.message = Colors::toString(color) + " color is not working because it was not calibrated yet in robotino_vision package!!!";
+			server_.setAborted(result_, result_.message);
+			ROS_ERROR("%s", result_.message.c_str());
+			return false;
+		}
+		/*robotino_vision::FindObjects srv;
+		srv.request.color = Colors::toCode(color);
+		if (find_objects_cli_.call(srv))
+		{
+			find_objects_cli_.
+		}*/
+		valid_colors_.push_back(color);
+		for (int j = 0; j < valid_colors_.size(); j++)
+		{
+			if (color == valid_colors_[j])
+			{
+				counter++;
+				if (counter > 1)
+				{
+					valid_colors_.erase(valid_colors_.begin() + j);
+					break;
+				}
+			}
+		}
+	}
+	if(valid_colors_.empty())
 	{
 		result_.goal_achieved = false;
-		result_.message = "Robotino is already loaded!!!";
+		result_.message = "There is no valid color setted!!!";
 		server_.setAborted(result_, result_.message);
 		ROS_ERROR("%s", result_.message.c_str());
 		return false;
 	}
-	color_ = Colors::toColor(goal->color);
-	if (color_ == colors::NONE)
-	{	
-		result_.goal_achieved = false;
-		result_.message = "Invalid color code!!!";
-		server_.setAborted(result_, result_.message);
-		ROS_ERROR("Invalid color code: %d!!!", goal->color);
-		return false;
-	}
-	if (color_ != colors::YELLOW && color_ != colors::BLUE && color_ != colors::GREEN && color_ != colors::RED)
-	{
-		result_.goal_achieved = false;
-		result_.message = Colors::toString(color_) + " color is not working because it was not calibrated yet in robotino_vision package!!!";
-		server_.setAborted(result_, result_.message);
-		ROS_ERROR("%s", result_.message.c_str());
-		return false;
-	}
-	robotino_vision::FindObjects srv;
+	verify_markers_ = goal->verify_markers;
+	/*robotino_vision::FindObjects srv;
 	srv.request.color = Colors::toCode(color_);
 	if (!find_objects_cli_.call(srv))
 	{	
@@ -335,49 +367,34 @@ bool GrabPuckServer::validateNewGoal(const robotino_motion::GrabPuckGoalConstPtr
 		server_.setAborted(result_, result_.message);
 		ROS_ERROR("%s", result_.message.c_str());
 		return false;
-	}
+	}*/
+	reading_start_ = ros::Time::now();
+	final_color_index_ = -1;
+	colors_.clear();
+	number_of_markers_.clear();
+	counters_.clear();
 	percentage_ = 0;
 	resetOdometry();
-	state_ = grab_puck_states::ALIGNING_LATERAL;
-	ROS_INFO("Goal accepted, grabbing %s puck!!!", Colors::toString(color_).c_str());
+	//state_ = read_puck_states::ALIGNING_LATERAL;
+	ROS_INFO("Goal accepted, reading puck!!!");
 	return true;
 }
 
 /**
  *
  */
-void GrabPuckServer::publishFeedback()
+void ReadPuckServer::publishFeedback()
 {
-	ROS_DEBUG("%s (%f)", GrabPuckStates::toString(state_).c_str(), percentage_);
+	ROS_DEBUG("%s (%f)", ReadPuckStates::toString(state_).c_str(), percentage_);
 	feedback_.percentage = percentage_;
-	feedback_.state = GrabPuckStates::toString(state_);
+	feedback_.state = ReadPuckStates::toString(state_);
 	server_.publishFeedback(feedback_);
 }
 
 /**
  *
  */
-void GrabPuckServer::digitalReadingsCallback(const robotino_msgs::DigitalReadings& msg)
-{
-	/*if (msg.values.at(0))
-	{
-		loaded_delay_ = ros::Time::now();
-	}
-	else
-	{
-		loaded_delay_ = 0;
-	}
-	if ((ros::Time::now() - loaded_puck_).toSec() > LOADED_DELAY)
-	{
-		loaded_ = true;
-	}*/
-	loaded_ = !msg.values.at(0);
-}
-
-/**
- *
- */
-void GrabPuckServer::readParameters()
+void ReadPuckServer::readParameters()
 {
 	
 }
