@@ -19,9 +19,9 @@ int main (int argc, char **argv)
 	// send a goal to the action
 	robotino_motion::GrabPuckGoal goal;
 	//goal.color = 0;  		//ORANGE
-	goal.color = 1;  		//YELLOW
+	//goal.color = 1;  		//YELLOW
 	//goal.color = 2;   		//BLUE
-	//goal.color = 3;   		//GREEN
+	goal.color = 3;   		//GREEN
 	//goal.color = 4;   		//RED
 	//goal.color = 5;   		//BLACK
 	//goal.color = -1;   		//NONE

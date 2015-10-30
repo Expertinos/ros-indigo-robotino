@@ -1,6 +1,0 @@
-uint8 mode		#0 front side
-			#1 right side
-			#2 left side
-			#3 back side
----
-bool succeed

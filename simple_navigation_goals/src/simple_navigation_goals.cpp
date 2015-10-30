@@ -70,34 +70,96 @@ int main(int argc, char** argv){
   if(queue_.empty())
   {
 	  goal.target_pose.header.seq = 0;
-	  goal.target_pose.pose.position.x = 5.934;
-	  goal.target_pose.pose.position.y = 4.004;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-2.817);
+	  goal.target_pose.pose.position.x = 2.120;
+	  goal.target_pose.pose.position.y = -1.478;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-2.605);
 	  queue_.push(goal);
 
 	  goal.target_pose.header.seq = 1;
-	  goal.target_pose.pose.position.x = 1.792;
-	  goal.target_pose.pose.position.y = 3.091;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-1.411);
+	  goal.target_pose.pose.position.x = 2.612;
+	  goal.target_pose.pose.position.y = -1.134;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.532);
 	  queue_.push(goal);
 
 	  goal.target_pose.header.seq = 2;
-	  goal.target_pose.pose.position.x = 0.397;
-	  goal.target_pose.pose.position.y = 0.731;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.970);
+	  goal.target_pose.pose.position.x = 2.694;
+	  goal.target_pose.pose.position.y = -0.213;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(2.105);
 	  queue_.push(goal);
 
 	  goal.target_pose.header.seq = 3;
-	  goal.target_pose.pose.position.x = 0.024;
-	  goal.target_pose.pose.position.y = 3.044;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-1.394);
+	  goal.target_pose.pose.position.x = 2.142;
+	  goal.target_pose.pose.position.y = -0.563;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(2.121);
 	  queue_.push(goal);
 
 	  goal.target_pose.header.seq = 4;
-	  goal.target_pose.pose.position.x = 3.970;
-	  goal.target_pose.pose.position.y = 1.223;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.196);
+	  goal.target_pose.pose.position.x = 1.526;
+	  goal.target_pose.pose.position.y = -0.828;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(2.098);
 	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 5;
+	  goal.target_pose.pose.position.x = 0.696;
+	  goal.target_pose.pose.position.y = -2.076;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-2.491);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 6;
+	  goal.target_pose.pose.position.x = 0.503;
+	  goal.target_pose.pose.position.y = -2.005;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(2.898);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 7;
+	  goal.target_pose.pose.position.x = 0.076;
+	  goal.target_pose.pose.position.y = -1.138;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-2.406);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 8;
+	  goal.target_pose.pose.position.x = 0.658;
+	  goal.target_pose.pose.position.y = -2.278;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.514);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 9;
+	  goal.target_pose.pose.position.x = 0.458;
+	  goal.target_pose.pose.position.y = -2.057;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(1.191);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 10;
+	  goal.target_pose.pose.position.x = 0.092;
+	  goal.target_pose.pose.position.y = -1.202;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.483);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 11;
+	  goal.target_pose.pose.position.x = 2.707;
+	  goal.target_pose.pose.position.y = -0.407;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.553);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 12;
+	  goal.target_pose.pose.position.x = 2.150;
+	  goal.target_pose.pose.position.y = -0.732;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.534);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 13;
+	  goal.target_pose.pose.position.x = 1.506;
+	  goal.target_pose.pose.position.y = -1.013;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw( 0.523);
+	  queue_.push(goal);
+
+	  goal.target_pose.header.seq = 14;
+	  goal.target_pose.pose.position.x = 2.120;
+	  goal.target_pose.pose.position.y = -1.478;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-2.605);
+	  queue_.push(goal);
+
+
 	  //std::cout<<"goal: "<<goal<<std::endl;
   }
 
@@ -125,6 +187,8 @@ int main(int argc, char** argv){
 		ROS_INFO("BUGOU!!!!");
 
 	  queue_.pop();
+
+	  usleep(10000);
   }
   return 0;
 }

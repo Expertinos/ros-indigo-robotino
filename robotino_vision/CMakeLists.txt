@@ -72,3 +72,5 @@ target_link_libraries(robotino_vision_node
 	${OpenCV_LIBRARIES}
 	#fuzzylite
 	)
+
+
