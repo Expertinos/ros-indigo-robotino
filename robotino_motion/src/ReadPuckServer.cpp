@@ -81,7 +81,7 @@ void ReadPuckServer::stop()
 void ReadPuckServer::controlLoop()
 {
 	double vel_x = 0, vel_y = 0, vel_phi = 0;
-	ROS_DEBUG("%s", ReadPuckStates::toString(state_).c_str());
+	ROS_INFO("%s", ReadPuckStates::toString(state_).c_str());
 	double percentage = 0;
 
 	if (state_ == read_puck_states::ALIGNING_FRONTAL)
@@ -326,6 +326,7 @@ bool ReadPuckServer::validateNewGoal(const robotino_motion::ReadPuckGoalConstPtr
 		return false;
 	}
 	verify_markers_ = goal->verify_markers;
+	ROS_INFO("Verify markers: %s, %d", verify_markers_?"true":"false", verify_markers_);
 	for (int i = 0; i < goal->valid_number_of_markers.size(); i++)
 	{
 		valid_number_of_markers_.push_back(goal->valid_number_of_markers[i]);
@@ -343,7 +344,7 @@ bool ReadPuckServer::validateNewGoal(const robotino_motion::ReadPuckGoalConstPtr
 	reading_start_ = ros::Time::now();
 	percentage_ = 0;
 	resetOdometry();
-	//state_ = read_puck_states::ALIGNING_LATERAL;
+	state_ = read_puck_states::HEADING_TOWARD_PUCK;
 	ROS_INFO("Goal accepted, reading puck!!!");
 	return true;
 }

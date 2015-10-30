@@ -147,9 +147,13 @@ bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, rob
 	int number_of_objects = positions.size();
 	for (int k = 0; k < number_of_objects; k++)
 	{
+		ROS_INFO("Tamanho: Positions: %d, number: %d", positions.size(), number_of_markers_.size());
 		res.distances.push_back(positions[k].x);
 		res.directions.push_back(positions[k].y);
-		res.number_of_markers.push_back(number_of_markers_[k]);
+		if (!number_of_markers_.empty())
+		{
+			res.number_of_markers.push_back(number_of_markers_[k]);
+		}
 	}
 	return true;
 }

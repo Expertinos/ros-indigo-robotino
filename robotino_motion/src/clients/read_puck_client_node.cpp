@@ -21,8 +21,8 @@ int main (int argc, char **argv)
 	goal.valid_colors.push_back(4); // RED
 	goal.verify_markers = true;
 	goal.valid_number_of_markers.push_back(1); // 1 marker
-	goal.valid_number_of_markers.push_back(2); // 3 markers
-	goal.valid_number_of_markers.push_back(3); // 5 markers
+	goal.valid_number_of_markers.push_back(3); // 3 markers
+	goal.valid_number_of_markers.push_back(5); // 5 markers
 	ac.sendGoal(goal);
 
 	//wait for the action to return
