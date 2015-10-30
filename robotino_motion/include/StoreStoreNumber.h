@@ -21,6 +21,7 @@ namespace store_store_numbers
 		NEAR,
 		MIDDLE,
 		FAR_AWAY,
+		VOLTAR_PRA_CASA,
 		NONE
 	} StoreStoreNumberEnum;
 

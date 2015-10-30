@@ -17,28 +17,14 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 find_package(OpenCV REQUIRED)
 
-add_message_files(
-	FILES
-	RobotState.msg
-	HasArrived.msg
-	)
-
-add_service_files(
-	FILES
-	Align.srv
-	GetProduct.srv
-	AchievedGoal.srv
-	MoveTo.srv
-	SetAchievedGoal.srv
-	)
-
 add_action_files(
 	DIRECTORY action
 	FILES Align.action
 	      GrabPuck.action	
-	      Move.action	
+	      Move.action		
+	      ReadOrder.action	
+	      ReadPuck.action
 	      StorePuck.action	
-	      ReadOrder.action
 	)
 
 generate_messages(
@@ -53,7 +39,12 @@ catkin_package(
 	actionlib_msgs
 	)
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(
+	include 
+	${catkin_INCLUDE_DIRS} 
+	${OpenCV_INCLUDE_DIRS} 
+	${Boost_INCLUDE_DIRS}
+	)
 
 add_executable(align_server_node 
 	src/servers/align_server_node.cpp
@@ -70,27 +61,6 @@ target_link_libraries(align_server_node
 	)
 
 add_dependencies(align_server_node
-	robotino_motion_gen_cpp
-	robotino_msgs_gen_cpp
-	${robotino_motion_EXPORTED_TARGETS}
-	)
-
-add_executable(read_order_server_node 
-	src/servers/read_order_server_node.cpp
-	src/Server.cpp
-	src/ReadOrderServer.cpp
-	src/Colors.cpp
-	src/ReadOrderStates.cpp
-	src/AlignAlignmentModes.cpp
-	src/AlignDistanceModes.cpp
-	)
-
-target_link_libraries(read_order_server_node
-	${catkin_LIBRARIES}
-	${OpenCV_LIBRARIES}
-	)
-
-add_dependencies(read_order_server_node
 	robotino_motion_gen_cpp
 	robotino_msgs_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
@@ -137,6 +107,46 @@ add_dependencies(move_server_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
+add_executable(read_puck_server_node 
+	src/servers/read_puck_server_node.cpp
+	src/Server.cpp
+	src/ReadPuckServer.cpp
+	src/ReadPuckStates.cpp
+	src/Colors.cpp
+	)
+
+target_link_libraries(read_puck_server_node
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
+	)
+
+add_dependencies(read_puck_server_node
+	robotino_motion_gen_cpp
+	robotino_msgs_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(read_order_server_node 
+	src/servers/read_order_server_node.cpp
+	src/Server.cpp
+	src/ReadOrderServer.cpp
+	src/Colors.cpp
+	src/ReadOrderStates.cpp
+	src/AlignAlignmentModes.cpp
+	src/AlignDistanceModes.cpp
+	)
+
+target_link_libraries(read_order_server_node
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES}
+	)
+
+add_dependencies(read_order_server_node
+	robotino_motion_gen_cpp
+	robotino_msgs_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
 add_executable(store_server_node 
 	src/servers/store_server_node.cpp
 	src/Server.cpp
@@ -173,19 +183,6 @@ add_dependencies(align_client_node
 	${robotino_motion_EXPORTED_TARGETS}
 	)
 
-add_executable(read_order_client_node 
-	src/clients/read_order_client_node.cpp
-	)
-
-target_link_libraries(read_order_client_node
-	${catkin_LIBRARIES}
-	)
-
-add_dependencies(read_order_client_node
-	robotino_motion_gen_cpp
-	${robotino_motion_EXPORTED_TARGETS}
-	)
-
 add_executable(grab_client_node 
 	src/clients/grab_client_node.cpp
 	)
@@ -208,6 +205,32 @@ target_link_libraries(move_client_node
 	)
 
 add_dependencies(move_client_node
+	robotino_motion_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(read_puck_client_node 
+	src/clients/read_puck_client_node.cpp
+	)
+
+target_link_libraries(read_puck_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(read_puck_client_node
+	robotino_motion_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
+
+add_executable(read_order_client_node 
+	src/clients/read_order_client_node.cpp
+	)
+
+target_link_libraries(read_order_client_node
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(read_order_client_node
 	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)

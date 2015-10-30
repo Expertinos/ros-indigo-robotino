@@ -31,10 +31,10 @@ RobotinoVision::RobotinoVision():
 
 	calibration_ = false;
 	
-	verify_markers_ = true;
-	specific_number_of_markers_ = -1;
+	verify_markers_ = false;
+	specific_number_of_markers_ = 0;
 	
-	setImagesWindows();
+	//setImagesWindows();
 
 	/* Possible combinations
 	colors::GREEN, colors::GREEN
@@ -71,6 +71,13 @@ RobotinoVision::RobotinoVision():
 	lamp_posts_[7].left.yellow = false; lamp_posts_[7].right.yellow = false;
 	lamp_posts_[7].left.red = true; lamp_posts_[7].right.red = false;
 	srand(time(NULL));
+
+	post_blur_size_ = 3;
+	post_thresh_ = 80;
+	post_range_ = 150;
+	post_open_ = 0;
+	post_close_ = 0;
+	post_dilate_ = 0;
 }
 
 /**
@@ -142,7 +149,7 @@ bool RobotinoVision::findObjects(robotino_vision::FindObjects::Request &req, rob
 	{
 		res.distances.push_back(positions[k].x);
 		res.directions.push_back(positions[k].y);
-		res.number_of_markers.push_back(number_of_markers_[k]);
+		//res.number_of_markers.push_back(number_of_markers_[k]);
 	}
 	return true;
 }
@@ -411,6 +418,8 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	{
 		return points;
 	}
+	//ROS_DEBUG("Getting Lamp Post Mask!!!");
+	//cv::Mat post_mask = getLampPostMask();
 	ROS_DEBUG("Getting Pucks Mask!!!");
 	cv::Mat pucks_mask = getPucksMask();
 	ROS_DEBUG("Getting Color Mask!!!");
@@ -423,8 +432,15 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 	cv::Mat puck_markers = getPuckMarkers(all_markers, pucks_mask);
 	ROS_DEBUG("Getting Puck without Markers!!!");
 	cv::Mat puck_without_markers = getPuckWithoutMarkers(final_mask, puck_markers);
-	ROS_DEBUG("Getting Contours based on Final Mask!!!");
-	cv::Mat area = getInsulatingTapeArea();
+	//ROS_DEBUG("Getting Contours based on Final Mask!!!");
+	//cv::Mat area = getInsulatingTapeArea();
+	
+	cv::createTrackbar("Blur: ", POST_MASK_WINDOW, &post_blur_size_, 20);
+	cv::createTrackbar("Threshold: ", POST_MASK_WINDOW, &post_thresh_, 255);
+	cv::createTrackbar("Range: ", POST_MASK_WINDOW, &post_range_, 255);
+	cv::createTrackbar("Open: ", POST_MASK_WINDOW, &post_open_, 20);
+	cv::createTrackbar("Close: ", POST_MASK_WINDOW, &post_close_, 20);
+	cv::createTrackbar("Dilate: ", POST_MASK_WINDOW, &post_dilate_, 20);
 	
 	if (calibration_)
 	{
@@ -433,8 +449,15 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		{
 			contours_window_name_ = contours_window_name;
 			without_markers_window_name_ = Colors::toString(color_) + " " + PUCK_WITHOUT_MARKERS_WINDOW;
-			setImagesWindows();
+			//setImagesWindows();
 		}	
+/*
+		cv::createTrackbar("Blur: ", POST_MASK_WINDOW, &post_blur_size_, 20);
+		cv::createTrackbar("Threshold: ", POST_MASK_WINDOW, &post_thresh_, 255);
+		cv::createTrackbar("Range: ", POST_MASK_WINDOW, &post_range_, 255);
+		cv::createTrackbar("Open: ", POST_MASK_WINDOW, &post_open_, 20);
+		cv::createTrackbar("Close: ", POST_MASK_WINDOW, &post_close_, 20);
+		cv::createTrackbar("Dilate: ", POST_MASK_WINDOW, &post_dilate_, 20);*/
 
 		cv::createTrackbar("Blur: ", ALL_MARKERS_WINDOW, &markers_blur_size_, 20);
 		cv::createTrackbar("Threshold: ", ALL_MARKERS_WINDOW, &markers_thresh_, 255);
@@ -458,31 +481,118 @@ std::vector<cv::Point2f> RobotinoVision::processColor()
 		cv::createTrackbar("Open(after): ", FINAL_MASK_WINDOW, &final_open_after_, 20);
 		cv::createTrackbar("Dilate: ", FINAL_MASK_WINDOW, &final_dilate_, 20);
 
-		cv::createTrackbar("Blur: ", INSULATING_TAPE_WINDOW, &area_blur_size_, 50);
+		/*cv::createTrackbar("Blur: ", INSULATING_TAPE_WINDOW, &area_blur_size_, 50);
 		cv::createTrackbar("Threshold: ", INSULATING_TAPE_WINDOW, &area_thresh_, 255);
 		cv::createTrackbar("Close: ", INSULATING_TAPE_WINDOW, &area_close_, 50);
 		cv::createTrackbar("Dilate: ", INSULATING_TAPE_WINDOW, &area_dilate_, 50);
-		cv::imshow(INSULATING_TAPE_WINDOW, area);
+		cv::imshow(INSULATING_TAPE_WINDOW, area);*/
 	
 		cv::imshow(PUCK_MARKERS_WINDOW, puck_markers);
 	
 		showImageBGRwithMask(final_mask);
 	}
 
+	//post_mask.release();
 	all_markers.release();
 	pucks_mask.release();
 	color_mask.release();
 	puck_markers.release();
 
-	points = getContours(puck_without_markers);
+	points = getContours(final_mask);//puck_without_markers);
 
 	final_mask.release();
 	puck_without_markers.release();
-	area.release();
+	//area.release();
 	
 	cv::waitKey(30);
 
 	return points;
+}
+
+/**
+ *
+ */
+cv::Mat RobotinoVision::getLampPostMask() 
+{
+	cv::Mat lamp_post_mask;
+
+	// convertendo de RGB para HLS
+	cv::Mat imgHLS;
+	cv::cvtColor(imgRGB_, imgHLS, CV_RGB2HLS);
+
+	// separando a HLS 
+	cv::Mat splitted[3];
+	cv::split(imgHLS, splitted);
+	lamp_post_mask = splitted[2];
+/*
+	cv::medianBlur(lamp_post_mask, lamp_post_mask, 2 * post_blur_size_ + 1);
+	cv::imshow("HLS_2", lamp_post_mask);
+
+	// truncando imagem
+	cv::threshold(lamp_post_mask, lamp_post_mask, post_range_, 255, cv::THRESH_TRUNC);
+	cv::imshow("HLS_2 truncate", lamp_post_mask);
+
+	// define o intervalo da cor
+	cv::threshold(lamp_post_mask, lamp_post_mask, post_thresh_, 255, cv::THRESH_BINARY);
+	cv::imshow("HLS_2 thresh", lamp_post_mask);
+
+	// filtrando particulas pequenas
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * post_open_ + 1, 2 * post_open_ + 1), cv::Point(post_open_, post_open_));
+	cv::morphologyEx(lamp_post_mask, lamp_post_mask, cv::MORPH_OPEN, element);
+
+	// fechando buracos na area
+	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * post_close_ + 1, 2 * post_close_ + 1), cv::Point(post_close_, post_close_));
+	cv::morphologyEx(lamp_post_mask, lamp_post_mask, cv::MORPH_CLOSE, element);
+
+	// fazendo dilatação na imagem acima
+	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * post_dilate_ + 1, 2 * post_dilate_ + 1), cv::Point(post_dilate_, post_dilate_));
+	cv::dilate(lamp_post_mask, lamp_post_mask, element);
+
+	cv::imshow(POST_MASK_WINDOW, lamp_post_mask);
+*/
+	imgHLS.release();
+	splitted[0].release();
+	splitted[1].release();
+	splitted[2].release();
+	//element.release();
+
+	return lamp_post_mask;
+}
+
+/**
+ *
+ */
+cv::Mat RobotinoVision::getLightingLamps()
+{
+	cv::Mat lighting_lamps_mask;
+
+	// convertendo de RGB para HLS
+	cv::Mat imgHLS;
+	cv::cvtColor(imgRGB_, imgHLS, CV_RGB2HLS);
+
+	// separando a HLS 
+	cv::Mat splitted[3];
+	cv::split(imgHLS, splitted);
+	lighting_lamps_mask = splitted[2];
+
+	cv::medianBlur(lighting_lamps_mask, lighting_lamps_mask, 2 * lighting_blur_size_ + 1);
+	//cv::imshow("HLS_2", lighting_lamps_mask);
+
+	// define o intervalo da cor
+	cv::threshold(lighting_lamps_mask, lighting_lamps_mask, lighting_thresh_, 255, cv::THRESH_BINARY);
+	//cv::imshow("HLS_2 thresh", lighting_lamps_mask);
+
+	// fazendo dilatação na imagem acima
+	cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * lighting_dilate_ + 1, 2 * lighting_dilate_ + 1), cv::Point(lighting_dilate_, lighting_dilate_));
+	cv::dilate(lighting_lamps_mask, lighting_lamps_mask, element);
+
+	imgHLS.release();
+	splitted[0].release();
+	splitted[1].release();
+	splitted[2].release();
+	element.release();
+
+	return lighting_lamps_mask;
 }
 
 /**
@@ -508,7 +618,7 @@ cv::Mat RobotinoVision::getAllMarkers(cv::Mat &pucks_mask)
 
 	// filtro de partícula pequenas
 	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * markers_open_ + 1, 2 * markers_open_ + 1), cv::Point(markers_open_, markers_open_));
-	cv::morphologyEx(all_markers, all_markers, 2, element);
+	cv::morphologyEx(all_markers, all_markers, cv::MORPH_OPEN, element);
 
 	if (calibration_)
 	{
@@ -554,7 +664,7 @@ cv::Mat RobotinoVision::getInsulatingTapeArea()
 
 	// fechando buracos na area
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * area_close_ + 1, 2 * area_close_ + 1), cv::Point(area_close_, area_close_));
-	cv::morphologyEx(insulating_tape_area, insulating_tape_area, 3, element);
+	cv::morphologyEx(insulating_tape_area, insulating_tape_area, cv::MORPH_CLOSE, element);
 
 	// fazendo dilatação na imagem acima
 	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * area_dilate_ + 1, 2 * area_dilate_ + 1), cv::Point(area_dilate_, area_dilate_));
@@ -601,11 +711,11 @@ cv::Mat RobotinoVision::getPucksMask()
 
 	// fechando buracos
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * pucks_close_ + 1, 2 * pucks_close_ + 1), cv::Point(pucks_close_, pucks_close_));
-	cv::morphologyEx(pucks_mask, pucks_mask, 3, element);
+	cv::morphologyEx(pucks_mask, pucks_mask, cv::MORPH_CLOSE, element);
 
 	// filtro de partícula pequenas
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * pucks_open_ + 1, 2 * pucks_open_ + 1), cv::Point(pucks_open_, pucks_open_));
-	cv::morphologyEx(pucks_mask, pucks_mask, 2, element);
+	cv::morphologyEx(pucks_mask, pucks_mask, cv::MORPH_OPEN, element);
 
 	if (calibration_)
 	{
@@ -660,11 +770,11 @@ cv::Mat RobotinoVision::getColorMask()
 
 	// filtro de partícula pequenas
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_open_ + 1, 2 * color_open_ + 1), cv::Point(color_open_, color_open_));
-	cv::morphologyEx(color_mask, color_mask, 2, element);
+	cv::morphologyEx(color_mask, color_mask, cv::MORPH_OPEN, element);
 
 	// fechando buracos
 	element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * color_close_ + 1, 2 * color_close_ + 1), cv::Point(color_close_, color_close_));
-	cv::morphologyEx(color_mask, color_mask, 3, element);
+	cv::morphologyEx(color_mask, color_mask, cv::MORPH_CLOSE, element);
 
 	if (calibration_)
 	{
@@ -695,15 +805,15 @@ cv::Mat RobotinoVision::getFinalMask(cv::Mat &insulating_tape_area, cv::Mat &puc
 
 	// removendo particulas pequenas
 	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_before_ + 1, 2 * final_open_before_ + 1), cv::Point(final_open_before_, final_open_before_));
-	cv::morphologyEx(final_mask, final_mask, 2, element);
+	cv::morphologyEx(final_mask, final_mask, cv::MORPH_OPEN, element);
 	
 	// fechando buracos
 	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_close_ + 1, 2 * final_close_ + 1), cv::Point(final_close_, final_close_));
-	morphologyEx(final_mask, final_mask, 3, element);
+	morphologyEx(final_mask, final_mask, cv::MORPH_CLOSE, element);
 
 	// removendo particulas pequenas
 	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_after_ + 1, 2 * final_open_after_ + 1), cv::Point(final_open_after_, final_open_after_));
-	cv::morphologyEx(final_mask, final_mask, 2, element);
+	cv::morphologyEx(final_mask, final_mask, cv::MORPH_OPEN, element);
 
 	// fazendo dilatação na imagem acima
 	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_dilate_+ 1, 2 * final_dilate_ + 1), cv::Point(final_dilate_, final_dilate_));
@@ -725,15 +835,15 @@ cv::Mat RobotinoVision::getFinalMask(cv::Mat &pucks_mask, cv::Mat &color_mask)
 
 	// removendo particulas pequenas
 	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_before_ + 1, 2 * final_open_before_ + 1), cv::Point(final_open_before_, final_open_before_));
-	cv::morphologyEx(final_mask, final_mask, 2, element);
+	cv::morphologyEx(final_mask, final_mask, cv::MORPH_OPEN, element);
 	
 	// fechando buracos
 	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_close_ + 1, 2 * final_close_ + 1), cv::Point(final_close_, final_close_));
-	morphologyEx(final_mask, final_mask, 3, element);
+	morphologyEx(final_mask, final_mask, cv::MORPH_CLOSE, element);
 
 	// removendo particulas pequenas
 	element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_open_after_ + 1, 2 * final_open_after_ + 1), cv::Point(final_open_after_, final_open_after_));
-	cv::morphologyEx(final_mask, final_mask, 2, element);
+	cv::morphologyEx(final_mask, final_mask, cv::MORPH_OPEN, element);
 
 	// fazendo dilatação na imagem acima
 	element = getStructuringElement(cv::MORPH_RECT, cv::Size(2 * final_dilate_+ 1, 2 * final_dilate_ + 1), cv::Point(final_dilate_, final_dilate_));
@@ -760,7 +870,7 @@ cv::Mat RobotinoVision::getPuckMarkers(cv::Mat &insulating_tape_area, cv::Mat &p
 	
 	// filtro de partícula pequenas
 	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(2 * markers_open_ + 1, 2 * markers_open_ + 1), cv::Point(markers_open_, markers_open_));
-	cv::morphologyEx(puck_markers, puck_markers, 2, element);
+	cv::morphologyEx(puck_markers, puck_markers, cv::MORPH_OPEN, element);
 
 	element.release();
 	
@@ -906,14 +1016,14 @@ std::vector<cv::Point2f> RobotinoVision::getContours(cv::Mat &input)
 	{
 		contours_window_name_ = contours_window_name;
 		without_markers_window_name_ = Colors::toString(color_) + " " + PUCK_WITHOUT_MARKERS_WINDOW;
-		setImagesWindows();
+		//setImagesWindows();
 	}
 	cv::imshow(contours_window_name_.c_str(), drawing);
 
 	int numberOfObjects = mass_centers.size();
 	if (numberOfObjects > MAX_NUMBER_OF_PUCKS) 
 	{
-		ROS_ERROR("You must recalibrate the %s color parameters, there are too much noise!!!", Colors::toString(color_).c_str());
+		ROS_DEBUG("You must recalibrate the %s color parameters, there are too much noise!!!", Colors::toString(color_).c_str());
 	}
 	return mass_centers;
 }
@@ -1016,6 +1126,7 @@ void RobotinoVision::setImagesWindows()
 	{
 		return;
 	}
+	cv::namedWindow(POST_MASK_WINDOW);
 	cv::namedWindow(ALL_MARKERS_WINDOW);
 	cv::namedWindow(PUCKS_MASK_WINDOW);
 	cv::namedWindow(COLOR_MASK_WINDOW);

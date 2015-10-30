@@ -25,7 +25,7 @@
 #include "robotino_vision/GetObjectsList.h"
 #include "robotino_vision/FindObjects.h"
 
-#define READING_DEADLINE 5 // seconds
+#define READING_DEADLINE 2 // seconds
 	
 class ReadOrderServer : public Server
 {

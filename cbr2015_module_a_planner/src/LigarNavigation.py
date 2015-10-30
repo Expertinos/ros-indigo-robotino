@@ -13,7 +13,7 @@ import actionlib
 from actionlib import SimpleActionClient
 from geometry_msgs.msg import Twist
 
-def atualizaCmdVel(vel):
+'''def atualizaCmdVel(vel):
 	global vel_x
 	global vel_y
 	global ang_x
@@ -22,11 +22,14 @@ def atualizaCmdVel(vel):
 	vel_x = vel.linear.x
 	vel_y = vel.linear.y
 	ang_x = vel.angular.x
-	ang_y = vel.angular.y
+	ang_y = vel.angular.y'''
 
 
 def ligarNavigation(area, seq, nome):
 	#send_goal
+	#aux = 0
+	
+	#while(client.get_result() != 3 and aux != 3):
 	client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
         # Waits until the action server has started up and started
@@ -80,9 +83,13 @@ def ligarNavigation(area, seq, nome):
         # Waits for the server to finish performing the action.
         client.wait_for_result()
 
+	#resultado = client.get_result()
+	#rospy.logwarn("status do navigation"+str(resultado.status))
+	#aux += 1
+	
 	rospy.logwarn("Cheguei no pose "+ str(area[0]) +" "+ str(area[1]) +"Area = "+nome)
 
-	if nome == "Pedidos":
+	'''if nome == "Pedidos":
 		rospy.logwarn("Vou alinhar a direita")
 		client = actionlib.SimpleActionClient('align', AlignAction)
 		client.wait_for_server()
@@ -127,9 +134,7 @@ def ligarNavigation(area, seq, nome):
 		# Waits for the server to finish performing the action.
 		client.wait_for_result()
 
-	
-
-	'''if client.getState() == actionlib.SimpleClientGoalState.SUCCEEDED:
+	if client.getState() == actionlib.SimpleClientGoalState.SUCCEEDED:
 		ROS_INFO("Cheguei no pose "+ str(area[0]) + str(area[1]));
 	else:
 		ROS_INFO("BUGOU!!!!");'''
