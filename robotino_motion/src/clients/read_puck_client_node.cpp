@@ -17,10 +17,12 @@ int main (int argc, char **argv)
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
 	robotino_motion::ReadPuckGoal goal;
-	goal.valid_colors.push_back(1); // YELLOW
-	goal.valid_colors.push_back(2); // GREEN
-	goal.valid_colors.push_back(3); // READ
-	goal.verify_markers = false;
+	goal.valid_colors.push_back(2); // BLUE
+	goal.valid_colors.push_back(4); // RED
+	goal.verify_markers = true;
+	goal.valid_number_of_markers.push_back(1); // 1 marker
+	goal.valid_number_of_markers.push_back(2); // 3 markers
+	goal.valid_number_of_markers.push_back(3); // 5 markers
 	ac.sendGoal(goal);
 
 	//wait for the action to return

@@ -13,15 +13,24 @@
 
 #include <vector>
 
+#include <actionlib/client/simple_action_client.h>
+
 #include "Server.h"
 #include "ReadPuckStates.h"
 #include "Colors.h"
 
 #include "robotino_motion/ReadPuckAction.h"
+#include "robotino_motion/AlignAction.h"
 #include "robotino_vision/FindObjects.h"
 
-#define READING_DEADLINE 5 //seconds
+#define READING_DEADLINE 2.5 //seconds
 	
+struct Puck {
+	Color color;
+	int number_of_markers;
+	int counter;
+};
+
 class ReadPuckServer : public Server
 {
 
@@ -45,6 +54,7 @@ private:
 	void readParameters();
 
 	/** ReadPuck Action related Variables and Functions */ 	
+	actionlib::SimpleActionClient<robotino_motion::AlignAction> align_client_;
 	actionlib::SimpleActionServer<robotino_motion::ReadPuckAction> server_;
 	robotino_motion::ReadPuckFeedback feedback_;
 	robotino_motion::ReadPuckResult result_;
@@ -52,6 +62,8 @@ private:
 	void executeCallback(const robotino_motion::ReadPuckGoalConstPtr& goal);
 	bool validateNewGoal(const robotino_motion::ReadPuckGoalConstPtr& goal);
 	void publishFeedback();
+
+	void updatePucks(Puck puck);
 
 	/** Movement related Variables and Functions */
 	ReadPuckState state_;
@@ -62,11 +74,8 @@ private:
 	/** Image Processing Variable and Functions */
 	std::vector<Color> valid_colors_;
 	bool verify_markers_;
-	int final_color_index_;
-	std::vector<Color> colors_;
-	std::vector<int> number_of_markers_;
-	std::vector<int> counters_;
-
+	std::vector<int> valid_number_of_markers_;
+	std::vector<Puck> pucks_;
 };
 
 #endif /* READ_PUCK_SERVER_H_ */

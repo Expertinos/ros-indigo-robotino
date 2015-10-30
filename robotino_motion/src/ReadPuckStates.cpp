@@ -27,6 +27,9 @@ std::string read_puck_states::ReadPuckStates::toString(read_puck_states::ReadPuc
 		case HEADING_TOWARD_PUCK:
 			state_name = "Heading toward puck";
 			break;
+		case HEADING_BACKWARD_PUCK:
+			state_name = "Heading backward puck";
+			break;
 		case GOING_BACK_TO_ORIGIN:
 			state_name = "Going back to origin";
 			break;
