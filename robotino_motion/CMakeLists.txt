@@ -247,3 +247,18 @@ add_dependencies(store_client_node
 	robotino_motion_gen_cpp
 	${robotino_motion_EXPORTED_TARGETS}
 	)
+
+add_executable(simple_navigation_goals 
+	src/clients/simple_navigation_goals.cpp
+	src/Colors.cpp
+	)
+
+target_link_libraries(simple_navigation_goals
+	${catkin_LIBRARIES}
+	)
+
+add_dependencies(simple_navigation_goals
+	robotino_motion_gen_cpp
+	robotino_vision_gen_cpp
+	${robotino_motion_EXPORTED_TARGETS}
+	)
