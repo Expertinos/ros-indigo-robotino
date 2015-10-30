@@ -1,14 +1,14 @@
 orange/initial_range_value: 241
 orange/range_width: 36
 
-red/initial_range_value: 214
-red/range_width: 54
+red/initial_range_value: 185 #223
+red/range_width: 97 #61
 
-green/initial_range_value: 103
-green/range_width: 39
+green/initial_range_value: 131 #103
+green/range_width: 15 #39
 
 blue/initial_range_value: 150
 blue/range_width: 9
 
-yellow/initial_range_value: 22
-yellow/range_width: 28
+yellow/initial_range_value: 245 #22
+yellow/range_width: 36 #28
