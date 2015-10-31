@@ -43,8 +43,10 @@ class EstouNaAreaScan(smach.State):
 		rospy.logwarn('Terminou: %s', terminou)
 		return 'finaliza_scan'
 	elif userdata.area[0] == Areas.CASA[0]:
+		'''
 		while new_order == False:
 			rospy.logwarn("Esperando comando para iniciar")
+		'''
 		userdata.prox_area = areas.pop(0)
 		return 'comeca_scan'
 	rospy.logwarn('Vou verificar Objeto')
@@ -62,7 +64,6 @@ class VerificandoObjeto(smach.State):
 	global objeto
 	global i
 	global terminou
-	rospy.logwarn('Objeto Desatualizado: %s', userdata.area)
 	
 	if i == 0:
 		objeto = Objetos.VERMELHO_UM
@@ -82,6 +83,7 @@ class VerificandoObjeto(smach.State):
 		objeto = Objetos.VERMELHO_TRES
 	i += 1
 	atualizaArea(userdata.area,objeto)
+	rospy.logwarn('Area Desatualizada: %s, Objeto aqui: %s', userdata.area, objeto)
 
 	#verificandoArea(userdata.area)
 	if areas[0] == Areas.CASA:

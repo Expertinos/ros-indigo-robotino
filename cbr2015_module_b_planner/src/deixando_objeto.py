@@ -8,7 +8,7 @@ import actionlib
 from actionlib import SimpleActionClient
 
 def deixandoObjeto(area, objeto):
-	
+	'''
 	client = actionlib.SimpleActionClient('store_puck', StorePuckAction)
         client.wait_for_server()
 
@@ -18,7 +18,7 @@ def deixandoObjeto(area, objeto):
         client.send_goal(goal)
 
         client.wait_for_result()
-	
+	'''
 	rospy.logwarn("Entregando Produto")
 	
 	atualizaArea(area, objeto)
