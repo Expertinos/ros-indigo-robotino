@@ -1,8 +1,16 @@
 from enum import *
 import rospy
 from robotino_vision.srv import *
+from robotino_motion.msg import StorePuckAction
+from robotino_motion.msg import StorePuckGoal
 
-def lendoPostes():
+def lendoPostes(set_postes, seq_postes):
+	#LENDO POSTES SETADO :/
+	if set_postes < 4:
+		return seq_postes[set_postes]
+	else:
+		return Areas.CASA
+	'''
 	get_lamp_posts = rospy.ServiceProxy('get_lamp_posts', GetLampPosts)
 	resp = get_lamp_posts()
 	if resp.success:
@@ -27,3 +35,30 @@ def lendoPostes():
 				return Areas.B4
 	else:
 		return Areas.CASA
+	'''
+
+def alinhaParaLeitura():
+	'''
+	client = actionlib.SimpleActionClient('store_puck', StorePuckAction)
+        client.wait_for_server()
+
+	goal = StorePuckGoal()
+	goal.mode = 1
+	goal.6
+        client.send_goal(goal)
+        client.wait_for_result()
+	'''
+	rospy.logwarn("Alinhei para leitura")
+
+def alinhaVoltandoCasa():
+	'''
+	client = actionlib.SimpleActionClient('store_puck', StorePuckAction)
+        client.wait_for_server()
+
+	goal = StorePuckGoal()
+	goal.mode = 1
+	goal.5
+        client.send_goal(goal)
+        client.wait_for_result()
+	'''
+	rospy.logwarn("Alinhei de volta para casa")

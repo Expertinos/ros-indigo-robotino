@@ -124,14 +124,14 @@ void ReadPuckServer::controlLoop()
 				ROS_WARN("There is no %s object", Colors::toString(color).c_str());
 				continue;
 			}
-			std::vector<int> number_of_markers;		
+			std::vector<int> number_of_markers;	
 			for (int j = 0; j < srv.response.number_of_markers.size(); j++)
 			{
 				number_of_markers.push_back(srv.response.number_of_markers[i]);
 			}
 			if (!number_of_markers.empty())
 			{
-				for (int j = 0; j < number_of_markers.size(); i++)
+				for (int j = 0; j < number_of_markers.size(); j++)
 				{
 					Puck puck;
 					puck.color = color;
@@ -146,7 +146,7 @@ void ReadPuckServer::controlLoop()
 		if (state_ == read_puck_states::HEADING_TOWARD_PUCK)
 		{
 			reading_start_ = ros::Time::now();
-			state_ == read_puck_states::HEADING_BACKWARD_PUCK;
+			state_ = read_puck_states::HEADING_BACKWARD_PUCK;
 		}
 		else 
 		{

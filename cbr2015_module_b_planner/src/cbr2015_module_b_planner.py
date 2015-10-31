@@ -76,7 +76,7 @@ def main():
 		smach.StateMachine.add('ORG', sm_org,
 				transitions={'fim':'FIM'})	
 		smach.StateMachine.add('FIM',Fim(), 
-				transitions={'fim':'INICIO'})
+				transitions={'fim':'end'})
 
 	# Execute SMACH plan
 	outcome = sm.execute()
