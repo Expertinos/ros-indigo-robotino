@@ -55,9 +55,7 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-Color color_;
-robotino_vision::FindObjects srv;
-ros::ServiceClient find_objects_cli_;
+int aux = 0;
 
 void spinThread(){
   ros::spin();
@@ -86,6 +84,14 @@ int main(int argc, char** argv){
 
   if(queue_.empty())
   {
+
+
+	  goal.target_pose.header.seq = 2;
+	  goal.target_pose.pose.position.x = -0.551;
+	  goal.target_pose.pose.position.y = 1.533;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(1.643);
+	  queue_.push(goal);
+
 	  goal.target_pose.header.seq = 0;
 	  goal.target_pose.pose.position.x = -2.009;
 	  goal.target_pose.pose.position.y = 1.114;
@@ -98,11 +104,6 @@ int main(int argc, char** argv){
 	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(1.583);
 	  queue_.push(goal);
 
-	  goal.target_pose.header.seq = 2;
-	  goal.target_pose.pose.position.x = -0.551;
-	  goal.target_pose.pose.position.y = 1.533;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(1.643);
-	  queue_.push(goal);
 
 	  goal.target_pose.header.seq = 3;
 	  goal.target_pose.pose.position.x = 0.110;
@@ -128,16 +129,10 @@ int main(int argc, char** argv){
 	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-1.498);
 	  queue_.push(goal);
 
-	  goal.target_pose.header.seq = 7;
-	  goal.target_pose.pose.position.x = -0.567;
-	  goal.target_pose.pose.position.y = 1.047;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-1.513);
-	  queue_.push(goal);
-
-	  goal.target_pose.header.seq = 8;
-	  goal.target_pose.pose.position.x = -1.276;
-	  goal.target_pose.pose.position.y = 0.829;
-	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-1.495);
+	  goal.target_pose.header.seq = 7; //buffer
+	  goal.target_pose.pose.position.x = -0.396;//-0.567;
+	  goal.target_pose.pose.position.y = 0.761;//1.047;
+	  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-1.514);//(-1.513);
 	  queue_.push(goal);
 
 	  goal.target_pose.header.seq = 9;
@@ -174,20 +169,32 @@ int main(int argc, char** argv){
 	  ac_gp.sendGoal(goal_gp);
 	  ac_gp.waitForResult();
 	  if(ac_gp.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-		ROS_INFO("Grabei!!!  :)");
+		{
+		  ROS_INFO("Grabei!!!  :)");
+		  aux = 1;
+		}
+
 	  else
 		ROS_INFO("Cor errada!!!!  :(");
 
-
-	  srv.request.color = Colors::toCode(color_);
-	  if (find_objects_cli_.call(srv))
+/*	  ac.sendGoal(goal);
+	  ac.waitForResult();
+	  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+		ROS_INFO("Cheguei no pose desejado");
+	  else
+		ROS_INFO("BUGOU!!!!");
+*/
+	  if (aux == 1)
 	  {
-		  ac.sendGoal(goal);
-		  ac.waitForResult();
-		  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-			ROS_INFO("Cheguei no pose desejado");
-		  else
-			ROS_INFO("BUGOU!!!!");
+		  aux = 0;
+
+		  goal.target_pose.header.frame_id = "map";//"base_link";
+		  goal.target_pose.header.stamp = ros::Time::now();
+		  goal.target_pose.header.seq = 8;
+		  goal.target_pose.pose.position.x = -1.276;
+		  goal.target_pose.pose.position.y = 0.829;
+		  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(-1.495);
+		  queue_.push(goal);
 
 		  goal_sp.mode = 0;
 		  ac_sp.sendGoal(goal_sp);

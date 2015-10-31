@@ -150,18 +150,35 @@ void StorePuckServer::controlLoop()
 				break;
 			case store_store_numbers::VOLTAR_PRA_CASA:
 				{
+					while(laser_front_ < 0.32)
+					{
+						setVelocity(-0.15, 0, 0);
+						publishVelocity();
+					}
+					while(laser_left_ < 0.40)
+					{
+						setVelocity(0, -0.1, 0);
+						publishVelocity();
+					}
+
+					flag_aux_ = true;
+				}
+				break;
+			case store_store_numbers::LER_POSTE:
+				{
+					while(laser_front_ > 0.075)
+					{
+						setVelocity(0.12, 0, 0);
+						publishVelocity();
+					}
+
 					frontal_alignment.alignment_mode = 8; // FRONT_LASER alignment mode
 					frontal_alignment.distance_mode = 1; // NORMAL distance mode
 					align_client_.sendGoal(frontal_alignment);
 					state_ = store_puck_states::ALIGNING_FRONTAL;
 					align_client_.waitForResult();
 
-					while(laser_front_ > 0.25)
-					{
-						setVelocity(0.15, 0, 0);
-						publishVelocity();
-					}
-					while(laser_left_ > 0.32)
+					while(laser_front_ > 0.29)
 					{
 						setVelocity(0, 0.1, 0);
 						publishVelocity();
