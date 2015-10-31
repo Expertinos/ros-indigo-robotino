@@ -156,6 +156,7 @@ class PegandoObjeto(smach.State):
 	global objeto
 	rospy.logwarn('Peguei e vou para a proxima area')
 	objeto = userdata.area_atual[4]
+	rospy.logwarn('Objeto: %s', objeto)
 	pegandoObjeto(userdata.area_atual, objeto[1])
 	rospy.logwarn("%s", userdata.area_atual)
 	if userdata.area_atual[0] == Areas.BUFFER[0]:
@@ -308,7 +309,7 @@ def ondeIr():
 	global parar_arrumar
 	for  i in range (0, 6):
 		i += 1
-		if num_prateleiras_arrumadas >= 4:
+		if num_prateleiras_arrumadas == 7:
 			parar_arrumar = True
 			return
 		else:
@@ -321,7 +322,7 @@ def ondeIr():
 			if areaOrganizada(prox_area, Objetos.NONE):
 				num_prateleiras_arrumadas += 1
 				ligandoLeds(sinalizaLeitura(prox_area), False)
-				ligandoLeds2(cores, True, 10)
+				ligandoLeds2(cores, True, 5)
 				rospy.logwarn('Area ja organizada, bora pra Proxima')		
 				prox_area = lendoPostes()
 			else:
