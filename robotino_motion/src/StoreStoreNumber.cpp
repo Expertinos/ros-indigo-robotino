@@ -30,6 +30,9 @@ std::string store_store_numbers::StoreStoreNumbers::toString(store_store_numbers
 		case VOLTAR_PRA_CASA:
 			mode_name = "VOLTAR_PRA_CASA";
 			break;
+		case LER_POSTE:
+			mode_name = "LER_POSTE";
+			break;
 		default: 
 			mode_name = "Nonexistent store number";
 	}
@@ -55,6 +58,9 @@ store_store_numbers::StoreStoreNumberEnum store_store_numbers::StoreStoreNumbers
 			break;
 		case 5:
 			mode = store_store_numbers::VOLTAR_PRA_CASA;
+			break;
+		case 6:
+			mode = store_store_numbers::LER_POSTE;
 			break;
 		default:
 			mode = store_store_numbers::NONE;

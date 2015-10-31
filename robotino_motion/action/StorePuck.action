@@ -20,6 +20,7 @@ int8 store_number
 # 1 for MIDDLE area
 # 2 for area FAR_AWAY the wall 
 # 5 for 'VOLTAR_PRA_CASA'
+# 6 for 'LER_POSTE'
 
 ---
 
